@@ -4,7 +4,7 @@ A [large-language model](https://en.wikipedia.org/wiki/Large_language_model) is 
 
 While they are most famous for their ability to converse with humans as chatbots, LLMs can perform a wide range of language processing tasks, including text classification, summarization and translation.
 
-Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs can be prompted with a broad description of its goal and a few examples of rules it should follow. The LLMs will then generate responses that are informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large and diverse datasets that are difficult for humans to process on their own. This advancement is recognized as a landmark achievement in the development of artificial intelligence.
+Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs can be prompted with a broad description of their goals and a few examples of rules they should follow. The LLMs will then generate responses informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large and diverse datasets that are difficult for humans to process on their own. This advancement is recognized as a landmark achievement in the development of artificial intelligence.
 
 [![llm history](_static/llm.png)](https://www.wired.com/story/eight-google-employees-invented-modern-ai-transformers-paper/)
 
