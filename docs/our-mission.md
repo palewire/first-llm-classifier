@@ -8,7 +8,7 @@ A common goal in this work is to classify text into categories. For example, you
 
 Traditional techniques for classifying text, like keyword searches or regular expressions, can be brittle and error-prone. Machine learning models can be more flexible, but they require large amounts of human training, a high level of computer programming expertise and often yield unimpressive results.
 
-Large-language models offer a better deal. We will demonstrate how you can use them to get better results with less hassle.
+Large-language models offer a better deal. We will demonstrate how you can use them to get superior results with less hassle.
 
 ## Our example case
 
