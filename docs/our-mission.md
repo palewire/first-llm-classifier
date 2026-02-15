@@ -6,7 +6,7 @@ Understanding and analyzing this data is critical to the job but can be time-con
 
 A common goal in this work is to classify text into categories. For example, you might want to sort a collection of emails as “spam” and “not spam” or identify corporate filings that suggest a company is about to go bankrupt.
 
-Traditional techniques for classifying text, like keyword searches or regular expressions, can be brittle and error-prone. Machine learning models can be more flexible, but they require large amounts of human training, a high level of computer programming expertise and often yield unimpressive results.
+Traditional techniques for classifying text — like keyword searches and regular expressions — can be brittle and error-prone. Machine-learning models can be more flexible, though they require large amounts of human training, a high level of computer programming expertise and often yield unimpressive results.
 
 Large-language models offer a better deal. We will demonstrate how you can use them to get superior results with less hassle.
 
