@@ -10,10 +10,10 @@ Converting the training set you held to the side into a few-shot prompt is a sim
 def get_fewshots(training_input, training_output, batch_size=10):
     """Convert the training input and output from sklearn's train_test_split into a few-shot prompt"""
     # Batch up the training input into groups of `batch_size`
-    input_batches = get_batch_list(list(training_input.payee), n=batch_size)
+    input_batches = list(batched(training_input.payee, batch_size))
 
     # Do the same for the output
-    output_batches = get_batch_list(list(training_output), n=batch_size)
+    output_batches = list(batched(training_output, batch_size))
 
     # Create a list to hold the formatted few-shot examples
     fewshot_list = []
@@ -28,7 +28,7 @@ def get_fewshots(training_input, training_output, batch_size=10):
                     "content": "\n".join(input_list),
                 },
                 # Create the expected "assistant" response as the JSON formatted output we expect
-                {"role": "assistant", "content": json.dumps(output_batches[i])},
+                {"role": "assistant", "content": json.dumps(list(output_batches[i]))},
             ]
         )
 

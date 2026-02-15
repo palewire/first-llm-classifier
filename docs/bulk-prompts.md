@@ -351,21 +351,12 @@ classify_payees(sample_list)
 
 That's nice for a sample. But how do you loop through the entire dataset and code them.
 
-One way to start is to write a function that will split up a list into batches of a certain size.
 
+Let's add a couple libraries that will let us avoid hammering Groq and keep tabs on our progress.
+
+{emphasize-lines="1,5"}
 ```python
-def get_batch_list(li, n=10):
-    """Split the provided list into batches of size `n`."""
-    batch_list = []
-    for i in range(0, len(li), n):
-        batch_list.append(li[i : i + n])
-    return batch_list
-```
-
-Before we loop through our payees, let's add a couple libraries that will let us avoid hammering Groq and keep tabs on our progress.
-
-{emphasize-lines="1,4"}
-```python
+from itertools import batched
 import time
 import json
 from rich import print
@@ -382,13 +373,10 @@ def classify_batches(name_list, batch_size=10, wait=2):
     # Create a place to store the results
     all_results = {}
 
-    # Batch up the list
-    batch_list = get_batch_list(name_list, n=batch_size)
-
     # Loop through the list in batches
-    for batch in track(batch_list):
+    for batch in track(batched(name_list, batch_size)):
         # Classify it with the LLM
-        batch_results = classify_payees(batch)
+        batch_results = classify_payees(list(batch))
 
         # Add what we get back to the results
         all_results.update(batch_results)
@@ -420,13 +408,10 @@ def classify_batches(name_list, batch_size=10, wait=2):
     # Store the results
     all_results = {}
 
-    # Batch up the list
-    batch_list = get_batch_list(name_list, n=batch_size)
-
     # Loop through the list in batches
-    for batch in track(batch_list):
+    for batch in track(batched(name_list, batch_size)):
         # Classify it
-        batch_results = classify_payees(batch)
+        batch_results = classify_payees(list(batch))
 
         # Add it to the results
         all_results.update(batch_results)
