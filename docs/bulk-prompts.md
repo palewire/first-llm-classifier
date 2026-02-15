@@ -13,7 +13,6 @@ To try that, we start by adding the built-in `json` library to our imports.
 import json
 from rich import print
 from groq import Groq
-from retry import retry
 ```
 
 Next, we make a series of changes to our function to adapt it to work with a batch of inputs. Get ready. It's a lot.
@@ -31,7 +30,6 @@ Next, we make a series of changes to our function to adapt it to work with a bat
 
 {emphasize-lines="2,17-27,36-43,46,53-54,62-66"}
 ```python
-@retry(ValueError, tries=2, delay=2)
 def classify_teams(name_list):
     prompt = """
 You are an AI model trained to classify text.
@@ -119,7 +117,6 @@ Though, as you batches get bigger, one common problem is that the number of outp
 
 {emphasize-lines="66-69"}
 ```python
-@retry(ValueError, tries=2, delay=2)
 def classify_teams(name_list):
     prompt = """
 You are an AI model trained to classify text.
@@ -201,7 +198,7 @@ We'll tackle that by pulling in our example dataset using `pandas`, a popular da
 First, we need to install it. Back to our installation cell.
 
 ```text
-%pip install groq rich ipywidgets retry pandas
+%pip install groq rich ipywidgets pandas
 ```
 
 Then import it.
@@ -211,7 +208,6 @@ Then import it.
 import json
 from rich import print
 from groq import Groq
-from retry import retry
 import pandas as pd
 ```
 
@@ -247,7 +243,6 @@ Now let's adapt what we have to fit. Instead of asking for a sports league back,
 
 {emphasize-lines="2-26,33-48,61-66"}
 ```python
-@retry(ValueError, tries=2, delay=2)
 def classify_payees(name_list):
     prompt = """You are an AI model trained to categorize businesses based on their names.
 
@@ -376,7 +371,6 @@ import json
 from rich import print
 from rich.progress import track
 from groq import Groq
-from retry import retry
 import pandas as pd
 ```
 

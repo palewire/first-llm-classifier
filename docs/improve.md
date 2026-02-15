@@ -65,7 +65,6 @@ Now, we can add those examples to our prompt's `messages`.
 
 {emphasize-lines="29-37"}
 ```python
-@retry(ValueError, tries=2, delay=2)
 def classify_payees(name_list):
     prompt = """You are an AI model trained to categorize businesses based on their names.
 

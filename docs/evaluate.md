@@ -35,7 +35,7 @@ We'll install the Python packages `scikit-learn`, `matplotlib`, and `seaborn`. P
 Return to the Jupyter notebook and install the packages alongside our other dependencies.
 
 ```
-%pip install groq rich ipywidgets retry pandas scikit-learn matplotlib seaborn
+%pip install groq rich ipywidgets pandas scikit-learn matplotlib seaborn
 ```
 
 Add the `test_train_split` function from `scikit-learn` to the import statement.
@@ -45,7 +45,6 @@ Add the `test_train_split` function from `scikit-learn` to the import statement.
 import json
 from rich import print
 from groq import Groq
-from retry import retry
 import pandas as pd
 from sklearn.model_selection import train_test_split
 ```
@@ -82,7 +81,6 @@ Next, we import the `classification_report` and `confusion_matrix` functions fro
 import json
 from rich import print
 from groq import Groq
-from retry import retry
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -162,7 +160,6 @@ This will require importing a mess of `sklearn` functions and classes. We'll use
 import json
 from rich import print
 from groq import Groq
-from retry import retry
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt

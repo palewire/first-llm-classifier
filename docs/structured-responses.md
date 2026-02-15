@@ -407,31 +407,3 @@ If the team's league is not on the list, you should label them as "Other".
 
     return answer
 ```
-
-You can also ask the function to automatically retry if it doesn't get a valid response. This will give the LLM a second chance to get it right in cases where it gets too creative.
-
-To do that, we'll return installation step and in the `retry` package.
-
-```text
-%pip install groq rich ipywidgets retry
-```
-
-Now import the `retry` package.
-
-{emphasize-lines="3"}
-```python
-from rich import print
-from groq import Groq
-from retry import retry
-```
-
-And add the `retry` decorator to the function that will catch the `ValueError` exception and try again, as many times as you specify.
-
-{emphasize-lines="1"}
-```python
-@retry(ValueError, tries=2, delay=2)
-def classify_team(name):
-    prompt = """
-You are an AI model trained to classify text.
-...
-```
