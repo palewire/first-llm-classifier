@@ -19,6 +19,7 @@ dependencies = [
     "altair",
     "jupyterlab",
     "geopandas",
+    "huggingface_hub",
     # Dev stuff
     "pre-commit",
 ]
