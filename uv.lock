@@ -166,6 +166,19 @@ css = [
 ]
 
 [[package]]
+name = "bln"
+version = "2.3.14"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "retry2" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b9/c7/bd9c5492c514bdd86b978e00a4f8d26379149cd66b5870c0982b562d7da0/bln-2.3.14.tar.gz", hash = "sha256:57b9250d7d8e64b721a249c6c5c4d95be80e93e76d3fb12e47aca6155594eed1", size = 2294323 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/75/04/cc0411c599e07c8f10a50d3b25d450dd4618d10eb2e6faa61bd41ce773db/bln-2.3.14-py3-none-any.whl", hash = "sha256:09c99d192b7022397f32dcf69f5f22cb36fc4f423ab26706ce55e4c1b5b4e943", size = 14008 },
+]
+
+[[package]]
 name = "certifi"
 version = "2026.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -343,6 +356,7 @@ version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "altair" },
+    { name = "bln" },
     { name = "geopandas" },
     { name = "jupyterlab" },
     { name = "myst-parser" },
@@ -356,6 +370,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "altair" },
+    { name = "bln" },
     { name = "geopandas" },
     { name = "jupyterlab" },
     { name = "myst-parser" },
@@ -1328,6 +1343,17 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738 },
+]
+
+[[package]]
+name = "retry2"
+version = "0.9.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "decorator" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/97/49/1cae6d9b932378cc75f902fa70648945b7ea7190cb0d09ff83b47de3e60a/retry2-0.9.5-py2.py3-none-any.whl", hash = "sha256:f7fee13b1e15d0611c462910a6aa72a8919823988dd0412152bc3719c89a4e55", size = 6013 },
 ]
 
 [[package]]
