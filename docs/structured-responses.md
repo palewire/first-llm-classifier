@@ -45,7 +45,7 @@ response = client.chat.completions.create(
         },
         {
             "role": "user",
-            "content": "Minnesota Twins",
+            "content": "Chicago Cubs",
         }
     ],
     model="llama-3.3-70b-versatile",
@@ -76,7 +76,7 @@ response = client.chat.completions.create(
         },
         {
             "role": "user",
-            "content": "Minnesota Vikings",
+            "content": "Chicago Bears",
         }
     ],
     model="llama-3.3-70b-versatile",
@@ -127,7 +127,7 @@ You will reply with the sports league in which they compete.
 A list of teams.
 
 ```python
-team_list = ["Minnesota Twins", "Minnesota Vikings", "Minnesota Timberwolves"]
+team_list = ["Chicago Cubs", "Chicago Bears", "Chicago Bulls"]
 ```
 
 Now, loop through the list and ask the LLM to code them one by one.
@@ -139,9 +139,9 @@ for team in team_list:
 ```
 
 ```python
-['Minnesota Twins', 'Major League Baseball (MLB)']
-['Minnesota Vikings', 'National Football League (NFL)']
-['Minnesota Timberwolves', 'National Basketball Association (NBA)']
+['Chicago Cubs', 'Major League Baseball (MLB)']
+['Chicago Bears', 'National Football League (NFL)']
+['Chicago Bulls', 'National Basketball Association (NBA)']
 ```
 
 Due its probabilistic nature, the LLM can sometimes return slight variations on the same answer. You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
@@ -192,14 +192,14 @@ Your responses must come from the following list:
 Now, ask it for a team that's not in one of those leagues. You should get an error.
 
 ```python
-classify_team("Minnesota Wild")
+classify_team("Chicago Blackhawks")
 ```
 
 ```python
 ---------------------------------------------------------------------------
 ValueError                                Traceback (most recent call last)
 Cell In[47], line 1
-----> 1 classify_team("Minnesota Wild")
+----> 1 classify_team("Chicago Blackhawks")
 
 Cell In[45], line 36, in classify_team(name)
      30 acceptable_answers = [
@@ -213,7 +213,7 @@ Cell In[45], line 36, in classify_team(name)
 
 ValueError: National Hockey League (NHL)
 
-However, since NHL is not in the provided list, I must inform you that the Minnesota Wild does not belong to any of the leagues mentioned (MLB, NFL, NBA). not in list of acceptable answers
+However, since NHL is not in the provided list, I must inform you that the Chicago Blackhawks does not belong to any of the leagues mentioned (MLB, NFL, NBA). not in list of acceptable answers
 ```
 
 For cases when there isn't an accurate answer in your validation list, you can choose to allow an "other" category.
@@ -264,10 +264,10 @@ If the team's league is not on the list, you should label them as "Other".
     return answer
 ```
 
-Now try the Minnesota Wild again.
+Now try the Chicago Blackhawks again.
 
 ```python
-classify_team("Minnesota Wild")
+classify_team("Chicago Blackhawks")
 ```
 
 And you'll get the answer you expect.

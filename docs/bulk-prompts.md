@@ -107,9 +107,9 @@ And you'll see that it works with only a single API call. The same technique wil
 
 ```python
 {
-    "Minnesota Twins": "Major League Baseball (MLB)",
-    "Minnesota Vikings": "National Football League (NFL)",
-    "Minnesota Timberwolves": "National Basketball Association (NBA)",
+    "Chicago Cubs": "Major League Baseball (MLB)",
+    "Chicago Bears": "National Football League (NFL)",
+    "Chicago Bulls": "National Basketball Association (NBA)",
 }
 ```
 
