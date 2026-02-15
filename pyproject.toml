@@ -6,23 +6,24 @@ build-backend = "setuptools.build_meta"
 name = "first-llm-classifier"
 description = "Learn how journalists use large-language models to organize and analyze massive datasets"
 version = "1.0.0"
-requires-python = "==3.12.*"
+requires-python = "==3.13.*"
 dependencies = [
-    "pre-commit",
+    # Docs stuff
     "sphinx",
     "sphinx-autobuild",
     "myst-parser",
     "sphinx-palewire-theme",
+    # Tutorial depeendencies
     "pandas",
     "altair",
     "jupyterlab",
     "geopandas",
-]
-
-[project.optional-dependencies]
-mypy = [
-    "mypy",
+    # Dev stuff
+    "pre-commit",
 ]
 
 [tool.setuptools]
 packages = ["docs",]
+
+[tool.ruff]
+exclude = ["_notebooks"]

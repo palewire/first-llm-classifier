@@ -4,7 +4,7 @@ Our reusable prompting function is pretty cool. But requesting answers one by on
 
 One solution is to submit your requests in batches and then ask the LLM to return its responses in bulk.
 
-A common way to do that is to prompt the LLM to return its responses in JSON, a JavaScript data format that is easy to work with in Python. 
+A common way to do that is to prompt the LLM to return its responses in JSON, a JavaScript data format that is easy to work with in Python.
 
 To try that, we start by adding the built-in `json` library to our imports.
 
@@ -77,7 +77,7 @@ You should return the following:
             {
                 "role": "user",
                 "content": "\n".join(name_list),
-            }
+            },
         ],
         model="llama-3.3-70b-versatile",
         temperature=0,
@@ -108,9 +108,11 @@ classify_teams(team_list)
 And you'll see that it works with only a single API call. The same technique will work for a batch of any size.
 
 ```python
-{'Minnesota Twins': 'Major League Baseball (MLB)',
- 'Minnesota Vikings': 'National Football League (NFL)',
- 'Minnesota Timberwolves': 'National Basketball Association (NBA)'}
+{
+    "Minnesota Twins": "Major League Baseball (MLB)",
+    "Minnesota Vikings": "National Football League (NFL)",
+    "Minnesota Timberwolves": "National Basketball Association (NBA)",
+}
 ```
 
 Though, as you batches get bigger, one common problem is that the number of outputs from the LLM can fail to match the number of inputs you provide. This problem may lessen as LLMs improve, but for now it's a good idea to limit to batches to a few dozen inputs and to verify that you're getting the right number back.
@@ -163,7 +165,7 @@ You should return the following:
             {
                 "role": "user",
                 "content": "\n".join(name_list),
-            }
+            },
         ],
         model="llama-3.3-70b-versatile",
         temperature=0,
@@ -185,7 +187,9 @@ You should return the following:
     try:
         assert len(name_list) == len(answer_list)
     except AssertionError:
-        raise ValueError(f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})")
+        raise ValueError(
+            f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})"
+        )
 
     return dict(zip(name_list, answer_list))
 ```
@@ -214,7 +218,9 @@ import pandas as pd
 Now we're ready to load the California expenditures data prepared for the class. It contains the distinct list of all vendors listed as payees in itemized receipts attached to disclosure filings.
 
 ```python
-df = pd.read_csv("https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/Form460ScheduleESubItem.csv")
+df = pd.read_csv(
+    "https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/Form460ScheduleESubItem.csv"
+)
 ```
 
 Have a look at a random sample to get a taste of what's in there.
@@ -292,7 +298,7 @@ Ensure that the number of classifications in your output matches the number of b
             {
                 "role": "user",
                 "content": "\n".join(name_list),
-            }
+            },
         ],
         model="llama-3.3-70b-versatile",
         temperature=0,
@@ -314,7 +320,9 @@ Ensure that the number of classifications in your output matches the number of b
     try:
         assert len(name_list) == len(answer_list)
     except AssertionError:
-        raise ValueError(f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})")
+        raise ValueError(
+            f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})"
+        )
 
     return dict(zip(name_list, answer_list))
 ```
@@ -332,16 +340,18 @@ classify_payees(sample_list)
 ```
 
 ```python
-{'ARCLIGHT CINEMAS': 'Other',
- '99 CENTS ONLY': 'Other',
- 'COMMONWEALTH COMMUNICATIONS': 'Other',
- 'CHILBO MYUNOK': 'Other',
- 'ADAM SCHIFF FOR SENATE': 'Other',
- 'CENTER FOR CREATIVE FUNDING': 'Other',
- 'JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014': 'Other',
- "MULVANEY'S BUILDING & LOAN": 'Other',
- 'ATV VIDEO CENTER': 'Other',
- 'HYATT REGENCY SAN FRANCISCO': 'Hotel'}
+{
+    "ARCLIGHT CINEMAS": "Other",
+    "99 CENTS ONLY": "Other",
+    "COMMONWEALTH COMMUNICATIONS": "Other",
+    "CHILBO MYUNOK": "Other",
+    "ADAM SCHIFF FOR SENATE": "Other",
+    "CENTER FOR CREATIVE FUNDING": "Other",
+    "JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014": "Other",
+    "MULVANEY'S BUILDING & LOAN": "Other",
+    "ATV VIDEO CENTER": "Other",
+    "HYATT REGENCY SAN FRANCISCO": "Hotel",
+}
 ```
 
 That's nice for a sample. But how do you loop through the entire dataset and code them.
@@ -431,10 +441,7 @@ def classify_batches(name_list, batch_size=10, wait=2):
         time.sleep(wait)
 
     # Return the results
-    return pd.DataFrame(
-        all_results.items(),
-        columns=["payee", "category"]
-    )
+    return pd.DataFrame(all_results.items(), columns=["payee", "category"])
 ```
 
 Results can now be stored as a DataFrame.

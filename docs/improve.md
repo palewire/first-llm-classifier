@@ -20,18 +20,17 @@ def get_fewshots(training_input, training_output, batch_size=10):
 
     # Loop through the batches
     for i, input_list in enumerate(input_batches):
-        fewshot_list.extend([
-            # Create a "user" message for the LLM formatted the same was a our prompt with newlines
-            {
-                "role": "user",
-                "content": "\n".join(input_list),
-            },
-            # Create the expected "assistant" response as the JSON formatted output we expect
-            {
-                "role": "assistant",
-                "content": json.dumps(output_batches[i])
-            }
-        ])
+        fewshot_list.extend(
+            [
+                # Create a "user" message for the LLM formatted the same was a our prompt with newlines
+                {
+                    "role": "user",
+                    "content": "\n".join(input_list),
+                },
+                # Create the expected "assistant" response as the JSON formatted output we expect
+                {"role": "assistant", "content": json.dumps(output_batches[i])},
+            ]
+        )
 
     # Return the list of few-shot examples, one for each batch
     return fewshot_list
@@ -50,10 +49,16 @@ fewshot_list[:2]
 ```
 
 ```python
-[{'role': 'user',
-  'content': 'UFW OF AMERICA - AFL-CIO\nRE-ELECT FIONA MA\nELLA DINNING ROOM\nMICHAEL EMERY PHOTOGRAPHY\nLAKELAND  VILLAGE\nTHE IVY RESTAURANT\nMOORLACH FOR SENATE 2016\nBROWN PALACE HOTEL\nAPPLE STORE FARMERS MARKET\nCABLETIME TV'},
- {'role': 'assistant',
-  'content': '["Other", "Other", "Other", "Other", "Other", "Restaurant", "Other", "Hotel", "Other", "Other"]'}]
+[
+    {
+        "role": "user",
+        "content": "UFW OF AMERICA - AFL-CIO\nRE-ELECT FIONA MA\nELLA DINNING ROOM\nMICHAEL EMERY PHOTOGRAPHY\nLAKELAND  VILLAGE\nTHE IVY RESTAURANT\nMOORLACH FOR SENATE 2016\nBROWN PALACE HOTEL\nAPPLE STORE FARMERS MARKET\nCABLETIME TV",
+    },
+    {
+        "role": "assistant",
+        "content": '["Other", "Other", "Other", "Other", "Other", "Restaurant", "Other", "Hotel", "Other", "Other"]',
+    },
+]
 ```
 
 Now, we can add those examples to our prompt's `messages`.
@@ -96,7 +101,7 @@ Ensure that the number of classifications in your output matches the number of b
             {
                 "role": "user",
                 "content": "\n".join(name_list),
-            }
+            },
         ],
         model="llama-3.3-70b-versatile",
         temperature=0,
@@ -118,7 +123,9 @@ Ensure that the number of classifications in your output matches the number of b
     try:
         assert len(name_list) == len(answer_list)
     except:
-        raise ValueError(f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})")
+        raise ValueError(
+            f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})"
+        )
 
     return dict(zip(name_list, answer_list))
 ```
@@ -132,10 +139,12 @@ llm_df = classify_batches(list(test_input.payee))
 And see if your results are any better
 
 ```python
-print(classification_report(
-    test_output,
-    llm_df.category,
-))
+print(
+    classification_report(
+        test_output,
+        llm_df.category,
+    )
+)
 ```
 
 Another common tactic is to examine the misclassifications and tweak your prompt to address any patterns they reveal.
@@ -144,10 +153,7 @@ One simple way to do this is to merge the LLM's predictions with the human-label
 
 ```python
 comparison_df = llm_df.merge(
-    sample_df,
-    on="payee",
-    how="inner",
-    suffixes=["_llm", "_human"]
+    sample_df, on="payee", how="inner", suffixes=["_llm", "_human"]
 )
 ```
 

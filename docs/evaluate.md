@@ -25,7 +25,9 @@ You can open the file in a spreadsheet program like Excel or Google Sheets. For 
 To speed the class along, we've already prepared a sample for you in [the class repository](https://github.com/palewire/first-llm-classifier). Our next step is to read it back into a DataFrame.
 
 ```python
-sample_df = pd.read_csv("https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/sample.csv")
+sample_df = pd.read_csv(
+    "https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/sample.csv"
+)
 ```
 
 We'll install the Python packages `scikit-learn`, `matplotlib`, and `seaborn`. Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
@@ -56,10 +58,10 @@ The `test_size` parameter determines the proportion of the sample that will be u
 
 ```python
 training_input, test_input, training_output, test_output = train_test_split(
-    sample_df[['payee']],
-    sample_df['category'],
+    sample_df[["payee"]],
+    sample_df["category"],
     test_size=0.33,
-    random_state=42, # Remember Jackie Robinson. Remember Douglas Adams.
+    random_state=42,  # Remember Jackie Robinson. Remember Douglas Adams.
 )
 ```
 
@@ -130,27 +132,25 @@ Drawing one up requires the `confusion_matrix` function from `sklearn` and an em
 {emphasize-lines="2-4,11-12"}
 ```python
 conf_mat = confusion_matrix(
-    test_output,
-    llm_df.category,
-    labels=llm_df.category.unique()
+    test_output, llm_df.category, labels=llm_df.category.unique()
 )
-fig, ax = plt.subplots(figsize=(5,5))
+fig, ax = plt.subplots(figsize=(5, 5))
 sns.heatmap(
     conf_mat,
     annot=True,
-    fmt='d',
+    fmt="d",
     xticklabels=llm_df.category.unique(),
-    yticklabels=llm_df.category.unique()
+    yticklabels=llm_df.category.unique(),
 )
-plt.ylabel('Actual')
-plt.xlabel('Predicted')
+plt.ylabel("Actual")
+plt.xlabel("Predicted")
 ```
 
 ![confusion matrix](_static/matrix-llm.png)
 
 The diagonal line of cells running from the upper left to the lower right shows where the model correctly predicted the category. The off-diagonal cells show where it got things wrong. The color of the cells indicates how often the model made that prediction. For instance, we can see that one miscategorized hotel in the sample was predicted to be a restaurant and the second was predicted to be "Other."
 
-Due to the inherent randomness in the LLM's predictions, it's a good idea to test your sample and run these reports multiple times to get a sense of the model's performance. 
+Due to the inherent randomness in the LLM's predictions, it's a good idea to test your sample and run these reports multiple times to get a sense of the model's performance.
 
 Before we look at how you might improve the LLM's performance, let's take a moment to compare the results of this evaluation against the old school approach where the supervised sample is used to train a machine-learning model that doesn't have access to the ocean of knowledge poured into an LLM.
 
@@ -182,21 +182,16 @@ First you setup all the machinery.
 vectorizer = TfidfVectorizer(
     sublinear_tf=True,
     min_df=5,
-    norm='l2',
-    encoding='latin-1',
+    norm="l2",
+    encoding="latin-1",
     ngram_range=(1, 3),
 )
 preprocessor = ColumnTransformer(
-    transformers=[
-        ('payee', vectorizer, 'payee')
-    ],
-    sparse_threshold=0,
-    remainder='drop'
+    transformers=[("payee", vectorizer, "payee")], sparse_threshold=0, remainder="drop"
 )
-pipeline = Pipeline([
-    ('preprocessor', preprocessor),
-    ('classifier', LinearSVC(dual="auto"))
-])
+pipeline = Pipeline(
+    [("preprocessor", preprocessor), ("classifier", LinearSVC(dual="auto"))]
+)
 ```
 
 Then you train the model using those training sets we split out at the start.
@@ -231,17 +226,19 @@ weighted avg       0.77      0.76      0.70        83
 ```
 
 ```python
-conf_mat = confusion_matrix(test_output, llm_df.category, labels=llm_df.category.unique())
-fig, ax = plt.subplots(figsize=(5,5))
+conf_mat = confusion_matrix(
+    test_output, llm_df.category, labels=llm_df.category.unique()
+)
+fig, ax = plt.subplots(figsize=(5, 5))
 sns.heatmap(
     conf_mat,
     annot=True,
-    fmt='d',
+    fmt="d",
     xticklabels=llm_df.category.unique(),
-    yticklabels=llm_df.category.unique()
+    yticklabels=llm_df.category.unique(),
 )
-plt.ylabel('Actual')
-plt.xlabel('Predicted')
+plt.ylabel("Actual")
+plt.xlabel("Predicted")
 ```
 
 ![confusion matrix](_static/matrix-ml.png)
