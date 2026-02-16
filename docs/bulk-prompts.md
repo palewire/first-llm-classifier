@@ -458,3 +458,9 @@ Hotel         13
 Bar            3
 Name: count, dtype: int64
 ```
+
+The results could be written out to a CSV file for later use.
+
+```python
+results_df.to_csv("payee_classifications.csv", index=False)
+```
