@@ -1,43 +1,41 @@
 # Prompting with Python
 
-Now that you've got your Python environment set up, it's time to start writing prompts and sending them off to Groq.
+Now that you've got your Python environment set up, it's time to start writing prompts and sending them off to Hugging Face.
 
-First, we'll install the libraries we need. The `groq` package is the official client for Groq's API. The `rich` and `ipywidgets` packages are helper libraries that will improve how your outputs look in Jupyter notebooks.
+First, you need to install the libraries we need. The [`huggingface_hub`](https://pypi.org/project/huggingface-hub/) package is the official client for Hugging Face's API. You should also install [`rich`](https://pypi.org/project/rich/), a helper library that will improve how your outputs look in Jupyter notebooks.
 
-A common way to install packages from inside your JupyterLab Desktop notebook is to use the `%pip` command.
+A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands from inside a Jupyter notebook. You can put the two together like:
 
 ```text
-%pip install groq rich ipywidgets
+!uv add huggingface_hub rich
 ```
 
-Drop that into the first cell of a new notebook and hit the play button in the top toolbar.
+Drop that into the first cell of a new notebook and hit the play button in the top toolbar. You should see something like this:
 
-:::{admonition} Note
-If the `%pip` command doesn't work on your computer, try substituting the `!pip` command instead. Or you can install the packages from the command line on your computer and restart your notebook.
-:::
+![Installation output in Jupyter notebook](_static/uv-add.png)
 
 Now lets import them in the cell that appears below the installation output. Hit play again.
 
 ```python
 from rich import print
-from groq import Groq
+from huggingface_hub import InferenceClient
 ```
 
-Remember saving your Groq API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotemarks as variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
+Remember saving your API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotemarks as variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
 
 ```python
 api_key = "Paste your key here"
 ```
 
-Login to Groq and save the client for reuse when we call the API.
+Next we need to create a client that will allow us to send requests to Hugging Face's API. We do that by calling the `InferenceClient` class and passing it our API key.
 
 ```python
-client = Groq(api_key=api_key)
+client = InferenceClient(token=api_key)
 ```
 
-Let's make our first prompt. To do that, we submit a dictionary to Groq's `chat.completions.create` method. The dictionary has a `messages` key that contains a list of dictionaries. Each dictionary in the list represents a message in the conversation. When the `role` is "user" it is roughly the same as asking a question to a chatbot.
+Let's make our first prompt. To do that, we submit a dictionary to Hugging Face's `chat.completions.create` method. The dictionary has a `messages` key that contains a list of dictionaries. Each dictionary in the list represents a message in the conversation. When the `role` is "user" it is roughly the same as asking a question to a chatbot.
 
-We also need to pick a model from [among the choices Groq gives us](https://console.groq.com/docs/models). We're picking Llama 3.3, the latest from Meta.
+We also need to pick a model from [among the choices Hugging Face gives us](https://huggingface.co/models). We're picking Llama 3.3, the latest from Meta.
 
 ```python
 response = client.chat.completions.create(
