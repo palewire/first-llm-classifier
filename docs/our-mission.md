@@ -1,6 +1,6 @@
 # What we'll do
 
-Journalists frequently struggle with the mountains of messy data piled up by our periphrastic society. This vast and verbose corpus contains, among many other things, entries as diverse as the long-hand entries in police reports, the arcane legalese of legislative bills and our seemingly endless stream of social media posts.
+Journalists frequently struggle with the mountains of messy data piled up by our periphrastic society. This vast and verbose corpus contains entries as diverse as the long-hand entries in police reports, the arcane legalese of legislative bills and the seemingly endless stream of social media posts.
 
 Understanding and analyzing this data is critical to the job but can be time-consuming and inefficient. Computers can help by automating away the drudgery of sorting through blocks of text, extracting key details and flagging unusual patterns.
 
