@@ -12,10 +12,11 @@ const width = 900;
 const height = 400;
 
 const categories = [
-  { label: "Restaurant", color: "#43a047", light: "#e8f5e9", y: 65 },
-  { label: "Bar",        color: "#e65100", light: "#fff3e0", y: 155 },
-  { label: "Hotel",      color: "#1565c0", light: "#e3f2fd", y: 245 },
-  { label: "Other",      color: "#7b1fa2", light: "#f3e5f5", y: 335 },
+  { label: "Restaurant", color: "#43a047", light: "#e8f5e9", y: 100 },
+  { label: "Bar",        color: "#e65100", light: "#fff3e0", y: 150 },
+  { label: "Hotel",      color: "#1565c0", light: "#e3f2fd", y: 200 },
+  { label: "Other",      color: "#7b1fa2", light: "#f3e5f5", y: 250 },
+  { label: "Unknown",    color: "#d32f2f", light: "#ffebee", y: 300 },
 ];
 
 const svg = d3.select("#graphic")
@@ -227,9 +228,22 @@ function launchBall() {
     .attr("fill", cat.color)
     .attr("opacity", 0.85);
 
+  // Calculate consistent speed (pixels per ms) based on left side
+  const leftDistance = classifierX + 10 - (pipeW - 5);
+  const leftDuration = 1200;
+  const speed = leftDistance / leftDuration;
+
+  // Calculate right side distances
+  const rightPhase3Distance = endX - (classifierExitX - 10);
+  const rightPhase4Distance = (funnelX + funnelW + 20) - endX;
+
+  // Calculate durations to match speed
+  const phase3Duration = rightPhase3Distance / speed;
+  const phase4Duration = rightPhase4Distance / speed;
+
   // Phase 1: fly straight toward classifier (keeping same y position)
   ball.transition()
-    .duration(1200)
+    .duration(leftDuration)
     .ease(d3.easeLinear)
     .attr("cx", classifierX + 10)
     .attr("cy", pipe.y)
@@ -250,15 +264,15 @@ function launchBall() {
         .attr("fill", fill)
         .attr("opacity", 0.85);
 
-      // Phase 3: fan out to correct funnel
+      // Phase 3: fan out to correct funnel (same speed as left side)
       ballFront.transition()
-        .duration(800)
-        .ease(d3.easeQuadOut)
+        .duration(phase3Duration)
+        .ease(d3.easeLinear)
         .attr("cx", endX)
         .attr("cy", cat.y)
         .transition()
-        // Phase 4: slide into funnel and fade
-        .duration(600)
+        // Phase 4: slide into funnel and fade (same speed)
+        .duration(phase4Duration)
         .ease(d3.easeLinear)
         .attr("cx", funnelX + funnelW + 20)
         .attr("opacity", 0)
