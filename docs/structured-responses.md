@@ -6,7 +6,7 @@ Yes, they're great at drumming up long blocks of text. An LLM can spit out a lon
 
 But they're also great at answering simple questions, a skill that has been overlooked in much of the hoopla that followed the introduction of ChatGPT.
 
-Here's a example that simply prompts the LLM to answer a straightforward question.
+Here's an example that simply prompts the LLM to answer a straightforward question.
 
 ```python
 prompt = """
@@ -96,7 +96,7 @@ See what we mean?
 National Football League (NFL)
 ```
 
-This approach can be use to classify large datasets, adding a new column of data that categories text in a way that makes it easier to analyze.
+This approach can be used to classify large datasets, adding a new column of data that categorizes text in a way that makes it easier to analyze.
 
 Let's try it by making a function that will classify whatever team you provide.
 
@@ -147,9 +147,9 @@ for team in team_list:
 ['Chicago Bulls', 'National Basketball Association (NBA)']
 ```
 
-Due its probabilistic nature, the LLM can sometimes return slight variations on the same answer. You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
+Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
 
-Most LLM providers, including Hugging Face, accept JSON schema as a way of enforcing the shape of the output. JSON is a JavaScript data format that is easy to work with in Python, and [JSON schema](https://json-schema.org) is a standard that predates modern LLMs and is used to describe an expected JSON output. There are a number of ways to make a JSON schema from using libraries like [Pydantic](https://docs.pydantic.dev/latest/concepts/json_schema/) to [asking an LLM to write for one you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator) to just learning how to write it yourself.
+Most LLM providers, including Hugging Face, accept JSON schema as a way of enforcing the shape of the output. JSON is a JavaScript data format that is easy to work with in Python, and [JSON schema](https://json-schema.org) is a standard that predates modern LLMs and is used to describe an expected JSON output. There are a number of ways to make a JSON schema, from using libraries like [Pydantic](https://docs.pydantic.dev/latest/concepts/json_schema/) to [asking an LLM to write one for you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator) to learning how to write it yourself.
 
 To use a schema, most of the LLM libraries will use a `response_format` which tells the code to respond in JSON instead of text. For Hugging Face, that looks like this
 
@@ -193,7 +193,8 @@ def gen_allowlist_response_format(options):
     return response_format
 ```
 
-First, we'll need the the `json` library so you can import that at the top of your notebook.
+First, we'll need the `json` library, so you can import that at the top of your notebook.
+
 {emphasize-lines="1"}
 
 ```python
@@ -202,11 +203,11 @@ from rich import print
 from huggingface_hub import InferenceClient
 ```
 
-Then, you can use integrate the utility by making a few changes to your classify function:
+Then, you can integrate the utility by making a few changes to your classify function:
 
-- Create a list of accetpable answers, and pass that list into the response format utility.
+- Create a list of acceptable answers, and pass that list into the response format utility.
 - Update our classification function to use the `json` python library and parse the response into a Python dictionary.
-- Reach in and pull out just the answer. We know the `answer` key will always exist becuase the JSON schema demands it.
+- Reach in and pull out just the answer. We know the `answer` key will always exist because the JSON schema demands it.
 
 {emphasize-lines="12-16,30,33-34"}
 
@@ -252,7 +253,7 @@ You might be wondering,
 
 > Wait a second, I thought `response_format` was already telling it to return JSON, why do I need to parse the response like it's text?
 
-Most LLMs only return text. Response format is ensuring the text responds is valid JSON (so you'll never get an error on running `json.loads`), but `content` will always be a string. That's why it needs to be parsed before you can answer the data embedded in it.
+Most LLMs only return text. Response format ensures the text response is valid JSON (so you'll never get an error running `json.loads`), but `content` will always be a string. That's why it needs to be parsed before you can access the data embedded in it.
 :::
 
 With the new structured output in place, run the loop again.

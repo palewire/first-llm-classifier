@@ -10,7 +10,7 @@ We'll need to make a series of changes to our function to adapt it to work with 
 - We tweak the name of the classify function.
 - We change our input argument to a list.
 - We expand our prompt to explain that we will provide a list of team names.
-- We ask the LLM to classify them individually, returning its answers in a JSON list.
+- We ask the LLM to classify them individually, returning its answers in a JSON object.
 - We tweak our few-shot training to reflect this new approach.
 - We submit our input as a single string with new lines separating each team name.
 - We merge the team names and the LLM's answers into a dictionary returned by the function.
@@ -48,7 +48,7 @@ def gen_bulk_allowlist_response_format(options, length):
   return response_format
 ```
 
-{emphasize-lines="2,3-9,25-36,39,45"}
+{emphasize-lines="3-9,25-36,39,45-46"}
 
 ```python
 def classify_teams(name_list):
@@ -81,7 +81,7 @@ If the team's league is not on the list, you should label them as "Other".
             },
             {
                 "role": "assistant",
-                "content": '["NFL", "MLB", "NBA", "Other"]',
+                "content": '{"answers": ["NFL", "MLB", "NBA", "Other"]}',
             },
             {
                 "role": "user",
@@ -105,7 +105,7 @@ Try that with our team list.
 classify_teams(team_list)
 ```
 
-And you'll see that it works with only a single API call. The same technique will work for a batch of any size. Due to LLMs tendency to lose attention and engage in strange loops as answers get longer, it's generally recommended to stick with batches of 10 or so).
+And you'll see that it works with only a single API call. The same technique will work for a batch of any size. Due to LLMs' tendency to lose attention and engage in strange loops as answers get longer, it's generally recommended to stick with batches of 10 or so.
 
 ```python
 {
@@ -166,11 +166,12 @@ payee
 
 Now let's adapt what we have to fit. Instead of asking for a sports league back, we will ask the LLM to classify each payee as a restaurant, bar, hotel or other establishment.
 
-{emphasize-lines="2-26,33-48,61-66"}
+{emphasize-lines="1,3-21,25-28,37-52"}
 
 ```python
 def classify_payees(name_list):
-    prompt = """You are an AI model trained to categorize businesses based on their names.
+    prompt = """
+You are an AI model trained to categorize businesses based on their names.
 
 You will be given a list of business names, each separated by a new line.
 
@@ -184,9 +185,9 @@ For example, if given the following input:
 
 "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
 
-Your output should be a JSON list in the following format:
+Your output should be a JSON object in the following format:
 
-["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]
+{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}
 
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
@@ -210,7 +211,7 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
             },
             {
                 "role": "assistant",
-                "content": '["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]',
+                "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
             },
             {
                 "role": "user",
@@ -218,7 +219,7 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
             },
             {
                 "role": "assistant",
-                "content": '["Restaurant", "Restaurant", "Other", "Bar"]',
+                "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
             },
             {
                 "role": "user",
@@ -262,7 +263,7 @@ classify_payees(sample_list)
 }
 ```
 
-That's nice for a sample. But how do you loop through the entire dataset and code them.
+That's nice for a sample. But how do you loop through the entire dataset and code it?
 
 Let's add a couple libraries that will let us avoid hammering Hugging Face and keep tabs on our progress.
 
@@ -303,11 +304,12 @@ def classify_batches(name_list, batch_size=10, wait=2):
 
 Printing out to the console is interesting, but with a bigger sample you'll want to be able to work with the results in a more structured way. First, let's update our model to `gpt-oss-20b` from OpenAI which is a bit faster for basic classification tasks like this one.
 
-{emphasize-lines="57"}
+{emphasize-lines="58"}
 
 ```python
 def classify_payees(name_list):
-    prompt = """You are an AI model trained to categorize businesses based on their names.
+    prompt = """
+You are an AI model trained to categorize businesses based on their names.
 
 You will be given a list of business names, each separated by a new line.
 
@@ -321,9 +323,9 @@ For example, if given the following input:
 
 "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
 
-Your output should be a JSON list in the following format:
+Your output should be a JSON object in the following format:
 
-["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]
+{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}
 
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
@@ -347,7 +349,7 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
             },
             {
                 "role": "assistant",
-                "content": '["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]',
+                "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
             },
             {
                 "role": "user",
@@ -355,7 +357,7 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
             },
             {
                 "role": "assistant",
-                "content": '["Restaurant", "Restaurant", "Other", "Bar"]',
+                "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
             },
             {
                 "role": "user",
@@ -374,7 +376,7 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
 
 Next, let's convert the results into a `pandas` DataFrame by modifying our batching function.
 
-{emphasize-lines="20-23"}
+{emphasize-lines="16-17"}
 
 ```python
 def classify_batches(name_list, batch_size=10, wait=2):

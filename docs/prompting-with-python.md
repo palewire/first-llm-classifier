@@ -14,14 +14,14 @@ Drop that into the first cell of a new notebook and hit the play button in the t
 
 ![Installation output in Jupyter notebook](_static/uv-add.png)
 
-Now lets import them in the cell that appears below the installation output. Hit play again.
+Now let's import them in the cell that appears below the installation output. Hit play again.
 
 ```python
 from rich import print
 from huggingface_hub import InferenceClient
 ```
 
-Remember saving your API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotemarks as variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
+Remember saving your API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
 
 ```python
 api_key = "Paste your key here"
@@ -90,7 +90,7 @@ ChatCompletionOutput(
 )
 ```
 
-There's a lot here, but the `message` has the actual response from the LLM. Let's just print the content from that message. Note that your response probably varies from this guide. That's because LLMs mostly are probablistic prediction machines. Every response can be a little different.
+There's a lot here, but the `message` has the actual response from the LLM. Let's just print the content from that message. Note that your response probably varies from this guide. That's because LLMs are mostly probabilistic prediction machines. Every response can be a little different.
 
 ```python
 print(response.choices[0].message.content)
@@ -101,7 +101,7 @@ Data journalism is crucial as it enables journalists to uncover insights, identi
 accountable by analyzing and interpreting complex data, leading to more informed reporting and storytelling.
 ```
 
-Let's pick a different model from among [the choices that Hugging Face offers](https://huggingface.co/models?pipeline_tag=text-generation&inference_provider=all&sort=trending). One we could try is Gemma3, an open model from Google. Rather than add a new cell, lets revise the code we already have and rerun it.
+Let's pick a different model from among [the choices that Hugging Face offers](https://huggingface.co/models?pipeline_tag=text-generation&inference_provider=all&sort=trending). One we could try is Gemma3, an open model from Google. Rather than add a new cell, let's revise the code we already have and rerun it.
 
 {emphasize-lines="8"}
 

@@ -38,7 +38,7 @@ Return to the Jupyter notebook and install the packages alongside our other depe
 !uv add huggingface_hub rich ipywidgets pandas scikit-learn matplotlib seaborn
 ```
 
-Add the `test_train_split` function from `scikit-learn` to the import statement.
+Add the `train_test_split` function from `scikit-learn` to the import statement.
 
 {emphasize-lines="8"}
 
@@ -119,23 +119,21 @@ weighted avg       0.92      0.90      0.91        83
 
 At first, the report can be a bit overwhelming. What are all these technical terms?
 
-Precision measures what statistics nerds call "positive predictive value." It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category, the LLM correctly predicted both of the bars in our supervised sample. That's a precision of 1.00. An analogy here is a baseball player's contact rate. Precision is a measure of how often the model connects with the ball when it swings its bat.
+Precision measures what statistics nerds call "positive predictive value." It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct. An analogy here is a baseball player's contact rate. Precision is a measure of how often the model connects with the ball when it swings its bat.
 
-Recall measures how many of the supervised instances were identified by the model. In this case, it shows that the LLM correctly spotted 80% of the hotels in our manual sample.
+Recall measures how many of the supervised instances were identified by the model. In this case, it shows that the LLM correctly spotted about 78% of the hotels in our manual sample.
 
 The f1-score is a combination of precision and recall. It's a way to measure a model's overall performance by balancing the two.
 
 The support column shows how many instances of each category were in the supervised sample.
 
-The averages at the bottom combine the results for all categories. The macro row is a simple average all the scores in that column. The weighted row is a weighted average based on the number of instances in each category.
+The averages at the bottom combine the results for all categories. The macro row is a simple average of all the scores in that column. The weighted row is a weighted average based on the number of instances in each category.
 
-In the example result provided above, we can see that the LLM was guessing correctly more than 90% of the time no matter how you slice it.
+In the example result above, the overall accuracy is about 90%, but the lower macro average (0.76) shows the model is less consistent on rarer categories.
 
 Another technique for evaluating classifiers is to visualize the results using a chart known as a confusion matrix. This chart shows how often the model correctly predicted each category and where it got things wrong.
 
-Drawing one up requires the `confusion_matrix` function from `sklearn` and an embarassing tangle of code from `seaborn` and `matplotlib` libraries. Most of it is boilerplate, but you need to punch your test variables, as well as the proper labels for the categories, in a few picky places.
-
-{emphasize-lines="2-4,11-12"}
+Drawing one up requires the `confusion_matrix` function from `sklearn` and an embarrassing tangle of code from `seaborn` and `matplotlib` libraries. Most of it is boilerplate, but you need to punch your test variables, as well as the proper labels for the categories, in a few picky places.
 
 ```python
 conf_mat = confusion_matrix(

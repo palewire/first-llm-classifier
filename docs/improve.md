@@ -88,7 +88,7 @@ Your output should be a JSON list in the following format:
 
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 
-Ensure that the number of classifications in your output matches the number of business names in the input. It is very important that the length of JSON list you return is exactly the same as the number of business names your receive.
+Ensure that the number of classifications in your output matches the number of business names in the input. It is very important that the length of JSON list you return is exactly the same as the number of business names you receive.
 """
     response = client.chat.completions.create(
         messages=[
@@ -196,7 +196,7 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
 
 If a business name contains both the word "Restaurant" and the word "Bar", you should classify it as a Restaurant.
 
-Ensure that the number of classifications in your output matches the number of business names in the input. It is very important that the length of JSON list you return is exactly the same as the number of business names your receive.
+Ensure that the number of classifications in your output matches the number of business names in the input. It is very important that the length of JSON list you return is exactly the same as the number of business names you receive.
 """
 ```
 
