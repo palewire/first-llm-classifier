@@ -6,7 +6,7 @@ Yes, they're great at drumming up long blocks of text. An LLM can spit out a lon
 
 But they're also great at answering simple questions, a skill that has been overlooked in much of the hoopla that followed the introduction of ChatGPT.
 
-Here's a example that simply prompts the LLM to answer a straightforward question.
+Here's an example that simply prompts the LLM to answer a straightforward question.
 
 ```python
 prompt = """
@@ -21,6 +21,7 @@ You will reply with the sports league in which they compete.
 Lace that into our request.
 
 {emphasize-lines="5"}
+
 ```python
 response = client.chat.completions.create(
     messages=[
@@ -29,13 +30,14 @@ response = client.chat.completions.create(
             "content": prompt
         },
     ],
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )
 ```
 
 And now add a user message that provides the name of a professional sports team.
 
 {emphasize-lines="7-10"}
+
 ```python
 response = client.chat.completions.create(
     messages=[
@@ -48,7 +50,7 @@ response = client.chat.completions.create(
             "content": "Chicago Cubs",
         }
     ],
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )
 ```
 
@@ -67,6 +69,7 @@ Major League Baseball (MLB)
 Try another one.
 
 {emphasize-lines="9"}
+
 ```python
 response = client.chat.completions.create(
     messages=[
@@ -79,7 +82,7 @@ response = client.chat.completions.create(
             "content": "Chicago Bears",
         }
     ],
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )
 ```
 
@@ -93,7 +96,7 @@ See what we mean?
 National Football League (NFL)
 ```
 
-This approach can be use to classify large datasets, adding a new column of data that categories text in a way that makes it easier to analyze.
+This approach can be used to classify large datasets, adding a new column of data that categorizes text in a way that makes it easier to analyze.
 
 Let's try it by making a function that will classify whatever team you provide.
 
@@ -118,7 +121,7 @@ You will reply with the sports league in which they compete.
                 "content": name,
             }
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
     )
 
     return response.choices[0].message.content
@@ -144,9 +147,70 @@ for team in team_list:
 ['Chicago Bulls', 'National Basketball Association (NBA)']
 ```
 
-Due its probabilistic nature, the LLM can sometimes return slight variations on the same answer. You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
+Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
 
-{emphasize-lines="9-12,31-37"}
+Most LLM providers, including Hugging Face, accept JSON schema as a way of enforcing the shape of the output. JSON is a JavaScript data format that is easy to work with in Python, and [JSON schema](https://json-schema.org) is a standard that predates modern LLMs and is used to describe an expected JSON output. There are a number of ways to make a JSON schema, from using libraries like [Pydantic](https://docs.pydantic.dev/latest/concepts/json_schema/) to [asking an LLM to write one for you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator) to learning how to write it yourself.
+
+To use a schema, most of the LLM libraries will use a `response_format` which tells the code to respond in JSON instead of text. For Hugging Face, that looks like this
+
+```python
+response_format = {
+    "type": "json_schema",
+    "json_schema": {
+        "schema": schema,
+        "strict": True, # You almost always want this to be true
+    },
+}
+```
+
+JSON schema can handle some fairly complex data structures, but for our purposes we'll stick to one common pattern: an allowlist of options called an [`enum`](https://json-schema.org/understanding-json-schema/reference/enum). Here's a handy utility function you can use to generate a response format with an allowlist of options like a list of leagues.
+
+```python
+def gen_allowlist_response_format(options):
+    schema = {
+      "type": "object",
+      "properties": {
+        "answer": {
+          "type": "string",
+          "enum": options
+        }
+      },
+      "required": [
+          "answer"
+      ],
+      "additionalProperties": False
+    }
+
+    response_format = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "AllowlistSchema",
+            "schema": schema,
+            "strict": True,
+        },
+    }
+
+    return response_format
+```
+
+First, we'll need the `json` library, so you can import that at the top of your notebook.
+
+{emphasize-lines="1"}
+
+```python
+import json
+from rich import print
+from huggingface_hub import InferenceClient
+```
+
+Then, you can integrate the utility by making a few changes to your classify function:
+
+- Create a list of acceptable answers, and pass that list into the response format utility.
+- Update our classification function to use the `json` python library and parse the response into a Python dictionary.
+- Reach in and pull out just the answer. We know the `answer` key will always exist because the JSON schema demands it.
+
+{emphasize-lines="12-16,30,33-34"}
+
 ```python
 def classify_team(name):
     prompt = """
@@ -156,11 +220,14 @@ I will provide the name of a professional sports team.
 
 You will reply with the sports league in which they compete.
 
-Your responses must come from the following list:
-- Major League Baseball (MLB)
-- National Football League (NFL)
-- National Basketball Association (NBA)
+If the team doesn't belong in the provided sports league options, reply with "Other".
 """
+
+    acceptable_answers = [
+        "MLB",
+        "NFL",
+        "NBA",
+    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -173,52 +240,52 @@ Your responses must come from the following list:
                 "content": name,
             }
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format=gen_allowlist_response_format(acceptable_answers),
     )
 
-    answer = response.choices[0].message.content
-
-    acceptable_answers = [
-        "Major League Baseball (MLB)",
-        "National Football League (NFL)",
-        "National Basketball Association (NBA)",
-    ]
-    if answer not in acceptable_answers:
-        raise ValueError(f"{answer} not in list of acceptable answers")
-
-    return answer
+    response_dict = json.loads(response.choices[0].message.content)
+    return response_dict["answer"]
 ```
 
-Now, ask it for a team that's not in one of those leagues. You should get an error.
+:::{admonition} Sidenote
+You might be wondering,
+
+> Wait a second, I thought `response_format` was already telling it to return JSON, why do I need to parse the response like it's text?
+
+Most LLMs only return text. Response format ensures the text response is valid JSON (so you'll never get an error running `json.loads`), but `content` will always be a string. That's why it needs to be parsed before you can access the data embedded in it.
+:::
+
+With the new structured output in place, run the loop again.
+
+```python
+for team in team_list:
+    league = classify_team(team)
+    print([team, league])
+```
+
+You'll notice it's only using the acronym as our allowlist instructs.
+
+```
+['Chicago Cubs', 'MLB']
+['Chicago Bears', 'NFL']
+['Chicago Bulls', 'NBA']
+```
+
+But what if you ask it for a team that's not in one of those leagues. Well you've commanded that it only return one of those answers, so it will follow those instructions.
 
 ```python
 classify_team("Chicago Blackhawks")
 ```
 
-```python
----------------------------------------------------------------------------
-ValueError                                Traceback (most recent call last)
-Cell In[47], line 1
-----> 1 classify_team("Chicago Blackhawks")
-
-Cell In[45], line 36, in classify_team(name)
-     30 acceptable_answers = [
-     31     "Major League Baseball (MLB)",
-     32     "National Football League (NFL)",
-     33     "National Basketball Association (NBA)",
-     34 ]
-     35 if answer not in acceptable_answers:
----> 36     raise ValueError(f"{answer} not in list of acceptable answers")
-     38 return answer
-
-ValueError: National Hockey League (NHL)
-
-However, since NHL is not in the provided list, I must inform you that the Chicago Blackhawks does not belong to any of the leagues mentioned (MLB, NFL, NBA). not in list of acceptable answers
+```
+'NFL'
 ```
 
-For cases when there isn't an accurate answer in your validation list, you can choose to allow an "other" category.
+You've essentially _forced_ it to hallucinate. That's why it's always vital to give any LLM task an out. A way to classify things it doesn't think fits nicely into the categories you've given it. It also helps to reinforce that out in the system prompt.
 
-{emphasize-lines="14,37"}
+{emphasize-lines="9,16"}
+
 ```python
 def classify_team(name):
     prompt = """
@@ -228,13 +295,15 @@ I will provide the name of a professional sports team.
 
 You will reply with the sports league in which they compete.
 
-Your responses must come from the following list:
-- Major League Baseball (MLB)
-- National Football League (NFL)
-- National Basketball Association (NBA)
-
-If the team's league is not on the list, you should label them as "Other".
+If the team doesn't belong in the provided sports league options, reply with "Other".
 """
+
+    acceptable_answers = [
+        "MLB",
+        "NFL",
+        "NBA",
+        "Other",
+    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -247,21 +316,12 @@ If the team's league is not on the list, you should label them as "Other".
                 "content": name,
             }
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format=gen_allowlist_response_format(acceptable_answers),
     )
 
-    answer = response.choices[0].message.content
-
-    acceptable_answers = [
-        "Major League Baseball (MLB)",
-        "National Football League (NFL)",
-        "National Basketball Association (NBA)",
-        "Other",
-    ]
-    if answer not in acceptable_answers:
-        raise ValueError(f"{answer} not in list of acceptable answers")
-
-    return answer
+    response_dict = json.loads(response.choices[0].message.content)
+    return response_dict["answer"]
 ```
 
 Now try the Chicago Blackhawks again.
@@ -270,31 +330,34 @@ Now try the Chicago Blackhawks again.
 classify_team("Chicago Blackhawks")
 ```
 
-And you'll get the answer you expect.
+And you’ll get the answer you expect.
 
-```python
+```
 'Other'
 ```
 
 Most LLMs are pre-programmed to be creative and generate a range of responses to same prompt. For structured responses like this, we don't want that. We want consistency. So it's a good idea to ask the LLM to be more straightforward by reducing a creativity setting known as `temperature` to zero.
 
-{emphasize-lines="29"}
+{emphasize-lines="32"}
+
 ```python
 def classify_team(name):
     prompt = """
-You are an AI model trained to classify text.
+    You are an AI model trained to classify text.
 
-I will provide the name of a professional sports team.
+    I will provide the name of a professional sports team.
 
-You will reply with the sports league in which they compete.
+    You will reply with the sports league in which they compete.
 
-Your responses must come from the following list:
-- Major League Baseball (MLB)
-- National Football League (NFL)
-- National Basketball Association (NBA)
+    If the team doesn't belong in the provided sports league options, reply with "Other".
+    """
 
-If the team's league is not on the list, you should label them as "Other".
-"""
+    acceptable_answers = [
+        "MLB",
+        "NFL",
+        "NBA",
+        "Other"
+    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -307,45 +370,39 @@ If the team's league is not on the list, you should label them as "Other".
                 "content": name,
             }
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format=gen_allowlist_response_format(acceptable_answers),
         temperature=0,
     )
 
-    answer = response.choices[0].message.content
-
-    acceptable_answers = [
-        "Major League Baseball (MLB)",
-        "National Football League (NFL)",
-        "National Basketball Association (NBA)",
-        "Other",
-    ]
-    if answer not in acceptable_answers:
-        raise ValueError(f"{answer} not in list of acceptable answers")
-
-    return answer
+    response_dict = json.loads(response.choices[0].message.content)
+    return response_dict["answer"]
 ```
 
 You can also increase reliability by priming the LLM with examples of the type of response you want. This technique is called ["few shot prompting"](https://www.ibm.com/think/topics/few-shot-prompting). In this style of prompting, which can feel like a strange form of roleplaying, you provide both the "user" input as well as the "assistant" response you want the LLM to mimic.
 
 Here's how it's done:
 
-{emphasize-lines="23-54"}
+{emphasize-lines="25-56"}
+
 ```python
 def classify_team(name):
     prompt = """
-You are an AI model trained to classify text.
+    You are an AI model trained to classify text.
 
-I will provide the name of a professional sports team.
+    I will provide the name of a professional sports team.
 
-You will reply with the sports league in which they compete.
+    You will reply with the sports league in which they compete.
 
-Your responses must come from the following list:
-- Major League Baseball (MLB)
-- National Football League (NFL)
-- National Basketball Association (NBA)
+    If the team doesn't belong in the provided sports league options, reply with "Other".
+    """
 
-If the team's league is not on the list, you should label them as "Other".
-"""
+    acceptable_answers = [
+        "MLB",
+        "NFL",
+        "NBA",
+        "Other"
+    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -359,7 +416,7 @@ If the team's league is not on the list, you should label them as "Other".
             },
             {
                 "role": "assistant",
-                "content": "National Football League (NFL)",
+                "content": "NFL",
             },
             {
                 "role": "user",
@@ -367,7 +424,7 @@ If the team's league is not on the list, you should label them as "Other".
             },
             {
                 "role": "assistant",
-                "content": " Major League Baseball (MLB)",
+                "content": "MLB",
             },
             {
                 "role": "user",
@@ -375,7 +432,7 @@ If the team's league is not on the list, you should label them as "Other".
             },
             {
                 "role": "assistant",
-                "content": "National Basketball Association (NBA)",
+                "content": "NBA",
             },
             {
                 "role": "user",
@@ -390,20 +447,11 @@ If the team's league is not on the list, you should label them as "Other".
                 "content": name,
             }
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format=gen_allowlist_response_format(acceptable_answers),
         temperature=0,
     )
 
-    answer = response.choices[0].message.content
-
-    acceptable_answers = [
-        "Major League Baseball (MLB)",
-        "National Football League (NFL)",
-        "National Basketball Association (NBA)",
-        "Other",
-    ]
-    if answer not in acceptable_answers:
-        raise ValueError(f"{answer} not in list of acceptable answers")
-
-    return answer
+    response_dict = json.loads(response.choices[0].message.content)
+    return response_dict["answer"]
 ```

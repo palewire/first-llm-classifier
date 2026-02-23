@@ -14,14 +14,14 @@ Drop that into the first cell of a new notebook and hit the play button in the t
 
 ![Installation output in Jupyter notebook](_static/uv-add.png)
 
-Now lets import them in the cell that appears below the installation output. Hit play again.
+Now let's import them in the cell that appears below the installation output. Hit play again.
 
 ```python
 from rich import print
 from huggingface_hub import InferenceClient
 ```
 
-Remember saving your API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotemarks as variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
+Remember saving your API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
 
 ```python
 api_key = "Paste your key here"
@@ -35,7 +35,7 @@ client = InferenceClient(token=api_key)
 
 Let's make our first prompt. To do that, we submit a dictionary to Hugging Face's `chat.completions.create` method. The dictionary has a `messages` key that contains a list of dictionaries. Each dictionary in the list represents a message in the conversation. When the `role` is "user" it is roughly the same as asking a question to a chatbot.
 
-We also need to pick a model from [among the choices Hugging Face gives us](https://huggingface.co/models). We're picking Llama 3.3, the latest from Meta.
+We also need to pick a model from [among the choices Hugging Face gives us](https://huggingface.co/models). We're picking Llama 4, the latest from Meta.
 
 ```python
 response = client.chat.completions.create(
@@ -45,7 +45,7 @@ response = client.chat.completions.create(
             "content": "Explain the importance of data journalism in a concise sentence",
         }
     ],
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )
 ```
 
@@ -58,56 +58,53 @@ print(response)
 You should see something like:
 
 ```python
-ChatCompletion(
-    id='chatcmpl-e219e15c-471f-468c-a0f7-69ba31c83da6',
+ChatCompletionOutput(
     choices=[
-        Choice(
-            finish_reason='stop',
+        ChatCompletionOutputComplete(
+            finish_reason="stop",
             index=0,
-            logprobs=None,
-            message=ChatCompletionMessage(
-                content='Data journalism plays a crucial role in holding those in power accountable by providing
-fact-based insights and analysis, enabling informed decision-making, and promoting transparency through the use of
-data-driven storytelling.',
-                role='assistant',
-                function_call=None,
+            message=ChatCompletionOutputMessage(
+                role="assistant",
+                content="Data journalism is crucial as it enables journalists to uncover insights, identify trends, and hold those in power accountable by analyzing and interpreting complex data, leading to more informed reporting and storytelling.",
                 reasoning=None,
-                tool_calls=None
-            )
+                tool_call_id=None,
+                tool_calls=[],
+            ),
+            logprobs=None,
+            seed=None,
         )
     ],
-    created=1740671812,
-    model='llama-3.3-70b-versatile',
-    object='chat.completion',
-    system_fingerprint='fp_76dc6cf67d',
-    usage=CompletionUsage(
+    created=1771798979,
+    id="oYSotgN-zqrih-9d21e29c7eec059f",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+    system_fingerprint=None,
+    usage=ChatCompletionOutputUsage(
         completion_tokens=37,
-        prompt_tokens=46,
-        total_tokens=83,
-        completion_time=0.134545455,
-        prompt_time=0.00492856,
-        queue_time=0.231341476,
-        total_time=0.139474015
+        prompt_tokens=21,
+        total_tokens=58,
+        reasoning_tokens=0,
     ),
-    x_groq={'id': 'req_01jn4200h0e4s8e12pj5d2e3ye'}
+    object="chat.completion",
+    metadata={"weight_version": "default"},
+    prompt=[],
 )
 ```
 
-There's a lot here, but the `message` has the actual response from the LLM. Let's just print the content from that message. Note that your response probably varies from this guide. That's because LLMs mostly are probablistic prediction machines. Every response can be a little different.
+There's a lot here, but the `message` has the actual response from the LLM. Let's just print the content from that message. Note that your response probably varies from this guide. That's because LLMs are mostly probabilistic prediction machines. Every response can be a little different.
 
 ```python
 print(response.choices[0].message.content)
 ```
 
 ```text
-Data journalism plays a crucial role in holding those in power accountable by providing fact-based insights and
-analysis, enabling informed decision-making, and promoting transparency through the use of data-driven
-storytelling.
+Data journalism is crucial as it enables journalists to uncover insights, identify trends, and hold those in power
+accountable by analyzing and interpreting complex data, leading to more informed reporting and storytelling.
 ```
 
-Let's pick a different model from among [the choices that Groq offers](https://console.groq.com/docs/models). One we could try is Gemma2, an open model from Google. Rather than add a new cell, lets revise the code we already have and rerun it.
+Let's pick a different model from among [the choices that Hugging Face offers](https://huggingface.co/models?pipeline_tag=text-generation&inference_provider=all&sort=trending). One we could try is Gemma3, an open model from Google. Rather than add a new cell, let's revise the code we already have and rerun it.
 
 {emphasize-lines="8"}
+
 ```python
 response = client.chat.completions.create(
     messages=[
@@ -116,7 +113,7 @@ response = client.chat.completions.create(
             "content": "Explain the importance of data journalism in a concise sentence",
         }
     ],
-    model="gemma2-9b-it",
+    model="google/gemma-3-27b-it",
 )
 ```
 
@@ -127,12 +124,11 @@ print(response.choices[0].message.content)
 ```
 
 ```text
-Data journalism illuminates complex issues, empowers informed decision-making, and drives accountability through
-the rigorous analysis and visualization of data.
+Data journalism illuminates complex issues, empowers informed decision-making, and drives accountability through the rigorous analysis and visualization of data.
 ```
 
 :::{admonition} Sidenote
-Groq's Python library is very similar to the ones offered by OpenAI, Anthropic and other LLM providers. If you prefer to use those tools, the techniques you learn here should be easily transferable.
+Hugging Face's Python library is very similar to the ones offered by OpenAI, Anthropic and other LLM providers. If you prefer to use those tools, the techniques you learn here should be easily transferable.
 
 For instance, here's how you'd make this same call with Anthropic's Python library:
 
@@ -143,21 +139,25 @@ client = Anthropic(api_key=api_key)
 
 response = client.messages.create(
     messages=[
-        {"role": "user", "content": "Explain the importance of data journalism in a concise sentence"},
+        {
+            "role": "user",
+            "content": "Explain the importance of data journalism in a concise sentence"
+        }
     ],
-    model="claude-3-5-sonnet-20240620",
+    model="claude-sonnet-4-6",
 )
 
 print(response.content[0].text)
 ```
-:::
 
+:::
 
 A well-structured prompt helps the LLM provide more accurate and useful responses.
 
-One common technique for improving results is to open with a "system" prompt to establish the model's tone and role. Let's switch back to Llama 3.3 and provide a `system` message that provides a specific motivation for the LLM's responses.
+One common technique for improving results is to open with a "system" prompt to establish the model's tone and role. Let's switch back to Llama 4 and provide a `system` message that provides a specific motivation for the LLM's responses.
 
 {emphasize-lines="3-6,12"}
+
 ```python
 response = client.chat.completions.create(
     messages=[
@@ -170,7 +170,7 @@ response = client.chat.completions.create(
             "content": "Explain the importance of data journalism in a concise sentence",
         }
     ],
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )
 ```
 
@@ -181,14 +181,15 @@ print(response.choices[0].message.content)
 ```
 
 ```text
-Data journalism revolutionizes the way we consume news by using data analysis and visualization to uncover hidden
-patterns, expose truth, and hold those in power accountable, making it an indispensable tool for a transparent and
-informed society.
+Data journalism is revolutionizing the way we tell stories and uncover truths by harnessing the power of data
+analysis and visualization to provide in-depth insights and hold those in power accountable, making it an
+indispensable tool for a more informed and transparent society.
 ```
 
 Want to see how tone affects the response? Change the system prompt to something old-school.
 
 {emphasize-lines="5"}
+
 ```python
 response = client.chat.completions.create(
     messages=[
@@ -201,7 +202,7 @@ response = client.chat.completions.create(
             "content": "Explain the importance of data journalism in a concise sentence",
         }
     ],
-    model="llama-3.3-70b-versatile",
+    model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )
 ```
 
@@ -212,7 +213,7 @@ print(response.choices[0].message.content)
 ```
 
 ```text
-If I must: data journalism is supposedly important because it allows reporters to use numbers and statistics to
-uncover trends and patterns that might otherwise go unreported, but I still don't see the point of wasting good ink
-on a bunch of soulless spreadsheets.
+*scoff* Fine. If I must, I'll grudgingly admit that data journalism can occasionally be useful in uncovering a
+story that wouldn't have been possible through traditional reporting, but I still think it's a bunch of
+number-crunching nonsense that's overhyped and underdelivers most of the time.
 ```

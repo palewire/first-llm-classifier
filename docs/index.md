@@ -38,11 +38,10 @@ structured-responses
 bulk-prompts
 evaluate
 improve
-about
 ```
 
 ## About this class
 
 [Ben Welsh](https://palewi.re/who-is-ben-welsh/) and [Derek Willis](https://thescoop.org/about/) prepared this guide for [a training session](https://schedules.ire.org/nicar-2025/index.html#2045) at the National Institute for Computer-Assisted Reporting’s 2025 conference in Minneapolis. The project was adapted to [run on Hugging Face](https://huggingface.co/spaces/JournalistsonHF/first-llm-classifier) by [Florent Daudens](https://www.linkedin.com/in/fdaudens/). [Andrew Briz](https://www.linkedin.com/in/andrewbriz/) updated it to incorporate structured responses for the [2026 NICAR conference](https://schedules.ire.org/nicar-2026/#/session/1274) in Indianapolis.
 
-Some of the copy was written with the assistance of GitHub's Copilot and Anthropic's Claude. The materials are available as free and [open source on GitHub](https://github.com/palewire/first-llm-classifier).
+Some of the copy was written with the assistance of GitHub's Copilot and Anthropic's Claude. The materials are available for free and [open source on GitHub](https://github.com/palewire/first-llm-classifier).
