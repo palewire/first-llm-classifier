@@ -35,17 +35,21 @@ We'll install the Python packages `scikit-learn`, `matplotlib`, and `seaborn`. P
 Return to the Jupyter notebook and install the packages alongside our other dependencies.
 
 ```
-%pip install groq rich ipywidgets pandas scikit-learn matplotlib seaborn
+!uv add huggingface_hub rich ipywidgets pandas scikit-learn matplotlib seaborn
 ```
 
 Add the `test_train_split` function from `scikit-learn` to the import statement.
 
-{emphasize-lines="6"}
+{emphasize-lines="8"}
+
 ```python
 import json
+import time
 from rich import print
-from groq import Groq
+from rich.progress import track
+from huggingface_hub import InferenceClient
 import pandas as pd
+from itertools import batched
 from sklearn.model_selection import train_test_split
 ```
 
@@ -76,15 +80,19 @@ llm_df = classify_batches(list(test_input.payee))
 
 Next, we import the `classification_report` and `confusion_matrix` functions from `sklearn`, which are used to evaluate a model's performance. We'll also pull in `seaborn` and `matplotlib` to visualize the results.
 
-{emphasize-lines="6-7,9"}
+{emphasize-lines="9-11"}
+
 ```python
 import json
+import time
 from rich import print
-from groq import Groq
+from rich.progress import track
+from huggingface_hub import InferenceClient
 import pandas as pd
+from itertools import batched
+from sklearn.model_selection import train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 ```
 
@@ -99,14 +107,14 @@ That will output a report that looks something like this:
 ```
               precision    recall  f1-score   support
 
-         Bar       1.00      1.00      1.00         2
-       Hotel       0.89      0.80      0.84        10
-       Other       0.96      0.96      0.96        57
-  Restaurant       0.87      0.93      0.90        14
+         Bar       0.25      0.50      0.33         2
+       Hotel       1.00      0.78      0.88         9
+       Other       0.95      0.93      0.94        57
+  Restaurant       0.88      0.93      0.90        15
 
-    accuracy                           0.94        83
-   macro avg       0.93      0.92      0.93        83
-weighted avg       0.94      0.94      0.94        83
+    accuracy                           0.90        83
+   macro avg       0.77      0.79      0.76        83
+weighted avg       0.92      0.90      0.91        83
 ```
 
 At first, the report can be a bit overwhelming. What are all these technical terms?
@@ -128,6 +136,7 @@ Another technique for evaluating classifiers is to visualize the results using a
 Drawing one up requires the `confusion_matrix` function from `sklearn` and an embarassing tangle of code from `seaborn` and `matplotlib` libraries. Most of it is boilerplate, but you need to punch your test variables, as well as the proper labels for the categories, in a few picky places.
 
 {emphasize-lines="2-4,11-12"}
+
 ```python
 conf_mat = confusion_matrix(
     test_output, llm_df.category, labels=llm_df.category.unique()
@@ -154,16 +163,19 @@ Before we look at how you might improve the LLM's performance, let's take a mome
 
 This will require importing a mess of `sklearn` functions and classes. We'll use `TfidfVectorizer` to convert the payee text into a numerical representation that can be used by a `LinearSVC` classifier. We'll then use a `Pipeline` to chain the two together. If you have no idea what any of that means, don't worry. Now that we have LLMs in this world, you might never need to know.
 
+{emphasize-lines="12-15"}
 
-{emphasize-lines="10-13"}
 ```python
 import json
+import time
 from rich import print
-from groq import Groq
+from rich.progress import track
+from huggingface_hub import InferenceClient
 import pandas as pd
+from itertools import batched
+from sklearn.model_selection import train_test_split
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
@@ -213,26 +225,26 @@ print(classification_report(test_output, predictions))
               precision    recall  f1-score   support
 
          Bar       0.00      0.00      0.00         2
-       Hotel       1.00      0.27      0.43        10
-       Other       0.75      1.00      0.85        57
-  Restaurant       0.80      0.29      0.42        14
+       Hotel       1.00      0.33      0.50         9
+       Other       0.76      1.00      0.86        57
+  Restaurant       1.00      0.33      0.50        15
 
-    accuracy                           0.76        83
-   macro avg       0.64      0.39      0.43        83
-weighted avg       0.77      0.76      0.70        83
+    accuracy                           0.78        83
+   macro avg       0.69      0.42      0.47        83
+weighted avg       0.81      0.78      0.74        83
 ```
 
 ```python
-conf_mat = confusion_matrix(
-    test_output, llm_df.category, labels=llm_df.category.unique()
-)
+labels = sorted(set(test_output) | set(predictions))
+
+conf_mat = confusion_matrix(test_output, predictions, labels=labels)
 fig, ax = plt.subplots(figsize=(5, 5))
 sns.heatmap(
     conf_mat,
     annot=True,
     fmt="d",
-    xticklabels=llm_df.category.unique(),
-    yticklabels=llm_df.category.unique(),
+    xticklabels=labels,
+    yticklabels=labels,
 )
 plt.ylabel("Actual")
 plt.xlabel("Predicted")

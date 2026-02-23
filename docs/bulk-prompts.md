@@ -1,34 +1,55 @@
 # Bulk prompts
 
-Our reusable prompting function is pretty cool. But requesting answers one by one across a big dataset could take forever. And it could cost us money to hit the Groq API so many times.
+Our reusable prompting function is pretty cool. But requesting answers one by one across a big dataset could take forever. And it could cost us money to hit the Hugging Face API so many times.
 
 One solution is to submit your requests in batches and then ask the LLM to return its responses in bulk.
 
-A common way to do that is to prompt the LLM to return its responses in JSON, a JavaScript data format that is easy to work with in Python.
+We'll need to make a series of changes to our function to adapt it to work with a batch of inputs. Get ready. It's a lot.
 
-To try that, we start by adding the built-in `json` library to our imports.
+- We bring in a new allowlist utility coded for bulk prompts like this
+- We tweak the name of the classify function.
+- We change our input argument to a list.
+- We expand our prompt to explain that we will provide a list of team names.
+- We ask the LLM to classify them individually, returning its answers in a JSON list.
+- We tweak our few-shot training to reflect this new approach.
+- We submit our input as a single string with new lines separating each team name.
+- We merge the team names and the LLM's answers into a dictionary returned by the function.
 
-{emphasize-lines="1"}
 ```python
-import json
-from rich import print
-from groq import Groq
+def gen_bulk_allowlist_response_format(options, length):
+  schema = {
+    "type": "object",
+    "properties": {
+      "answers": {
+        "type": "array",
+        "minItems": length,
+        "maxItems": length,
+        "items": {
+          "type": "string",
+          "enum": options,
+        },
+      }
+    },
+    "required": [
+        "answers"
+    ],
+    "additionalProperties": False
+  }
+
+  response_format = {
+      "type": "json_schema",
+      "json_schema": {
+          "name": "AllowlistSchema",
+          "schema": schema,
+          "strict": True,
+      },
+  }
+
+  return response_format
 ```
 
-Next, we make a series of changes to our function to adapt it to work with a batch of inputs. Get ready. It's a lot.
+{emphasize-lines="2,3-9,25-36,39,45"}
 
-* We tweak the name of the function.
-* We change our input argument to a list.
-* We expand our prompt to explain that we will provide a list of team names.
-* We ask the LLM to classify them individually, returning its answers in a JSON list.
-* We insist on getting one answer for each input.
-* We tweak our few-shot training to reflect this new approach.
-* We submit our input as a single string with new lines separating each team name.
-* We convert the LLM's response from a string to a list using the `json.loads` function.
-* We check that the LLM's answers are in our list of acceptable answers with a loop through the list.
-* We merge the team names and the LLM's answers into a dictionary returned by the function.
-
-{emphasize-lines="2,17-27,36-43,46,53-54,62-66"}
 ```python
 def classify_teams(name_list):
     prompt = """
@@ -38,25 +59,15 @@ I will provide list of professional sports team names separated by new lines
 
 You will reply with the sports league in which they compete.
 
-Your responses must come from the following list:
-- Major League Baseball (MLB)
-- National Football League (NFL)
-- National Basketball Association (NBA)
-
 If the team's league is not on the list, you should label them as "Other".
-
-Your answers should be returned as a flat JSON list.
-
-It is very important that the length of JSON list you return is exactly the same as the number of names you receive.
-
-If I were to submit:
-
-"Los Angeles Rams\nLos Angeles Dodgers\nLos Angeles Lakers\nLos Angeles Kings"
-
-You should return the following:
-
-["National Football League (NFL)", "Major League Baseball (MLB)", "National Basketball Association (NBA)", "Other"]
 """
+
+    acceptable_answers = [
+        "MLB",
+        "NFL",
+        "NBA",
+        "Other"
+    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -70,30 +81,21 @@ You should return the following:
             },
             {
                 "role": "assistant",
-                "content": '["National Football League (NFL)", "Major League Baseball (MLB)", "National Basketball Association (NBA)", "Other"]',
+                "content": '["NFL", "MLB", "NBA", "Other"]',
             },
             {
                 "role": "user",
                 "content": "\n".join(name_list),
             },
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format=gen_bulk_allowlist_response_format(acceptable_answers, len(name_list)),
         temperature=0,
     )
 
-    answer_str = response.choices[0].message.content
-    answer_list = json.loads(answer_str)
 
-    acceptable_answers = [
-        "Major League Baseball (MLB)",
-        "National Football League (NFL)",
-        "National Basketball Association (NBA)",
-        "Other",
-    ]
-    for answer in answer_list:
-        if answer not in acceptable_answers:
-            raise ValueError(f"{answer} not in list of acceptable answers")
-
+    response_dict = json.loads(response.choices[0].message.content)
+    answer_list = response_dict["answers"]
     return dict(zip(name_list, answer_list))
 ```
 
@@ -103,92 +105,14 @@ Try that with our team list.
 classify_teams(team_list)
 ```
 
-And you'll see that it works with only a single API call. The same technique will work for a batch of any size.
+And you'll see that it works with only a single API call. The same technique will work for a batch of any size. Due to LLMs tendency to lose attention and engage in strange loops as answers get longer, it's generally recommended to stick with batches of 10 or so).
 
 ```python
 {
-    "Chicago Cubs": "Major League Baseball (MLB)",
-    "Chicago Bears": "National Football League (NFL)",
-    "Chicago Bulls": "National Basketball Association (NBA)",
+    "Chicago Cubs": "MLB",
+    "Chicago Bears": "NFL",
+    "Chicago Bulls": "NBA",
 }
-```
-
-Though, as you batches get bigger, one common problem is that the number of outputs from the LLM can fail to match the number of inputs you provide. This problem may lessen as LLMs improve, but for now it's a good idea to limit to batches to a few dozen inputs and to verify that you're getting the right number back.
-
-{emphasize-lines="66-69"}
-```python
-def classify_teams(name_list):
-    prompt = """
-You are an AI model trained to classify text.
-
-I will provide list of professional sports team names separated by new lines
-
-You will reply with the sports league in which they compete.
-
-Your responses must come from the following list:
-- Major League Baseball (MLB)
-- National Football League (NFL)
-- National Basketball Association (NBA)
-
-If the team's league is not on the list, you should label them as "Other".
-
-Your answers should be returned as a flat JSON list.
-
-It is very important that the length of JSON list you return is exactly the same as the number of names you receive.
-
-If I were to submit:
-
-"Los Angeles Rams\nLos Angeles Dodgers\nLos Angeles Lakers\nLos Angeles Kings"
-
-You should return the following:
-
-["National Football League (NFL)", "Major League Baseball (MLB)", "National Basketball Association (NBA)", "Other"]
-"""
-
-    response = client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": prompt,
-            },
-            {
-                "role": "user",
-                "content": "Chicago Bears,Chicago Cubs,Chicago Bulls,Chicago Blackhawks",
-            },
-            {
-                "role": "assistant",
-                "content": '["National Football League (NFL)", "Major League Baseball (MLB)", "National Basketball Association (NBA)", "Other"]',
-            },
-            {
-                "role": "user",
-                "content": "\n".join(name_list),
-            },
-        ],
-        model="llama-3.3-70b-versatile",
-        temperature=0,
-    )
-
-    answer_str = response.choices[0].message.content
-    answer_list = json.loads(answer_str)
-
-    acceptable_answers = [
-        "Major League Baseball (MLB)",
-        "National Football League (NFL)",
-        "National Basketball Association (NBA)",
-        "Other",
-    ]
-    for answer in answer_list:
-        if answer not in acceptable_answers:
-            raise ValueError(f"{answer} not in list of acceptable answers")
-
-    try:
-        assert len(name_list) == len(answer_list)
-    except AssertionError:
-        raise ValueError(
-            f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})"
-        )
-
-    return dict(zip(name_list, answer_list))
 ```
 
 Okay. Naming sports teams is a cute trick, but what about something hard? And whatever happened to that George Santos idea?
@@ -198,16 +122,17 @@ We'll tackle that by pulling in our example dataset using `pandas`, a popular da
 First, we need to install it. Back to our installation cell.
 
 ```text
-%pip install groq rich ipywidgets pandas
+!uv add huggingface_hub rich ipywidgets pandas
 ```
 
 Then import it.
 
-{emphasize-lines="5"}
+{emphasize-lines="4"}
+
 ```python
 import json
 from rich import print
-from groq import Groq
+from huggingface_hub import InferenceClient
 import pandas as pd
 ```
 
@@ -242,6 +167,7 @@ payee
 Now let's adapt what we have to fit. Instead of asking for a sports league back, we will ask the LLM to classify each payee as a restaurant, bar, hotel or other establishment.
 
 {emphasize-lines="2-26,33-48,61-66"}
+
 ```python
 def classify_payees(name_list):
     prompt = """You are an AI model trained to categorize businesses based on their names.
@@ -249,8 +175,6 @@ def classify_payees(name_list):
 You will be given a list of business names, each separated by a new line.
 
 Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
-
-It is extremely critical that there is a corresponding category output for each business name provided as an input.
 
 If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
 
@@ -265,9 +189,15 @@ Your output should be a JSON list in the following format:
 ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]
 
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
-
-Ensure that the number of classifications in your output matches the number of business names in the input. It is very important that the length of JSON list you return is exactly the same as the number of business names youyou receive.
 """
+
+    acceptable_answers = [
+        "Restaurant",
+        "Bar",
+        "Hotel",
+        "Other"
+    ]
+
     response = client.chat.completions.create(
         messages=[
             {
@@ -295,30 +225,13 @@ Ensure that the number of classifications in your output matches the number of b
                 "content": "\n".join(name_list),
             },
         ],
-        model="llama-3.3-70b-versatile",
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format=gen_bulk_allowlist_response_format(acceptable_answers, len(name_list)),
         temperature=0,
     )
 
-    answer_str = response.choices[0].message.content
-    answer_list = json.loads(answer_str)
-
-    acceptable_answers = [
-        "Restaurant",
-        "Bar",
-        "Hotel",
-        "Other",
-    ]
-    for answer in answer_list:
-        if answer not in acceptable_answers:
-            raise ValueError(f"{answer} not in list of acceptable answers")
-
-    try:
-        assert len(name_list) == len(answer_list)
-    except AssertionError:
-        raise ValueError(
-            f"Number of outputs ({len(name_list)}) does not equal the number of inputs ({len(answer_list)})"
-        )
-
+    response_dict = json.loads(response.choices[0].message.content)
+    answer_list = response_dict["answers"]
     return dict(zip(name_list, answer_list))
 ```
 
@@ -351,18 +264,18 @@ classify_payees(sample_list)
 
 That's nice for a sample. But how do you loop through the entire dataset and code them.
 
+Let's add a couple libraries that will let us avoid hammering Hugging Face and keep tabs on our progress.
 
-Let's add a couple libraries that will let us avoid hammering Groq and keep tabs on our progress.
+{emphasize-lines="2,4,7"}
 
-{emphasize-lines="1,5"}
 ```python
-from itertools import batched
-import time
 import json
+import time
 from rich import print
 from rich.progress import track
-from groq import Groq
+from huggingface_hub import InferenceClient
 import pandas as pd
+from itertools import batched
 ```
 
 That batching trick can then be fit into a new function that will accept a big list of payees and classify them batch by batch.
@@ -381,28 +294,88 @@ def classify_batches(name_list, batch_size=10, wait=2):
         # Add what we get back to the results
         all_results.update(batch_results)
 
-        # Tap the brakes to avoid overloading groq's API
+        # Tap the brakes to avoid overloading Hugging Face's API
         time.sleep(wait)
 
     # Return the results
     return all_results
 ```
 
-Now, let's take out a bigger sample.
+Printing out to the console is interesting, but with a bigger sample you'll want to be able to work with the results in a more structured way. First, let's update our model to `gpt-oss-20b` from OpenAI which is a bit faster for basic classification tasks like this one.
+
+{emphasize-lines="57"}
 
 ```python
-bigger_sample = list(df.sample(100).payee)
+def classify_payees(name_list):
+    prompt = """You are an AI model trained to categorize businesses based on their names.
+
+You will be given a list of business names, each separated by a new line.
+
+Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
+
+If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
+
+Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
+
+For example, if given the following input:
+
+"Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
+
+Your output should be a JSON list in the following format:
+
+["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]
+
+This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
+"""
+
+    acceptable_answers = [
+        "Restaurant",
+        "Bar",
+        "Hotel",
+        "Other"
+    ]
+
+    response = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            },
+            {
+                "role": "user",
+                "content": "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing",
+            },
+            {
+                "role": "assistant",
+                "content": '["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]',
+            },
+            {
+                "role": "user",
+                "content": "Subway Sandwiches\nRuth Chris Steakhouse\nPolitical Consulting Co\nThe Lamb's Club",
+            },
+            {
+                "role": "assistant",
+                "content": '["Restaurant", "Restaurant", "Other", "Bar"]',
+            },
+            {
+                "role": "user",
+                "content": "\n".join(name_list),
+            },
+        ],
+        model="openai/gpt-oss-20b",
+        response_format=gen_bulk_allowlist_response_format(acceptable_answers, len(name_list)),
+        temperature=0,
+    )
+
+    response_dict = json.loads(response.choices[0].message.content)
+    answer_list = response_dict["answers"]
+    return dict(zip(name_list, answer_list))
 ```
 
-And let it rip.
-
-```python
-classify_batches(bigger_sample)
-```
-
-Printing out to the console is interesting, but eventually you'll want to be able to work with the results in a more structured way. So let's convert the results into a `pandas` DataFrame by modifying our function.
+Next, let's convert the results into a `pandas` DataFrame by modifying our batching function.
 
 {emphasize-lines="20-23"}
+
 ```python
 def classify_batches(name_list, batch_size=10, wait=2):
     # Store the results
@@ -426,6 +399,7 @@ def classify_batches(name_list, batch_size=10, wait=2):
 Results can now be stored as a DataFrame.
 
 ```python
+bigger_sample = list(df.sample(100).payee)
 results_df = classify_batches(bigger_sample)
 ```
 
