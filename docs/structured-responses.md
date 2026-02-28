@@ -4,9 +4,9 @@ Here's a public service announcement. There's no law that says you have to ask L
 
 Yes, they're great at drumming up long blocks of text. An LLM can spit out a long answer to almost any question. It's how they've been tuned and marketed by companies selling chatbots and more conversational forms of search.
 
-But they're also great at answering simple questions, a skill that has been overlooked in much of the hoopla that followed the introduction of ChatGPT.
+But they're also great at answering simple questions with simple answers, a skill that has been overlooked in much of the hoopla that followed the introduction of ChatGPT.
 
-Here's an example that simply prompts the LLM to answer a straightforward question.
+Here's an example that simply prompts the LLM to answer a straightforward question. Since this prompt is a little longer than the one we used in the previous notebook, we'll assign it to a variable and use [Python's triple quote syntax](https://docs.python.org/3/tutorial/introduction.html#strings) to break across multiple lines and make it easier to read.
 
 ```python
 prompt = """
@@ -18,7 +18,7 @@ You will reply with the sports league in which they compete.
 """
 ```
 
-Lace that into our request.
+Run that cell and then lace the variable into our request.
 
 {emphasize-lines="5"}
 
@@ -98,7 +98,7 @@ National Football League (NFL)
 
 This approach can be used to classify large datasets, adding a new column of data that categorizes text in a way that makes it easier to analyze.
 
-Let's try it by making a function that will classify whatever team you provide.
+Let's try it by making a function that will classify whatever team you provide. We'll include everything we've done so far in a single, reusable chunk of code.
 
 ```python
 def classify_team(name):
@@ -127,13 +127,19 @@ You will reply with the sports league in which they compete.
     return response.choices[0].message.content
 ```
 
-A list of teams.
+Try it with a single team to see how it works.
+
+```python
+classify_team("Chicago Bulls")
+```
+
+To show the power of reusability, let's make a list of teams.
 
 ```python
 team_list = ["Chicago Cubs", "Chicago Bears", "Chicago Bulls"]
 ```
 
-Now, loop through the list and ask the LLM to code them one by one.
+Loop through the list and ask the LLM to classify them one by one.
 
 ```python
 for team in team_list:
@@ -147,7 +153,11 @@ for team in team_list:
 ['Chicago Bulls', 'National Basketball Association (NBA)']
 ```
 
-Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
+### Validating responses with JSON schema
+
+Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. For instance, in one case it might say the Cubs are are in "MLB" and in another it might say "Major League Baseball". This can make it difficult to analyze the data later on, since you have to account for all the different ways the same answer might be phrased.
+
+You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
 
 Most LLM providers, including Hugging Face, accept JSON schema as a way of enforcing the shape of the output. JSON is a JavaScript data format that is easy to work with in Python, and [JSON schema](https://json-schema.org) is a standard that predates modern LLMs and is used to describe an expected JSON output. There are a number of ways to make a JSON schema, from using libraries like [Pydantic](https://docs.pydantic.dev/latest/concepts/json_schema/) to [asking an LLM to write one for you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator) to learning how to write it yourself.
 
