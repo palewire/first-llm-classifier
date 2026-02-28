@@ -344,3 +344,5 @@ results_df.category.value_counts()
 </pre>
 
 Now you can start to dig into the details and see which payees were classified in which categories, and maybe even spot some interesting patterns in the data.
+
+If you ran this routine across the full list of payees, you could merge the results with the line-time spending reported by candidates and quickly calculate which candidates spent the most on hotels, or bars, or restaurants. If someone had a system like this in place during the 2022 election cycle, they might have been able to flag George Santos' suspicious spending patterns months before The New York Times broke the story.

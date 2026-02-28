@@ -441,12 +441,12 @@ sample_df = pd.read_csv(
 )
 ```
 
-We'll install the Python packages `scikit-learn`, `matplotlib`, and `seaborn`. Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
+We'll install the Python packages `scikit-learn` and `matplotlib`. Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
 
 Return to the Jupyter notebook and install the packages alongside our other dependencies.
 
 ```
-!uv add huggingface_hub rich ipywidgets pandas scikit-learn matplotlib seaborn
+!uv add huggingface_hub rich ipywidgets pandas scikit-learn matplotlib
 ```
 
 Add the `train_test_split` function from `scikit-learn` to the import statement.
@@ -491,9 +491,9 @@ All that requires is that we pass the `payee` column from our `test_input` DataF
 llm_df = classify_batches(list(test_input.payee))
 ```
 
-Next, we import the `classification_report` function from `sklearn`, which are used to evaluate a model's performance. We'll also pull in `seaborn` and `matplotlib` to visualize the results.
+Next, we import the `classification_report` function from `sklearn`, which is used to evaluate a model's performance.
 
-{emphasize-lines="9-11"}
+{emphasize-lines="9"}
 
 ```python
 import json
@@ -504,9 +504,7 @@ from huggingface_hub import InferenceClient
 import pandas as pd
 from itertools import batched
 from sklearn.model_selection import train_test_split
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import classification_report
 ```
 
 The `classification_report` function generates a report card on a model's performance. You provide it with the correct answers in the `test_output` set and the model's predictions in your prompt's DataFrame. In this case, our LLM's predictions are stored in the `llm_df` DataFrame's `category` column.
@@ -548,22 +546,27 @@ In the example result above, the overall accuracy is about 90%, but the lower ma
 
 Another technique for evaluating classifiers is to visualize the results using a chart known as a confusion matrix. This chart shows how often the model correctly predicted each category and where it got things wrong.
 
-Drawing one up requires the `confusion_matrix` function from `sklearn` and an embarrassing tangle of code from `seaborn` and `matplotlib` libraries. Most of it is boilerplate, but you need to punch your test variables, as well as the proper labels for the categories, in a few picky places.
+The `ConfusionMatrixDisplay` tool from `sklearn` can draw one for us. We just need to add it and `matplotlib` to our imports.
+
+{emphasize-lines="9,10"}
 
 ```python
-conf_mat = confusion_matrix(
-    test_output, llm_df.category, labels=llm_df.category.unique()
-)
-fig, ax = plt.subplots(figsize=(5, 5))
-sns.heatmap(
-    conf_mat,
-    annot=True,
-    fmt="d",
-    xticklabels=llm_df.category.unique(),
-    yticklabels=llm_df.category.unique(),
-)
-plt.ylabel("Actual")
-plt.xlabel("Predicted")
+import json
+import time
+from rich import print
+from rich.progress import track
+from huggingface_hub import InferenceClient
+import pandas as pd
+from itertools import batched
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report
+```
+
+Then pass in the correct answers and the model's predictions.
+
+```python
+ConfusionMatrixDisplay.from_predictions(test_output, llm_df.category)
 ```
 
 ![confusion matrix](_static/matrix-llm.png)
@@ -578,7 +581,7 @@ Before we look at how you might improve the LLM's performance, let's take a mome
 
 This will require importing a mess of `sklearn` functions and classes. We'll use `TfidfVectorizer` to convert the payee text into a numerical representation that can be used by a `LinearSVC` classifier. We'll then use a `Pipeline` to chain the two together. If you have no idea what any of that means, don't worry. Now that we have LLMs in this world, you might never need to know.
 
-{emphasize-lines="12-15"}
+{emphasize-lines="11-14"}
 
 ```python
 import json
@@ -589,9 +592,8 @@ from huggingface_hub import InferenceClient
 import pandas as pd
 from itertools import batched
 from sklearn.model_selection import train_test_split
-import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -650,19 +652,7 @@ weighted avg       0.81      0.78      0.74        83
 ```
 
 ```python
-labels = sorted(set(test_output) | set(predictions))
-
-conf_mat = confusion_matrix(test_output, predictions, labels=labels)
-fig, ax = plt.subplots(figsize=(5, 5))
-sns.heatmap(
-    conf_mat,
-    annot=True,
-    fmt="d",
-    xticklabels=labels,
-    yticklabels=labels,
-)
-plt.ylabel("Actual")
-plt.xlabel("Predicted")
+ConfusionMatrixDisplay.from_predictions(test_output, predictions)
 ```
 
 ![confusion matrix](_static/matrix-ml.png)
