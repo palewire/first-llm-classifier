@@ -6,15 +6,17 @@ This is where traditional machine-learning techniques still play a vital role. L
 
 ## The old way
 
-Before the advent of large-language models, machine-learning systems were trained using a technique called [supervised learning](https://en.wikipedia.org/wiki/Supervised_learning). This approach required users to provide carefully prepared training data that showed the computer what was expected.
+Before the advent of large-language models, machine-learning systems were trained using a technique called [supervised learning](https://en.wikipedia.org/wiki/Supervised_learning). This approach required users to provide carefully prepared data that showed the computer what was expected.
 
-For instance, if you were developing a model to distinguish spam emails from legitimate ones, you would need to provide the model with a set of spam emails and another set of legitimate emails. The model would then use that data to learn the relationships between the inputs and outputs, which it could then apply to new emails.
+For instance, if you were developing a model to distinguish spam emails from legitimate ones, you would provide the model with a set of emails that had already been properly classified as spam or not spam.
 
-In addition to training the model, the curated input would be used to evaluate the model's performance. This process typically involved splitting the supervised data into two sets: one for training and one for testing. The model could then be evaluated using a separate set of supervised data to ensure it could generalize beyond the examples it had been fed during training.
+The model would then use that data to learn the relationships between the inputs and outputs, which it could then apply to new emails it hadn't seen before. This process is called training.
 
-Large-language models operate differently. They are trained on vast amounts of text and can generate responses based on the relationships they derive from various machine-learning approaches. The result is that they can be used to perform a wide range of tasks without requiring supervised data to be prepared beforehand.
+In those systems, the supervised input would be split into two separate sets: one for training another held aside for testing. After the model was training using the first set, it would be evaluated using the second set to see how well it performed. Since the testing set had been withheld from the model during training, it provided a way to measure how well the model could generalize to new data.
 
-This is a significant advantage. However, it also raises questions about evaluating an LLM prompt. If we don’t have a supervised sample to test its results, how do we know if it’s doing a good job? How can we improve its performance if we can’t see where it gets things wrong?
+Large-language models operate differently. They are trained on vast amounts of text and can generate responses based on the relationships they derive from various machine-learning approaches. The result is that you can use them without providing supervised data beforehand.
+
+This is a significant advantage. However, it also raises questions about how to evaluate the accuracy of an LLM prompt. Without a supervised sample to test its results, we can't be sure if the model is performing well or just getting lucky with its guesses. Without knowing where it gets things wrong, we don't know what adjustments could improve its performance.
 
 ## Creating a supervised sample
 
