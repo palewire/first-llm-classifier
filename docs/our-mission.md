@@ -307,6 +307,20 @@ Traditional techniques for classifying text — like keyword searches and [regul
 
 Large-language models offer a better deal. We will demonstrate how you can use them to get superior results with less effort.
 
+## The LLM advantage
+
+![A rotating set of LLM providers](_static/llm-chatbots.gif)
+
+A [large-language model](https://en.wikipedia.org/wiki/Large_language_model) is an artificial intelligence system capable of understanding and generating human language due to its extensive training on vast amounts of text. These systems are commonly referred to by the acronym LLM. The most prominent examples include OpenAI’s GPT, Google’s Gemini and Anthropic’s Claude. There are many others, including numerous open-source options.
+
+While these LLMs are most famous for their ability to converse with humans as chatbots, they can also perform a wide range of language processing tasks, including text classification, summarization and translation.
+
+Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs can be prompted with a broad description of their goals and a few examples of rules they should follow. This approach is called prompting.
+
+After parsing the user's request, the LLMs will generate responses informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large datasets that are difficult for humans to process on their own.
+
+LLMs also do not require the user to understand machine-learning concepts, like vectorization or Bayesian statistics, or to write complex code to train and evaluate the model. Instead, users can submit prompts in plain language, which the model will use to generate responses. This makes it easier for journalists to experiment with different approaches and quickly iterate on their work.
+
 ## Our example case
 
 To show the power of this approach, we’ll focus on a specific data set: campaign expenditures.

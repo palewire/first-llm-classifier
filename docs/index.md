@@ -30,7 +30,6 @@ The documentation assumes you are working on an Apple computer or with the Linux
 :numbered:
 
 our-mission
-llm-wtf
 huggingface
 visual-studio-code
 prompting-with-python
