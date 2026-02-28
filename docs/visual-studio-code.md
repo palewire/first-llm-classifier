@@ -6,25 +6,25 @@ You can write Python code in your terminal, in a text file and any number of oth
 
 If you're not, the tool we recommend for beginners is [Visual Studio Code](https://code.visualstudio.com/), a free code editor supported by Microsoft.
 
-[![Visual Studio Code homepage](/_static/vs-code-homepage.png)](https://code.visualstudio.com/)
+[![Visual Studio Code homepage](_static/vs-code-homepage.png)](https://code.visualstudio.com/)
 
 It can be used to run [Jupyter notebooks](https://jupyter.org/) — the interactive coding environment invented by Python developers and used by scientists, scholars, investors and corporations to create and share their research. It is also commonly used by journalists to analyze data and show their work.
 
-[![Jupyter homepage](/_static/jupyter-homepage.png)](https://jupyter.org/)
+[![Jupyter homepage](_static/jupyter-homepage.png)](https://jupyter.org/)
 
 ## Install Visual Studio Code
 
 Visual Studio Code can be installed on any operating system with a simple point-and-click interface. If you don't have it already, the first step is to visit [code.visualstudio.com](https://code.visualstudio.com/) and download the version tailored for your operating system.
-~
+
 Once you have it installed, you should open an empty window to start our project. It should look something like this:
 
-![Visual Studio Code splash screen](/_static/vs-code-splash.png)
+![Visual Studio Code splash screen](_static/vs-code-splash.png)
 
 ## Install the Python extension
 
 Now you need to install the Python extension, which gives Visual Studio Code the ability to run Python code and notebooks. Click the Extensions icon in the left sidebar — it looks like four small squares. Type "Python" into the search bar. The top result should be the Python extension published by Microsoft. Click the blue "Install" button.
 
-![Python extension](/_static/python-extension.png)
+![Python extension](_static/python-extension.png)
 
 ## Install uv
 
@@ -86,13 +86,13 @@ It will now have access to your project's virtual environment, which includes Py
 
 Click "File" in the menu bar and select "New File..." from the dropdown. When prompted to choose a file type, select "Jupyter Notebook."
 
-![Visual Studio Code new notebook](/_static/vs-code-new-notebook.png)
+![Visual Studio Code new notebook](_static/vs-code-new-notebook.png)
 
 Visual Studio Code will open a fresh notebook. You will see a prompt in the upper right corner asking you to select a Python kernel. Click "Select Kernel."
 
 A popup will appear. Select "Python Environments..." and then choose the `.venv` option — this is the virtual environment you created with uv.
 
-![Visual Studio Code select kernel](/_static/vs-code-select-kernel.png)
+![Visual Studio Code select kernel](_static/vs-code-select-kernel.png)
 
 Welcome to your first notebook. Let's make sure everything is working.
 
@@ -104,6 +104,6 @@ Click on the first cell, type the following and hit the play button to the left 
 
 You should see the number `4` appear below the cell.
 
-![Visual Studio Code first cell](/_static/vs-code-first-cell.png)
+![Visual Studio Code first cell](_static/vs-code-first-cell.png)
 
 If so, congratulations. You're all set up and ready to move on to writing code.
