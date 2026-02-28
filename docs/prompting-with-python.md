@@ -50,7 +50,7 @@ We also need to pick an LLM from [the list that Hugging Face supports](https://h
 
 [![Hugging Face model list](_static/huggingface-models.png)](https://huggingface.co/models)
 
-Let's start with Llama 4 from Meta. At the time of this writing, it was the company's latest offering. It's current acronym is a mouthful: [Llama-4-Maverick-17B-128E-Instruct-FP8](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8).
+Let's start with Llama 4 from Meta. At the time of this writing, it was the company's latest offering. Its full name is a mouthful: [Llama-4-Maverick-17B-128E-Instruct-FP8](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8).
 
 [![Llama 4 model card](_static/llama-4.png)](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
 
@@ -240,6 +240,6 @@ print(response.choices[0].message.content)
 *sigh* Fine. Data journalism is a tedious exercise in
 number-crunching that often results in self-evident conclusions
 and dull, chart-filled articles that put readers to sleep, but
-I suppose it's become a necessary evil  in this age of
+I suppose it's become a necessary evil in this age of
 "quantifying" everything.
 ```
