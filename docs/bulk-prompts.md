@@ -24,14 +24,14 @@ Then, in our function, we make the following changes:
 
 Put all that together and here's where we land.
 
-{emphasize-lines="3-9,25-36,39,44-45"}
+{emphasize-lines="1,5,18-25,28,43"}
 
 ```python
 def classify_teams(name_list):
     prompt = """
 You are an AI model trained to classify text.
 
-I will provide list of professional sports team names separated by new lines
+I will provide a list of professional sports team names separated by new lines
 
 You will reply with the sports league in which they compete.
 
@@ -295,7 +295,7 @@ def classify_batches(name_list, batch_size=20, wait=1):
     return pd.DataFrame(all_results.items(), columns=["payee", "category"])
 ```
 
-Look closely at that last line and you'll see that the function is now returning a DataFrame instead of a dictionary. This will make what we back easier to work with and analyze.
+Look closely at that last line and you'll see that the function is now returning a DataFrame instead of a dictionary. This will make what we back easier to work with the results.
 
 Select a bigger sample.
 
@@ -329,7 +329,7 @@ results_df.head(10)
 |  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> | PEREA FOR SCCCD TRUSTEE AREA <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2018</span> | Other      |
 </pre>
 
-Or do a bit of analysis a sum of all the categories.
+Or do a bit of analysis of the categories.
 
 ```python
 results_df.category.value_counts()
@@ -342,3 +342,7 @@ results_df.category.value_counts()
 |  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | Hotel      |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">17</span> |
 |  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | Bar        |       <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> |
 </pre>
+
+Now you can start to dig into the details and see which payees were classified in which categories, and maybe even spot some interesting patterns in the data.
+
+Before you publish anything, though, you'll want to be sure you can trust the LLM's classifications. And spot checks are not enough.

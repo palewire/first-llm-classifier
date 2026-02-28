@@ -12,6 +12,8 @@ This is a significant advantage. However, it also raises questions about evaluat
 
 In the final chapters, we will show how traditional supervision can still play a vital role in evaluating and improving an LLM prompt.
 
+## Creating a supervised sample
+
 Start by outputting a random sample from the dataset to a file of comma-separated values. It will serve as our supervised sample. In general, the larger the sample the better the evaluation. But at a certain point the returns diminish. For this exercise, we will use a sample of 250 records.
 
 ```python
@@ -68,6 +70,8 @@ training_input, test_input, training_output, test_output = train_test_split(
 )
 ```
 
+## Evaluating performance
+
 In a traditional training setup, the next step would be to train a machine-learning model in `sklearn` using the `training_input` and `training_output` sets. The model would then be evaluated using the `test_input` and `test_output` sets.
 
 With the LLM we skip ahead to the testing phase. We pass the `test_input` set to our LLM prompt and compare the results to the right answers found in `test_output` set.
@@ -78,7 +82,7 @@ All that requires is that we pass the `payee` column from our `test_input` DataF
 llm_df = classify_batches(list(test_input.payee))
 ```
 
-Next, we import the `classification_report` and `confusion_matrix` functions from `sklearn`, which are used to evaluate a model's performance. We'll also pull in `seaborn` and `matplotlib` to visualize the results.
+Next, we import the `classification_report` function from `sklearn`, which are used to evaluate a model's performance. We'll also pull in `seaborn` and `matplotlib` to visualize the results.
 
 {emphasize-lines="9-11"}
 
@@ -131,6 +135,8 @@ The averages at the bottom combine the results for all categories. The macro row
 
 In the example result above, the overall accuracy is about 90%, but the lower macro average (0.76) shows the model is less consistent on rarer categories.
 
+## Visualizing the results
+
 Another technique for evaluating classifiers is to visualize the results using a chart known as a confusion matrix. This chart shows how often the model correctly predicted each category and where it got things wrong.
 
 Drawing one up requires the `confusion_matrix` function from `sklearn` and an embarrassing tangle of code from `seaborn` and `matplotlib` libraries. Most of it is boilerplate, but you need to punch your test variables, as well as the proper labels for the categories, in a few picky places.
@@ -156,6 +162,8 @@ plt.xlabel("Predicted")
 The diagonal line of cells running from the upper left to the lower right shows where the model correctly predicted the category. The off-diagonal cells show where it got things wrong. The color of the cells indicates how often the model made that prediction. For instance, we can see that one miscategorized hotel in the sample was predicted to be a restaurant and the second was predicted to be "Other."
 
 Due to the inherent randomness in the LLM's predictions, it's a good idea to test your sample and run these reports multiple times to get a sense of the model's performance.
+
+## The way we were
 
 Before we look at how you might improve the LLM's performance, let's take a moment to compare the results of this evaluation against the old school approach where the supervised sample is used to train a machine-learning model that doesn't have access to the ocean of knowledge poured into an LLM.
 
