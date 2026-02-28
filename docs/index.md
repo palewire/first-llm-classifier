@@ -8,11 +8,11 @@ This class will give you hands-on experience creating a machine-learning model t
 
 It will teach you how to:
 
-* Submit large-language model prompts with the Python programming language
-* Write structured prompts that can classify text into predefined categories
-* Submit dozens of prompts at once as part of an automated routine
-* Evaluate results using a rigorous, scientific approach
-* Improve results by training the model with rules and examples
+- Submit large-language model prompts with the Python programming language
+- Write structured prompts that can classify text into predefined categories
+- Send dozens of prompts at once as part of an automated routine
+- Evaluate results using a rigorous, scientific approach
+- Improve results by training the model with rules and examples
 
 By the end, you will understand how LLM classifiers can outperform traditional machine-learning methods with significantly less code. And you will be ready to write a classifier on your own.
 
