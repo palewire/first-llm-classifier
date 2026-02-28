@@ -337,4 +337,4 @@ Inspired by this scoop, we will create a classifier that can scan the expenditur
 
 [![CCDC](_static/ccdc.png)](https://californiacivicdata.org/)
 
-We will draw data from The Golden State, where the California Civic Data Coalition developed a clean, structured version of the statehouse's disclosure data, which tracks the spending of candidates for state legislature, governor and other statewide offices. The records are now stored by the [Big Local News](https://biglocalnews.org/), an open-source journalism project hosted by Stanford University.
+We will draw data from The Golden State, where the California Civic Data Coalition developed a clean, structured version of the statehouse's disclosure data, which tracks the spending of candidates for state legislature, governor and other statewide offices. The records are now stored by [Big Local News](https://biglocalnews.org/), an open-source journalism project hosted by Stanford University.

@@ -1,4 +1,4 @@
-# Installing Visual Studio Code
+# Visual Studio Code
 
 This class will show you how to interact with a large-language model using the Python computer programming language.
 

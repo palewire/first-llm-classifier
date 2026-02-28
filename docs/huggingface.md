@@ -1,4 +1,4 @@
-# Connecting to Hugging Face
+# Hugging Face
 
 In addition to the commercial chatbots that draw the most media attention, there are many other ways to access large-language models, including free variations that you can download and run directly on your computer.
 
