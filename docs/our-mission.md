@@ -303,9 +303,9 @@ scheduleNext();
 
 A common goal in this work is to classify text into categories. For example, you might want to sort a collection of emails as “spam” and “not spam” or identify corporate filings that suggest a company is about to go bankrupt.
 
-Traditional techniques for classifying text — like keyword searches and regular expressions — can be brittle and error-prone. Machine-learning models can be more flexible, though they require large amounts of human training, a high level of computer programming expertise and often yield unimpressive results.
+Traditional techniques for classifying text — like keyword searches and [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) — can be brittle and error-prone. Traditional machine-learning models can be more flexible, though they require large amounts of human training, a high level of computer programming expertise and often yield unimpressive results.
 
-Large-language models offer a better deal. We will demonstrate how you can use them to get superior results with less hassle.
+Large-language models offer a better deal. We will demonstrate how you can use them to get superior results with less effort.
 
 ## Our example case
 
@@ -313,9 +313,9 @@ To show the power of this approach, we’ll focus on a specific data set: campai
 
 Candidates for office must disclose the money they spend on everything from pizza to private jets. Tracking their spending can reveal patterns and lead to important stories.
 
-But it’s no easy task. Each election cycle, thousands of candidates log transactions into the public databases where spending is disclosed. That’s so much data that no one can examine it all. To make matters worse, campaigns often use vague or misleading descriptions of their spending, making it difficult to parse and understand.
+It’s no easy task. Each election cycle, thousands of candidates log their transactions into the public databases where spending is disclosed. The flood of filings results in too much data for anyone to examine on their own. To make matters worse, campaigns often use vague or misleading descriptions of their spending, making their activities difficult to understand.
 
-It wasn’t until after his 2022 election to Congress that [journalists discovered](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html) that Rep. George Santos of New York had spent thousands of campaign dollars on questionable and potentially illegal expenses. While much of his shady spending was publicly disclosed, it was largely overlooked in the run-up to election day.
+For instance, it wasn’t until after his 2022 election to Congress that [journalists discovered](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html) that Rep. George Santos of New York had spent thousands of campaign dollars on questionable and potentially illegal expenses. While much of his shady spending was publicly disclosed, it was largely overlooked in the run-up to election day.
 
 [![Santos story](_static/santos.png)](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html)
 
@@ -323,4 +323,4 @@ Inspired by this scoop, we will create a classifier that can scan the expenditur
 
 [![CCDC](_static/ccdc.png)](https://californiacivicdata.org/)
 
-We will draw data from The Golden State, where the California Civic Data Coalition developed a clean, structured version of the statehouse's disclosure data.
+We will draw data from The Golden State, where the California Civic Data Coalition developed a clean, structured version of the statehouse's disclosure data, which tracks the spending of candidates for state legislature, governor and other statewide offices. The records are now stored by the [Big Local News](https://biglocalnews.org/), an open-source journalism project hosted by Stanford University.
