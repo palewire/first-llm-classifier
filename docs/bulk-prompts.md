@@ -295,7 +295,7 @@ def classify_batches(name_list, batch_size=20, wait=1):
     return pd.DataFrame(all_results.items(), columns=["payee", "category"])
 ```
 
-Look closely at that last line and you'll see that the function is now returning a DataFrame instead of a dictionary. This will make what we back easier to work with the results.
+Look closely at that last line and you'll see that the function is now returning a DataFrame instead of a dictionary. This will make the results easier to work with.
 
 Select a bigger sample.
 
