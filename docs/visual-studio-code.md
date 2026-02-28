@@ -1,21 +1,21 @@
 # Visual Studio Code
 
-This class will show you how to interact with a large-language model using the Python computer programming language.
+This class will show you how to interact with a large-language model on Hugging Face using the Python computer programming language.
 
 You can write Python code in your terminal, in a text file and any number of other places. If you're a skilled programmer who already has a preferred venue for coding, feel free to use it as you work through this class.
 
-If you're not, the tool we recommend for beginners is [Visual Studio Code](https://code.visualstudio.com/), a free code editor made by Microsoft.
+If you're not, the tool we recommend for beginners is [Visual Studio Code](https://code.visualstudio.com/), a free code editor supported by Microsoft.
 
-![Visual Studio Code homepage](/_static/vs-code-homepage.png)
+[![Visual Studio Code homepage](/_static/vs-code-homepage.png)](https://code.visualstudio.com/)
 
-It has built-in support for running [Jupyter notebooks](https://jupyter.org/) — the interactive coding environment used by scientists, scholars, investors and corporations to create and share their research. It is also used by journalists to develop stories and show their work.
+It can be used to run [Jupyter notebooks](https://jupyter.org/) — the interactive coding environment invented by Python developers and used by scientists, scholars, investors and corporations to create and share their research. It is also commonly used by journalists to analyze data and show their work.
 
-![Jupyter homepage](/_static/jupyter-homepage.png)
+[![Jupyter homepage](/_static/jupyter-homepage.png)](https://jupyter.org/)
 
 ## Install Visual Studio Code
 
-Visual Studio Code can be installed on any operating system with a simple point-and-click interface. If you don't have it already, the first step is to visit [code.visualstudio.com](https://code.visualstudio.com/) and download the version for your operating system.
-
+Visual Studio Code can be installed on any operating system with a simple point-and-click interface. If you don't have it already, the first step is to visit [code.visualstudio.com](https://code.visualstudio.com/) and download the version tailored for your operating system.
+~
 Once you have it installed, you should open an empty window to start our project. It should look something like this:
 
 ![Visual Studio Code splash screen](/_static/vs-code-splash.png)
@@ -42,7 +42,7 @@ Close your terminal and open a new one for the changes to take effect. Verify it
 uv --version
 ```
 
-You should see a version number like `uv 0.6.6` or similar.
+You should see a version number like `uv 0.10.7` or similar.
 
 ## Create a Python project
 
@@ -64,7 +64,7 @@ Initialize a new Python project with uv:
 uv init
 ```
 
-This creates a virtual environment and project configuration files. Now install ipykernel, which allows Visual Studio Code to run Jupyter notebooks:
+This creates a virtual environment and project configuration files. Now install [`ipykernel`](https://ipykernel.readthedocs.io/en/stable/), a Python library that allows Visual Studio Code to run Jupyter notebooks:
 
 ```bash
 uv add ipykernel
@@ -76,7 +76,7 @@ Verify Python is working by running:
 uv run python --version
 ```
 
-You should see Python 3.13 (or similar). If so, you're all set.
+If you see Python 3.13 or something similar, you're all set.
 
 ## Open your first notebook
 
