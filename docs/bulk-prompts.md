@@ -344,5 +344,3 @@ results_df.category.value_counts()
 </pre>
 
 Now you can start to dig into the details and see which payees were classified in which categories, and maybe even spot some interesting patterns in the data.
-
-Before you publish anything, though, you'll want to be sure you can trust the LLM's classifications. And spot checks are not enough.

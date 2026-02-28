@@ -1,5 +1,11 @@
 # Evaluating prompts
 
+Before you publish anything, you'll want to be sure you can trust the LLM's classifications. Spot checks are not enough. You need a systematic way to evaluate your model's performance.
+
+This is where traditional machine-learning techniques still play a vital role. Let's take a step back to learn how a technique known as supervision can help evaluate and improve an LLM prompt.
+
+## The old way
+
 Before the advent of large-language models, machine-learning systems were trained using a technique called [supervised learning](https://en.wikipedia.org/wiki/Supervised_learning). This approach required users to provide carefully prepared training data that showed the computer what was expected.
 
 For instance, if you were developing a model to distinguish spam emails from legitimate ones, you would need to provide the model with a set of spam emails and another set of legitimate emails. The model would then use that data to learn the relationships between the inputs and outputs, which it could then apply to new emails.
@@ -9,8 +15,6 @@ In addition to training the model, the curated input would be used to evaluate t
 Large-language models operate differently. They are trained on vast amounts of text and can generate responses based on the relationships they derive from various machine-learning approaches. The result is that they can be used to perform a wide range of tasks without requiring supervised data to be prepared beforehand.
 
 This is a significant advantage. However, it also raises questions about evaluating an LLM prompt. If we don’t have a supervised sample to test its results, how do we know if it’s doing a good job? How can we improve its performance if we can’t see where it gets things wrong?
-
-In the final chapters, we will show how traditional supervision can still play a vital role in evaluating and improving an LLM prompt.
 
 ## Creating a supervised sample
 
