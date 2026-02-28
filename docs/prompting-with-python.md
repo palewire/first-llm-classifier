@@ -2,12 +2,12 @@
 
 Now that you've got your Python environment set up, it's time to start writing prompts and sending them off to Hugging Face.
 
-First, you need to install the libraries we need. The [`huggingface_hub`](https://pypi.org/project/huggingface-hub/) package is the official client for Hugging Face's API. You should also install [`rich`](https://pypi.org/project/rich/), a helper library that will improve how your outputs look in Jupyter notebooks.
+First, you need to install the libraries we need. The [`huggingface_hub`](https://pypi.org/project/huggingface-hub/) package is the official client for Hugging Face's API. You should also install [`rich`](https://pypi.org/project/rich/) and [`ipywidgets`](https://pypi.org/project/ipywidgets/), helper libraries that will improve how your outputs look in Jupyter notebooks.
 
 A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
 
 ```text
-!uv add huggingface_hub rich
+!uv add huggingface_hub rich ipywidgets
 ```
 
 Drop that into the first cell of a new notebook and hit the play button in the top toolbar. You should see something like this:

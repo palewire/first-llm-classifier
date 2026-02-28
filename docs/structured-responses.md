@@ -153,7 +153,7 @@ for team in team_list:
 ['Chicago Bulls', 'National Basketball Association (NBA)']
 ```
 
-### Validating responses with Pydantic
+## Validating responses with Pydantic
 
 Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. For instance, in one case it might say the Cubs are in "MLB" and in another it might say "Major League Baseball." This can make it difficult to analyze the data later on, since you have to account for all the different ways the same answer might be phrased.
 
@@ -322,7 +322,7 @@ You’ll get the answer you expect.
 'Other'
 ```
 
-### Reducing creativity with temperature
+## Reducing creativity with temperature
 
 Most LLMs are pre-programmed to be creative and generate a range of responses to the same prompt. For structured responses like this, we don't want that. We want consistency. So it's a good idea to ask the LLM to be more straightforward by reducing a creativity setting known as `temperature` to zero.
 
@@ -366,7 +366,7 @@ def classify_team(name):
     return result.answer
 ```
 
-### Few shot prompting
+## Few shot prompting
 
 You can also increase reliability by priming the LLM with examples of the type of response you want. This technique is called ["few shot prompting."](https://www.ibm.com/think/topics/few-shot-prompting) This approach, which can feel like a strange form of roleplaying, calls on you to provide examples of the "user" input and "assistant" response you want the LLM to mimic.
 
