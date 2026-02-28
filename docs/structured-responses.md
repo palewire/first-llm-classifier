@@ -159,19 +159,25 @@ Due to its probabilistic nature, the LLM can sometimes return slight variations 
 
 You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
 
-Most LLM providers, including Hugging Face, accept JSON schema as a way of enforcing the shape of the output. JSON is a JavaScript data format that is easy to work with in Python, and [JSON schema](https://json-schema.org) is a standard that predates modern LLMs and is used to describe an expected JSON output. There are a number of ways to make a JSON schema, from using libraries like [Pydantic](https://docs.pydantic.dev/latest/concepts/json_schema/) to [asking an LLM to write one for you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator) to learning how to write it yourself.
+Most LLM providers, including Hugging Face, use a similar method for enforcing the shape of the output. It's called JSON schema.
 
-To use a schema, most of the LLM libraries will use a `response_format` which tells the code to respond in JSON instead of text. For Hugging Face, that looks like this
+[JSON](https://en.wikipedia.org/wiki/JSON) is a JavaScript format, like CSV or XML, that is commonly used to store data. [JSON schema](https://json-schema.org) is a data formatting standard that predates modern LLMs and is used to describe what a JSON output should look like. It's used to validate data in a wide variety of applications, and it happens to be a great fit for validating LLM responses.
 
 ```python
-response_format = {
+example_schema = {
     "type": "json_schema",
     "json_schema": {
+        "strict": True,
+        # Here's where the specification goes.
+        # The rest of this code is boilerplate.
         "schema": schema,
-        "strict": True, # You almost always want this to be true
     },
 }
 ```
+
+There are a number of ways to make a JSON schema specification that will fit the peculiar expectations of LLMs and the particulars of your data set. In fact, you can often succeed simply by [asking an LLM to write one for you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator).
+
+To use a schema, most of the LLM libraries will use a `response_format` which tells the code to respond in JSON instead of text. For Hugging Face, that looks like this
 
 JSON schema can handle some fairly complex data structures, but for our purposes we'll stick to one common pattern: an allowlist of options called an [`enum`](https://json-schema.org/understanding-json-schema/reference/enum). Here's a handy utility function you can use to generate a response format with an allowlist of options like a list of leagues.
 
