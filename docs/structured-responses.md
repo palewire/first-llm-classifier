@@ -153,79 +153,49 @@ for team in team_list:
 ['Chicago Bulls', 'National Basketball Association (NBA)']
 ```
 
-### Validating responses with JSON schema
+### Validating responses with Pydantic
 
-Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. For instance, in one case it might say the Cubs are are in "MLB" and in another it might say "Major League Baseball". This can make it difficult to analyze the data later on, since you have to account for all the different ways the same answer might be phrased.
+Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. For instance, in one case it might say the Cubs are in "MLB" and in another it might say "Major League Baseball." This can make it difficult to analyze the data later on, since you have to account for all the different ways the same answer might be phrased.
 
-You can prevent this by adding a validation system that will only accept responses from a pre-defined list.
+In other circumstances, you might want to restrict the LLM to a specific set of answers, like a multiple choice question. For instance, when classifying email, you might want to restrict the LLM to only return "Spam" or "Not Spam."
 
-Most LLM providers, including Hugging Face, use a similar method for enforcing the shape of the output. It's called JSON schema.
+You can handle these situations by adding a validation system that will only accept responses from a pre-defined list.
 
-[JSON](https://en.wikipedia.org/wiki/JSON) is a JavaScript format, like CSV or XML, that is commonly used to store data. [JSON schema](https://json-schema.org) is a data formatting standard that predates modern LLMs and is used to describe what a JSON output should look like. It's used to validate data in a wide variety of applications, and it happens to be a great fit for validating LLM responses.
+Most LLM providers, including Hugging Face, support a `response_format` parameter that enforces the shape of the output using [JSON schema](https://json-schema.org), an arcane specification system used to describe the structure of JSON data.
 
-```python
-example_schema = {
-    "type": "json_schema",
-    "json_schema": {
-        "strict": True,
-        # Here's where the specification goes.
-        # The rest of this code is boilerplate.
-        "schema": schema,
-    },
-}
+Rather than write JSON schema by hand, we'll use [Pydantic](https://docs.pydantic.dev/) — a popular Python library for data validation — to generate it for us.
+
+Like Hugging Face's Python library, Pydantic will need to be installed using `uv`. Run the following command in a new cell.
+
+```
+!uv add pydantic
 ```
 
-There are a number of ways to make a JSON schema specification that will fit the peculiar expectations of LLMs and the particulars of your data set. In fact, you can often succeed simply by [asking an LLM to write one for you](https://chatgpt.com/g/g-uPUxVmHC8-structured-output-json-schema-generator).
+With Pydantic installed, you define a Python class that describes what the response should look like. The `Literal` type from Python's [typing](https://docs.python.org/3/library/typing.html) library restricts a field to specific values — exactly what we need for classification.
 
-To use a schema, most of the LLM libraries will use a `response_format` which tells the code to respond in JSON instead of text. For Hugging Face, that looks like this
+Now let's import it in our top cell and import these two new libraries.
 
-JSON schema can handle some fairly complex data structures, but for our purposes we'll stick to one common pattern: an allowlist of options called an [`enum`](https://json-schema.org/understanding-json-schema/reference/enum). Here's a handy utility function you can use to generate a response format with an allowlist of options like a list of leagues.
-
-```python
-def gen_allowlist_response_format(options):
-    schema = {
-      "type": "object",
-      "properties": {
-        "answer": {
-          "type": "string",
-          "enum": options
-        }
-      },
-      "required": [
-          "answer"
-      ],
-      "additionalProperties": False
-    }
-
-    response_format = {
-        "type": "json_schema",
-        "json_schema": {
-            "name": "AllowlistSchema",
-            "schema": schema,
-            "strict": True,
-        },
-    }
-
-    return response_format
-```
-
-First, we'll need the `json` library, so you can import that at the top of your notebook.
-
-{emphasize-lines="1"}
+{emphasize-lines="1-2"}
 
 ```python
-import json
+from pydantic import BaseModel
+from typing import Literal
 from rich import print
 from huggingface_hub import InferenceClient
 ```
 
-Then, you can integrate the utility by making a few changes to your classify function:
+Create a new cell and define a Pydantic model that describes the shape of the response you want from the LLM. In this case, we want a single field called `answer` that can only be one of three values: "MLB", "NFL" or "NBA".
 
-- Create a list of acceptable answers, and pass that list into the response format utility.
-- Update our classification function to use the `json` python library and parse the response into a Python dictionary.
-- Reach in and pull out just the answer. We know the `answer` key will always exist because the JSON schema demands it.
+```python
+class SportsLeague(BaseModel):
+    answer: Literal["MLB", "NFL", "NBA"]
+```
 
-{emphasize-lines="12-16,30,33-34"}
+Pydantic can then generate the JSON schema automatically with its method `.model_json_schema()`, which we pass to the API's `response_format` parameter. We have to be careful to nest it in the way the API expects, which is a dictionary with a `name` and `schema` key.
+
+We'll also need to parse the response using Pydantic's `model_validate_json` method, which takes the raw JSON string and converts it into a Python object that we can work with. This method also validates the response against our schema, so if the LLM returns something that doesn't fit our defined structure, we'll get an error instead of bad data.
+
+{emphasize-lines="24-30,33-33"}
 
 ```python
 def classify_team(name):
@@ -235,15 +205,7 @@ You are an AI model trained to classify text.
 I will provide the name of a professional sports team.
 
 You will reply with the sports league in which they compete.
-
-If the team doesn't belong in the provided sports league options, reply with "Other".
 """
-
-    acceptable_answers = [
-        "MLB",
-        "NFL",
-        "NBA",
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -257,20 +219,18 @@ If the team doesn't belong in the provided sports league options, reply with "Ot
             }
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-        response_format=gen_allowlist_response_format(acceptable_answers),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "SportsLeague",
+                "schema": SportsLeague.model_json_schema()
+            }
+        },
     )
 
-    response_dict = json.loads(response.choices[0].message.content)
-    return response_dict["answer"]
+    result = SportsLeague.model_validate_json(response.choices[0].message.content)
+    return result.answer
 ```
-
-:::{admonition} Sidenote
-You might be wondering,
-
-> Wait a second, I thought `response_format` was already telling it to return JSON, why do I need to parse the response like it's text?
-
-Most LLMs only return text. Response format ensures the text response is valid JSON (so you'll never get an error running `json.loads`), but `content` will always be a string. That's why it needs to be parsed before you can access the data embedded in it.
-:::
 
 With the new structured output in place, run the loop again.
 
@@ -288,7 +248,7 @@ You'll notice it's only using the acronym as our allowlist instructs.
 ['Chicago Bulls', 'NBA']
 ```
 
-But what if you ask it for a team that's not in one of those leagues. Well you've commanded that it only return one of those answers, so it will follow those instructions.
+But what if you ask it for a team that's not in one of those leagues. Try it with the Chicago Blackhawks, a hockey team in the NHL.
 
 ```python
 classify_team("Chicago Blackhawks")
@@ -298,9 +258,20 @@ classify_team("Chicago Blackhawks")
 'NFL'
 ```
 
-You've essentially _forced_ it to hallucinate. That's why it's always vital to give any LLM task an out. A way to classify things it doesn't think fits nicely into the categories you've given it. It also helps to reinforce that out in the system prompt.
+You've forced it to hallucinate. To avoid these circumstances, it's vital to give any LLM task a way to classify things that don't fit nicely into the categories you've given it.
 
-{emphasize-lines="9,16"}
+In this case, we can do that by adding an "Other" option to our `Literal` type and instructing the LLM to use it when a team doesn't fit into one of the three leagues.
+
+{emphasize-lines="2"}
+
+```python
+class SportsLeague(BaseModel):
+    answer: Literal["MLB", "NFL", "NBA", "Other"]
+```
+
+It also helps to reinforce the out in the system prompt.
+
+{emphasize-lines="9"}
 
 ```python
 def classify_team(name):
@@ -311,15 +282,8 @@ I will provide the name of a professional sports team.
 
 You will reply with the sports league in which they compete.
 
-If the team doesn't belong in the provided sports league options, reply with "Other".
+If the team's league is in the provided options, reply with "Other".
 """
-
-    acceptable_answers = [
-        "MLB",
-        "NFL",
-        "NBA",
-        "Other",
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -333,11 +297,17 @@ If the team doesn't belong in the provided sports league options, reply with "Ot
             }
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-        response_format=gen_allowlist_response_format(acceptable_answers),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "SportsLeague",
+                "schema": SportsLeague.model_json_schema()
+            }
+        },
     )
 
-    response_dict = json.loads(response.choices[0].message.content)
-    return response_dict["answer"]
+    result = SportsLeague.model_validate_json(response.choices[0].message.content)
+    return result.answer
 ```
 
 Now try the Chicago Blackhawks again.
@@ -346,15 +316,17 @@ Now try the Chicago Blackhawks again.
 classify_team("Chicago Blackhawks")
 ```
 
-And you’ll get the answer you expect.
+You’ll get the answer you expect.
 
 ```
 'Other'
 ```
 
+### Reducing creativity with temperature
+
 Most LLMs are pre-programmed to be creative and generate a range of responses to same prompt. For structured responses like this, we don't want that. We want consistency. So it's a good idea to ask the LLM to be more straightforward by reducing a creativity setting known as `temperature` to zero.
 
-{emphasize-lines="32"}
+{emphasize-lines="31"}
 
 ```python
 def classify_team(name):
@@ -367,13 +339,6 @@ def classify_team(name):
 
     If the team doesn't belong in the provided sports league options, reply with "Other".
     """
-
-    acceptable_answers = [
-        "MLB",
-        "NFL",
-        "NBA",
-        "Other"
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -387,19 +352,27 @@ def classify_team(name):
             }
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-        response_format=gen_allowlist_response_format(acceptable_answers),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "SportsLeague",
+                "schema": SportsLeague.model_json_schema()
+            }
+        },
         temperature=0,
     )
 
-    response_dict = json.loads(response.choices[0].message.content)
-    return response_dict["answer"]
+    result = SportsLeague.model_validate_json(response.choices[0].message.content)
+    return result.answer
 ```
 
-You can also increase reliability by priming the LLM with examples of the type of response you want. This technique is called ["few shot prompting"](https://www.ibm.com/think/topics/few-shot-prompting). In this style of prompting, which can feel like a strange form of roleplaying, you provide both the "user" input as well as the "assistant" response you want the LLM to mimic.
+### Few shot prompting
 
-Here's how it's done:
+You can also increase reliability by priming the LLM with examples of the type of response you want. This technique is called ["few shot prompting."](https://www.ibm.com/think/topics/few-shot-prompting) This approach, which can feel like a strange form of roleplaying, calls on you to provide examples of the "user" input and "assistant" response you want the LLM to mimic.
 
-{emphasize-lines="25-56"}
+Here's how it's done, using the Los Angeles teams as examples.
+
+{emphasize-lines="19-50"}
 
 ```python
 def classify_team(name):
@@ -412,13 +385,6 @@ def classify_team(name):
 
     If the team doesn't belong in the provided sports league options, reply with "Other".
     """
-
-    acceptable_answers = [
-        "MLB",
-        "NFL",
-        "NBA",
-        "Other"
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -464,10 +430,16 @@ def classify_team(name):
             }
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-        response_format=gen_allowlist_response_format(acceptable_answers),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "SportsLeague",
+                "schema": SportsLeague.model_json_schema()
+            }
+        },
         temperature=0,
     )
 
-    response_dict = json.loads(response.choices[0].message.content)
-    return response_dict["answer"]
+    result = SportsLeague.model_validate_json(response.choices[0].message.content)
+    return result.answer
 ```

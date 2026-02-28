@@ -23,6 +23,7 @@ dependencies = [
     # Dev stuff
     "pre-commit",
     "rich>=14.3.3",
+    "pydantic>=2.12.5",
 ]
 
 [tool.setuptools]

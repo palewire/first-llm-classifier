@@ -6,7 +6,7 @@ One solution is to submit your requests in batches and then ask the LLM to retur
 
 We'll need to make a series of changes to our function to adapt it to work with a batch of inputs. Get ready. It's a lot.
 
-- We bring in a new allowlist utility coded for bulk prompts like this
+- We define a new Pydantic model for bulk responses that expects a list of answers.
 - We tweak the name of the classify function.
 - We change our input argument to a list.
 - We expand our prompt to explain that we will provide a list of team names.
@@ -16,39 +16,11 @@ We'll need to make a series of changes to our function to adapt it to work with 
 - We merge the team names and the LLM's answers into a dictionary returned by the function.
 
 ```python
-def gen_bulk_allowlist_response_format(options, length):
-  schema = {
-    "type": "object",
-    "properties": {
-      "answers": {
-        "type": "array",
-        "minItems": length,
-        "maxItems": length,
-        "items": {
-          "type": "string",
-          "enum": options,
-        },
-      }
-    },
-    "required": [
-        "answers"
-    ],
-    "additionalProperties": False
-  }
-
-  response_format = {
-      "type": "json_schema",
-      "json_schema": {
-          "name": "AllowlistSchema",
-          "schema": schema,
-          "strict": True,
-      },
-  }
-
-  return response_format
+class BulkLeagueSchema(BaseModel):
+    answers: list[Literal["MLB", "NFL", "NBA", "Other"]]
 ```
 
-{emphasize-lines="3-9,25-36,39,45-46"}
+{emphasize-lines="3-9,25-36,39,44-45"}
 
 ```python
 def classify_teams(name_list):
@@ -61,13 +33,6 @@ You will reply with the sports league in which they compete.
 
 If the team's league is not on the list, you should label them as "Other".
 """
-
-    acceptable_answers = [
-        "MLB",
-        "NFL",
-        "NBA",
-        "Other"
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -89,14 +54,18 @@ If the team's league is not on the list, you should label them as "Other".
             },
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-        response_format=gen_bulk_allowlist_response_format(acceptable_answers, len(name_list)),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "BulkLeagueSchema",
+                "schema": BulkLeagueSchema.model_json_schema()
+            }
+        },
         temperature=0,
     )
 
-
-    response_dict = json.loads(response.choices[0].message.content)
-    answer_list = response_dict["answers"]
-    return dict(zip(name_list, answer_list))
+    result = BulkLeagueSchema.model_validate_json(response.choices[0].message.content)
+    return dict(zip(name_list, result.answers))
 ```
 
 Try that with our team list.
@@ -127,10 +96,11 @@ First, we need to install it. Back to our installation cell.
 
 Then import it.
 
-{emphasize-lines="4"}
+{emphasize-lines="5"}
 
 ```python
-import json
+from pydantic import BaseModel
+from typing import Literal
 from rich import print
 from huggingface_hub import InferenceClient
 import pandas as pd
@@ -166,9 +136,12 @@ payee
 
 Now let's adapt what we have to fit. Instead of asking for a sports league back, we will ask the LLM to classify each payee as a restaurant, bar, hotel or other establishment.
 
-{emphasize-lines="1,3-21,25-28,37-52"}
+{emphasize-lines="1-2,4-22,26-29,38-53"}
 
 ```python
+class BulkPayeeSchema(BaseModel):
+    answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
+
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
@@ -191,13 +164,6 @@ Your output should be a JSON object in the following format:
 
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
-
-    acceptable_answers = [
-        "Restaurant",
-        "Bar",
-        "Hotel",
-        "Other"
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -227,13 +193,18 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
             },
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-        response_format=gen_bulk_allowlist_response_format(acceptable_answers, len(name_list)),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "BulkPayeeSchema",
+                "schema": BulkPayeeSchema.model_json_schema()
+            }
+        },
         temperature=0,
     )
 
-    response_dict = json.loads(response.choices[0].message.content)
-    answer_list = response_dict["answers"]
-    return dict(zip(name_list, answer_list))
+    result = BulkPayeeSchema.model_validate_json(response.choices[0].message.content)
+    return dict(zip(name_list, result.answers))
 ```
 
 Now pull out a random sample of payees as a list.
@@ -267,10 +238,11 @@ That's nice for a sample. But how do you loop through the entire dataset and cod
 
 Let's add a couple libraries that will let us avoid hammering Hugging Face and keep tabs on our progress.
 
-{emphasize-lines="2,4,7"}
+{emphasize-lines="3,5,8"}
 
 ```python
-import json
+from pydantic import BaseModel
+from typing import Literal
 import time
 from rich import print
 from rich.progress import track
@@ -304,7 +276,7 @@ def classify_batches(name_list, batch_size=10, wait=2):
 
 Printing out to the console is interesting, but with a bigger sample you'll want to be able to work with the results in a more structured way. First, let's update our model to `gpt-oss-20b` from OpenAI which is a bit faster for basic classification tasks like this one.
 
-{emphasize-lines="58"}
+{emphasize-lines="52"}
 
 ```python
 def classify_payees(name_list):
@@ -329,13 +301,6 @@ Your output should be a JSON object in the following format:
 
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
-
-    acceptable_answers = [
-        "Restaurant",
-        "Bar",
-        "Hotel",
-        "Other"
-    ]
 
     response = client.chat.completions.create(
         messages=[
@@ -365,13 +330,18 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
             },
         ],
         model="openai/gpt-oss-20b",
-        response_format=gen_bulk_allowlist_response_format(acceptable_answers, len(name_list)),
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "BulkPayeeSchema",
+                "schema": BulkPayeeSchema.model_json_schema()
+            }
+        },
         temperature=0,
     )
 
-    response_dict = json.loads(response.choices[0].message.content)
-    answer_list = response_dict["answers"]
-    return dict(zip(name_list, answer_list))
+    result = BulkPayeeSchema.model_validate_json(response.choices[0].message.content)
+    return dict(zip(name_list, result.answers))
 ```
 
 Next, let's convert the results into a `pandas` DataFrame by modifying our batching function.
