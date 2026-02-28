@@ -4,7 +4,7 @@ Now that you've got your Python environment set up, it's time to start writing p
 
 First, you need to install the libraries we need. The [`huggingface_hub`](https://pypi.org/project/huggingface-hub/) package is the official client for Hugging Face's API. You should also install [`rich`](https://pypi.org/project/rich/), a helper library that will improve how your outputs look in Jupyter notebooks.
 
-A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands from inside a Jupyter notebook. You can put the two together like:
+A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
 
 ```text
 !uv add huggingface_hub rich
@@ -21,21 +21,40 @@ from rich import print
 from huggingface_hub import InferenceClient
 ```
 
-Remember saving your API key? Good. You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
+If everything is installed, that cell should complete without any errors. If you get an error, check the output from the installation cell to see if there were any issues you need to address.
+
+Remember your API key? You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
 
 ```python
-api_key = "Paste your key here"
+token = "Paste your key here"
 ```
 
-Next we need to create a client that will allow us to send requests to Hugging Face's API. We do that by calling the `InferenceClient` class and passing it our API key.
+Next we need to create a client that will allow us to send requests to Hugging Face's API. We do that by calling the [`InferenceClient`](https://huggingface.co/docs/huggingface_hub/en/guides/inference) tool provided by the `huggingface_hub` library. We need to pass it our API token so it can authenticate our requests.
 
 ```python
-client = InferenceClient(token=api_key)
+client = InferenceClient(token=token)
 ```
 
-Let's make our first prompt. To do that, we submit a dictionary to Hugging Face's `chat.completions.create` method. The dictionary has a `messages` key that contains a list of dictionaries. Each dictionary in the list represents a message in the conversation. When the `role` is "user" it is roughly the same as asking a question to a chatbot.
+Let's make our first prompt. To do that, we submit a dictionary to Hugging Face's `chat.completions.create` method.
 
-We also need to pick a model from [among the choices Hugging Face gives us](https://huggingface.co/models). We're picking Llama 4, the latest from Meta.
+The dictionary has a `messages` key that contains a list of dictionaries. Each dictionary in the list represents a message in the conversation. When the role is "user" it is roughly the same as asking a question to a chatbot.
+
+```python
+{
+    "role": "user",
+    "content": "The content of your prompt goes here.",
+}
+```
+
+We also need to pick an LLM from [the list that Hugging Face supports](https://huggingface.co/models).
+
+[![Hugging Face model list](_static/huggingface-models.png)](https://huggingface.co/models)
+
+Let's start with Llama 4 from Meta. At the time of this writing, it was the company's latest offering. It's current acronym is a mouthful: [Llama-4-Maverick-17B-128E-Instruct-FP8](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8).
+
+[![Llama 4 model card](_static/llama-4.png)](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
+
+We'll drop that into the `model` parameter with our first prompt and see what happens. Let's start by asking the model to explain the importance of data journalism in a concise sentence.
 
 ```python
 response = client.chat.completions.create(
@@ -97,11 +116,14 @@ print(response.choices[0].message.content)
 ```
 
 ```text
-Data journalism is crucial as it enables journalists to uncover insights, identify trends, and hold those in power
-accountable by analyzing and interpreting complex data, leading to more informed reporting and storytelling.
+Data journalism is crucial as it enables journalists
+to uncover insights, identify trends, and hold those
+in power accountable by analyzing and interpreting
+complex data, leading to more informed reporting
+and storytelling.
 ```
 
-Let's pick a different model from among [the choices that Hugging Face offers](https://huggingface.co/models?pipeline_tag=text-generation&inference_provider=all&sort=trending). One we could try is Gemma3, an open model from Google. Rather than add a new cell, let's revise the code we already have and rerun it.
+Let's pick a different model to see if it provides a different perspective. One we could try is [Gemma3](https://huggingface.co/google/gemma-3-27b-it), an open model from Google. Rather than add a new cell, let's revise the code we already have and rerun it.
 
 {emphasize-lines="8"}
 
@@ -124,13 +146,15 @@ print(response.choices[0].message.content)
 ```
 
 ```text
-Data journalism illuminates complex issues, empowers informed decision-making, and drives accountability through the rigorous analysis and visualization of data.
+Data journalism illuminates complex issues, empowers
+informed decision-making, and drives accountability
+through the rigorous analysis and visualization of data.
 ```
 
 :::{admonition} Sidenote
 Hugging Face's Python library is very similar to the ones offered by OpenAI, Anthropic and other LLM providers. If you prefer to use those tools, the techniques you learn here should be easily transferable.
 
-For instance, here's how you'd make this same call with Anthropic's Python library:
+For instance, here's how you'd make this same call with [Anthropic's Python library](https://pypi.org/project/anthropic/):
 
 ```python
 from anthropic import Anthropic
@@ -144,15 +168,13 @@ response = client.messages.create(
             "content": "Explain the importance of data journalism in a concise sentence"
         }
     ],
-    model="claude-sonnet-4-6",
+    model="claude-opus-4-6"
 )
 
 print(response.content[0].text)
 ```
 
 :::
-
-A well-structured prompt helps the LLM provide more accurate and useful responses.
 
 One common technique for improving results is to open with a "system" prompt to establish the model's tone and role. Let's switch back to Llama 4 and provide a `system` message that provides a specific motivation for the LLM's responses.
 
@@ -181,12 +203,14 @@ print(response.choices[0].message.content)
 ```
 
 ```text
-Data journalism is revolutionizing the way we tell stories and uncover truths by harnessing the power of data
-analysis and visualization to provide in-depth insights and hold those in power accountable, making it an
-indispensable tool for a more informed and transparent society.
+Data journalism is revolutionizing the way we tell stories
+and uncover truths by harnessing the power of data analysis
+and visualization to provide in-depth insights and hold those
+in power accountable, making it an indispensable tool for
+a more informed and transparent society.
 ```
 
-Want to see how tone affects the response? Change the system prompt to something old-school.
+Now change the system prompt to something old school.
 
 {emphasize-lines="5"}
 
@@ -206,14 +230,16 @@ response = client.chat.completions.create(
 )
 ```
 
-Then re-run the code and summon J. Jonah Jameson.
+Then re-run the code and summon [J. Jonah Jameson](https://www.youtube.com/watch?v=mhDBWiTfNCU).
 
 ```python
 print(response.choices[0].message.content)
 ```
 
 ```text
-*scoff* Fine. If I must, I'll grudgingly admit that data journalism can occasionally be useful in uncovering a
-story that wouldn't have been possible through traditional reporting, but I still think it's a bunch of
-number-crunching nonsense that's overhyped and underdelivers most of the time.
+*sigh* Fine. Data journalism is a tedious exercise in
+number-crunching that often results in self-evident conclusions
+and dull, chart-filled articles that put readers to sleep, but
+I suppose it's become a necessary evil  in this age of
+"quantifying" everything.
 ```
