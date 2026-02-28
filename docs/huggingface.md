@@ -6,7 +6,7 @@ For this demonstration, we will use an online service called [Hugging Face](http
 
 To get access to its services, go to [huggingface.co](https://huggingface.co/). Click on "Sign up" to create an account, or "Log in" if you already have one.
 
-![Hugging Face homepage](/_static/huggingface.png)
+[![Hugging Face homepage](/_static/huggingface.png)](https://huggingface.co/)
 
 When you're logged in, click the icon in the upper right and select "Access Tokens" from the dropdown menu.
 
@@ -19,6 +19,10 @@ Click on "Create new token" on the next page.
 Create a new "fine-grained" token named `first-llm-classifier`. Be sure to check the "Make calls to Inference Providers" checkbox. Scroll to the bottom and hit the "Create token" button.
 
 ![Hugging Face key](/_static/huggingface-name.png)
+
+```{note}
+Inference is a technical term that some people use to refer to the process of sending prompts to a large-language model and getting responses back.
+```
 
 A popup will appear with your key. I've redacted my key in this screenshot, but you should see a long string of characters. Copy it to your clipboard.
 
