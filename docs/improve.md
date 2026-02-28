@@ -197,7 +197,7 @@ And all you need to do is run it again.
 llm_df = classify_batches(list(test_input.payee))
 ```
 
-And see if your results are any better
+How can you tell if your results have improved? You run that same classification report and see if the numbers have gone up.
 
 ```python
 print(
@@ -207,3 +207,5 @@ print(
     )
 )
 ```
+
+Get used to this process of iterating on your prompt, testing, and reviewing the results. It's the key to getting the best performance out of your LLM.
