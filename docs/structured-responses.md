@@ -195,7 +195,7 @@ Pydantic can then generate the JSON schema automatically with its method `.model
 
 We'll also need to parse the response using Pydantic's `model_validate_json` method, which takes the raw JSON string and converts it into a Python object that we can work with. This method also validates the response against our schema, so if the LLM returns something that doesn't fit our defined structure, we'll get an error instead of bad data.
 
-{emphasize-lines="24-30,33-33"}
+{emphasize-lines="22-28,31-32"}
 
 ```python
 def classify_team(name):
@@ -282,7 +282,7 @@ I will provide the name of a professional sports team.
 
 You will reply with the sports league in which they compete.
 
-If the team's league is in the provided options, reply with "Other".
+If the team's league is not in the provided options, reply with "Other".
 """
 
     response = client.chat.completions.create(
@@ -324,7 +324,7 @@ You’ll get the answer you expect.
 
 ### Reducing creativity with temperature
 
-Most LLMs are pre-programmed to be creative and generate a range of responses to same prompt. For structured responses like this, we don't want that. We want consistency. So it's a good idea to ask the LLM to be more straightforward by reducing a creativity setting known as `temperature` to zero.
+Most LLMs are pre-programmed to be creative and generate a range of responses to the same prompt. For structured responses like this, we don't want that. We want consistency. So it's a good idea to ask the LLM to be more straightforward by reducing a creativity setting known as `temperature` to zero.
 
 {emphasize-lines="31"}
 
