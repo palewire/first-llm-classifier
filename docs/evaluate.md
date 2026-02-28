@@ -658,3 +658,118 @@ ConfusionMatrixDisplay.from_predictions(test_output, predictions)
 ![confusion matrix](_static/matrix-ml.png)
 
 Not great. The traditional model is guessing correctly about 75% of the time, but it's missing most cases of our "Bar", "Hotel" and "Restaurant" categories as almost everything is getting filed as "Other." The LLM, on the other hand, is guessing correctly more than 90% of the time and flagging many of the rare categories that we're seeking to find in the haystack of data.
+
+## Comparing models
+
+Our evaluation so far has only tested one LLM. But Hugging Face offers [dozens of models](https://huggingface.co/models) and we can't be sure that the one we picked is the best for our task. Let's adapt our code so we can easily compare how different models perform.
+
+The first step is to add a `model` parameter to our `classify_payees` function and pass it through to the API call. This replaces the hardcoded model name with a variable.
+
+{emphasize-lines="1,36"}
+
+```python
+def classify_payees(name_list, model):
+    prompt = """
+You are an AI model trained to categorize businesses based on their names.
+
+You will be given a list of business names, each separated by a new line.
+
+Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
+
+If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
+
+Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
+
+For example, if given the following input:
+
+"Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
+
+Your output should be a JSON object in the following format:
+
+{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}
+
+This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
+"""
+
+    response = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            },
+            {
+                "role": "user",
+                "content": "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
+            },
+            {
+                "role": "user",
+                "content": "Subway Sandwiches\nRuth Chris Steakhouse\nPolitical Consulting Co\nThe Lamb's Club",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
+            },
+            {
+                "role": "user",
+                "content": "\n".join(name_list),
+            },
+        ],
+        model=model,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "PayeeList",
+                "schema": PayeeList.model_json_schema()
+            }
+        },
+        temperature=0,
+    )
+
+    result = PayeeList.model_validate_json(response.choices[0].message.content)
+    return dict(zip(name_list, result.answers))
+```
+
+We need the same change in `classify_batches`, accepting the model and passing it through.
+
+{emphasize-lines="1,7"}
+
+```python
+def classify_batches(name_list, model, batch_size=20, wait=1):
+    """Split a list of names into batches and classify them one by one."""
+    all_results = {}
+
+    for batch in track(batched(name_list, batch_size)):
+        # Classify it with the LLM
+        batch_results = classify_payees(list(batch), model)
+
+        all_results.update(batch_results)
+
+        time.sleep(wait)
+
+    return pd.DataFrame(all_results.items(), columns=["payee", "category"])
+```
+
+Now we can test our prompt against a list of models. Let's try three.
+
+```python
+model_list = [
+    "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+    "google/gemma-3-27b-it",
+    "Qwen/Qwen2.5-72B-Instruct",
+]
+```
+
+Loop through each model, classify the test set and print a `classification_report` for each.
+
+```python
+for m in model_list:
+    print(f"Model: {m}")
+    result_df = classify_batches(list(test_input.payee), m)
+    print(classification_report(test_output, result_df.category))
+```
+
+Now you can see at a glance which model does the best job on your task and make an informed choice about which one to use going forward.
