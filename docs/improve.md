@@ -44,6 +44,12 @@ mistakes_df.head(10)
 | <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">146</span> | TWENTY EIGHT                     | Bar            | Other            |
 </pre>
 
+You could then output the mistakes to a spreadsheet and inspect them more closely.
+
+```python
+mistakes_df.to_csv("mistakes.csv", index=False)
+```
+
 As I scanned the full list of mistakes, I observed that the LLM was struggling with businesses that had both the word bar and the word restaurant in their name. A simple fix would be to add a new line to your prompt that instructs the LLM what to do in that case.
 
 ```
