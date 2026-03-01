@@ -394,7 +394,7 @@ def classify_team(name):
             },
             {
                 "role": "assistant",
-                "content": "NFL",
+                "content": '{"answer": "NFL"}',
             },
             {
                 "role": "user",
@@ -402,7 +402,7 @@ def classify_team(name):
             },
             {
                 "role": "assistant",
-                "content": "MLB",
+                "content": '{"answer": "MLB"}',
             },
             {
                 "role": "user",
@@ -410,7 +410,7 @@ def classify_team(name):
             },
             {
                 "role": "assistant",
-                "content": "NBA",
+                "content": '{"answer": "NBA"}',
             },
             {
                 "role": "user",
@@ -418,7 +418,7 @@ def classify_team(name):
             },
             {
                 "role": "assistant",
-                "content": "Other",
+                "content": '{"answer": "Other"}',
             },
             {
                 "role": "user",

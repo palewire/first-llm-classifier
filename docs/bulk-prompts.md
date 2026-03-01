@@ -31,7 +31,7 @@ def classify_teams(name_list):
     prompt = """
 You are an AI model trained to classify text.
 
-I will provide a list of professional sports team names separated by new lines
+I will provide a list of professional sports team names separated by newlines.
 
 You will reply with the sports league in which they compete.
 
@@ -263,11 +263,11 @@ That batching trick can then be fit into a new function that will accept a big l
 
 ```python
 def classify_batches(name_list, batch_size=10, wait=1):
-    """Split the provided list of names into batches and classify with our LLM them one by one."""
+    """Split the provided list of names into batches and classify with our LLM one by one."""
     # Create a place to store the results
     all_results = {}
 
-    # Create an list that will split the name_list into batches
+    # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
 
     # Loop through the list in batches

@@ -511,7 +511,7 @@ weighted avg       0.96      0.93      0.94       168
 
 At first, the report can be a bit overwhelming. What are all these technical terms? How do I read this damn thing? Let's walk through it.
 
-The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct.
+The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only 25% of "Bar" predictions were correct.
 
 An analogy here is a baseball player's [contact rate](https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage), which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the "Bar" category eight times and only made contact twice.
 
@@ -862,11 +862,11 @@ We also need the same change in `classify_batches`, accepting the model and pass
 
 ```python
 def classify_batches(name_list, model, batch_size=10, wait=1):
-    """Split the provided list of names into batches and classify with our LLM them one by one."""
+    """Split the provided list of names into batches and classify with our LLM one by one."""
     # Create a place to store the results
     all_results = {}
 
-    # Create an list that will split the name_list into batches
+    # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
 
     # Loop through the list in batches
