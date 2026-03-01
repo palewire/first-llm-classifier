@@ -533,7 +533,7 @@ At first, the report can be a bit overwhelming. What are all these technical ter
 
 The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct.
 
-An analogy here is a baseball player's [contact rate](https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage), which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the "Bar" category eight times and only made contact two.
+An analogy here is a baseball player's [contact rate](https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage), which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the "Bar" category eight times and only made contact twice.
 
 ```{raw} html
 <div id="precision-graphic" style="margin: 20px 0; width: 100%;"></div>
