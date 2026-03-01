@@ -329,9 +329,9 @@ Candidates for office must disclose the money they spend on everything from pizz
 
 It’s no easy task. Each election cycle, thousands of candidates log their transactions into the public databases where spending is disclosed. The flood of filings results in too much data for anyone to examine on their own. To make matters worse, campaigns often use vague or misleading descriptions of their spending, making their activities difficult to understand.
 
-For instance, it wasn’t until after his 2022 election to Congress that [journalists discovered](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html) that Rep. George Santos of New York had spent thousands of campaign dollars on questionable and potentially illegal expenses. While much of his shady spending was publicly disclosed, it was largely overlooked in the run-up to election day.
-
 [![New York Times article headlined "Santos, a Suburban House and $11,000 in Campaign Payments for Rent"](_static/santos.png)](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html)
+
+For instance, it wasn’t until after his 2022 election to Congress that [journalists discovered](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html) that Rep. George Santos of New York had spent thousands of campaign dollars on questionable and potentially illegal expenses. While much of his shady spending was publicly disclosed, it was largely overlooked in the run-up to election day.
 
 Inspired by this scoop, we will create a classifier that can scan the expenditures logged in campaign finance reports and identify those that may be newsworthy.
 
