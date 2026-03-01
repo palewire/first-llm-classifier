@@ -167,10 +167,11 @@ Then we will:
 - Update our few-shot training examples to reflect the new task.
 - Swap in the new model for the response format and validation.
 - Add a check to make sure the LLM returned the right number of answers.
+- Return a DataFrame instead of a dictionary to make it easier to work with downstream.
 
 Here's where that ends up
 
-{emphasize-lines="1-23,31-46,53-59,63-65"}
+{emphasize-lines="1-23,31-46,53-59,63-66"}
 
 ```python
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
@@ -238,13 +239,13 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
     result = PayeeList.model_validate_json(response.choices[0].message.content)
     assert len(result.answers) == len(name_list), \
         f"Expected {len(name_list)} answers but got {len(result.answers)}"
-    return dict(zip(name_list, result.answers))
+    return pd.DataFrame({"payee": name_list, "category": result.answers})
 ```
 
 Pull out a random sample of payees as a list.
 
 ```python
-sample_list = list(df.sample(10).payee)
+sample_list = df.sample(10).payee
 ```
 
 See how it does.
@@ -253,20 +254,19 @@ See how it does.
 classify_payees(sample_list)
 ```
 
-```python
-{
-    "ARCLIGHT CINEMAS": "Other",
-    "99 CENTS ONLY": "Other",
-    "COMMONWEALTH COMMUNICATIONS": "Other",
-    "CHILBO MYUNOK": "Other",
-    "ADAM SCHIFF FOR SENATE": "Other",
-    "CENTER FOR CREATIVE FUNDING": "Other",
-    "JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014": "Other",
-    "MULVANEY'S BUILDING & LOAN": "Other",
-    "ATV VIDEO CENTER": "Other",
-    "HYATT REGENCY SAN FRANCISCO": "Hotel",
-}
-```
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                                          | category   |
+|---:|:------------------------------------------------|:-----------|
+|  0 | ARCLIGHT CINEMAS                                | Other      |
+|  1 | 99 CENTS ONLY                                   | Other      |
+|  2 | COMMONWEALTH COMMUNICATIONS                     | Other      |
+|  3 | CHILBO MYUNOK                                   | Other      |
+|  4 | ADAM SCHIFF FOR SENATE                          | Other      |
+|  5 | CENTER FOR CREATIVE FUNDING                     | Other      |
+|  6 | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
+|  7 | MULVANEY'S BUILDING & LOAN                      | Other      |
+|  8 | ATV VIDEO CENTER                                | Other      |
+|  9 | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
+</pre>
 
 ## Submitting in batches
 
@@ -286,7 +286,7 @@ That batching trick can then be fit into a new function that will accept a big l
 def classify_batches(name_list, batch_size=10, wait=1):
     """Split the provided list of names into batches and classify with our LLM one by one."""
     # Create a place to store the results
-    all_results = {}
+    all_results = []
 
     # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
@@ -294,19 +294,19 @@ def classify_batches(name_list, batch_size=10, wait=1):
     # Loop through the list in batches
     for batch in track(batch_list, description="Classifying batches..."):
         # Classify it with the LLM
-        batch_results = classify_payees(list(batch))
+        batch_df = classify_payees(list(batch))
 
         # Add what we get back to the results
-        all_results.update(batch_results)
+        all_results.append(batch_df)
 
         # Tap the brakes to avoid overloading Hugging Face's API
         time.sleep(wait)
 
-    # Return the results
-    return pd.DataFrame(all_results.items(), columns=["payee", "category"])
+    # Combine the batch results into a single DataFrame
+    return pd.concat(all_results, ignore_index=True)
 ```
 
-Look closely at that last line and you'll see that the function is now returning a DataFrame instead of a dictionary. This will make the results easier to work with.
+Since `classify_payees` now returns a DataFrame, `classify_batches` collects them into a list and concatenates them at the end. This makes the results easy to work with.
 
 Select a bigger sample.
 

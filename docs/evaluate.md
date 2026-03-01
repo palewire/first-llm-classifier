@@ -861,7 +861,7 @@ We also need the same change in `classify_batches`, accepting the model and pass
 def classify_batches(name_list, model, batch_size=10, wait=1):
     """Split the provided list of names into batches and classify with our LLM one by one."""
     # Create a place to store the results
-    all_results = {}
+    all_results = []
 
     # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
@@ -869,16 +869,16 @@ def classify_batches(name_list, model, batch_size=10, wait=1):
     # Loop through the list in batches
     for batch in track(batch_list, description="Classifying batches..."):
         # Classify it with the LLM
-        batch_results = classify_payees(list(batch), model)
+        batch_df = classify_payees(list(batch), model)
 
         # Add what we get back to the results
-        all_results.update(batch_results)
+        all_results.append(batch_df)
 
         # Tap the brakes to avoid overloading Hugging Face's API
         time.sleep(wait)
 
-    # Return the results
-    return pd.DataFrame(all_results.items(), columns=["payee", "category"])
+    # Combine the batch results into a single DataFrame
+    return pd.concat(all_results, ignore_index=True)
 ```
 
 Now we can test our prompt against a list of models. Let's try three.
