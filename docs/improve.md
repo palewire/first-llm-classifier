@@ -44,7 +44,7 @@ mistakes_df.head(10)
 | <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">146</span> | TWENTY EIGHT                     | Bar            | Other            |
 </pre>
 
-In this case, I observed that the LLM was struggling with businesses that had both the word bar and the word restaurant in their name. A simple fix would be to add a new line to your prompt that instructs the LLM what to do in that case.
+As I scanned the full list of mistakes, I observed that the LLM was struggling with businesses that had both the word bar and the word restaurant in their name. A simple fix would be to add a new line to your prompt that instructs the LLM what to do in that case.
 
 ```
 If a business name contains both the word "Restaurant" and
