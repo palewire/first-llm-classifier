@@ -484,7 +484,7 @@ training_input, test_input, training_output, test_output = train_test_split(
 
 In a traditional training setup, the next step would be to train a machine-learning model in `sklearn` using the `training_input` and `training_output` sets. The model would then be evaluated using the `test_input` and `test_output` sets.
 
-With an LLM we skip ahead to the testing phase. We pass the `test_input` set to our LLM prompt and compare its guesses to the right answers found in `test_output` set.
+With an LLM we skip ahead to the testing phase. We pass the `test_input` set to our LLM prompt and compare its guesses to the right answers found in the `test_output` set.
 
 All that requires is that we pass the `payee` column from our `test_input` DataFrame to the function we created in the previous chapters.
 
@@ -533,7 +533,7 @@ At first, the report can be a bit overwhelming. What are all these technical ter
 
 The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct.
 
-An analogy here is a baseball player's [contact rate](https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage), which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the "Bar" category eight times and only made contact once.
+An analogy here is a baseball player's [contact rate](https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage), which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the "Bar" category eight times and only made contact two.
 
 ```{raw} html
 <div id="precision-graphic" style="margin: 20px 0; width: 100%;"></div>
@@ -637,7 +637,7 @@ An analogy here is a baseball player's [contact rate](https://www.baseball-alman
 </script>
 ```
 
-The recall column measures how many of the supervised instances were correctly identified by the model. In this case, it shows that the LLM spotted 89% of the restaurants in our manual sample. The total number of hotels in the sample is shown in the support column. So, out of 36 hotels, the model correctly identified 32 of them.
+The recall column measures how many of the supervised instances were correctly identified by the model. In this case, it shows that the LLM spotted 89% of the restaurants in our manual sample. The total number of restaurants in the sample is shown in the support column. So, out of 36 restaurants, the model correctly identified 32 of them.
 
 It did even better with the two bars in the sample, correctly identifying both of them for a recall of 100%.
 
@@ -756,7 +756,7 @@ Due to the inherent randomness in the LLM's predictions, it's a good idea to tes
 
 Another technique for evaluating classifiers is to visualize the results using a chart known as a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix). It shows how often the model correctly predicted each category and where it got things wrong.
 
-The [ConfusionMatrixDisplay](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) tool from `sklearn` can draw one for us. We just need to add it and `matplotlib` to our imports.
+The [ConfusionMatrixDisplay](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) tool from `sklearn` can draw one for us. We just need to add it to our imports.
 
 {emphasize-lines="9,10"}
 
@@ -937,7 +937,7 @@ model_list = [
     "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
     # This is a competing model from Google
     "google/gemma-3-27b-it",
-    # Let's try a Chinese one form Alibaba for good measure
+    # Let's try a Chinese one from Alibaba for good measure
     "Qwen/Qwen3-235B-A22B-Instruct-2507",
 ]
 ```
