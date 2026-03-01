@@ -1,4 +1,4 @@
-# Evaluating prompts
+# Evaluation
 
 Before you publish anything, you'll want to be sure you can trust the LLM's classifications. Spot checks are not enough. You need a systematic way to evaluate your model's performance.
 

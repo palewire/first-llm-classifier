@@ -1,4 +1,4 @@
-# Improving prompts
+# Improvement
 
 With our LLM prompt showing such strong results, you might be content to leave it as it is. But there are always ways to improve, and you might come across a circumstance where the model's performance is less than ideal.
 
