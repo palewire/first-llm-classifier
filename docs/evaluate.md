@@ -543,7 +543,7 @@ In the example result above, the overall accuracy is about 93%, but the lower ma
 
 ## Visualizing the results
 
-Another technique for evaluating classifiers is to visualize the results using a chart known as a confusion matrix. This chart shows how often the model correctly predicted each category and where it got things wrong.
+Another technique for evaluating classifiers is to visualize the results using a chart known as a confusion matrix. It shows how often the model correctly predicted each category and where it got things wrong.
 
 The `ConfusionMatrixDisplay` tool from `sklearn` can draw one for us. We just need to add it and `matplotlib` to our imports.
 
