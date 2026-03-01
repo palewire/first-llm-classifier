@@ -173,15 +173,11 @@ Like Hugging Face's Python library, Pydantic will need to be installed using `uv
 
 With Pydantic installed, you define a Python class that describes what the response should look like. The `Literal` type from Python's [typing](https://docs.python.org/3/library/typing.html) library restricts a field to specific values — exactly what we need for classification.
 
-Now let's import it in our top cell and import these two new libraries.
-
-{emphasize-lines="1-2"}
+Return to our top cell and import these two new libraries.
 
 ```python
 from pydantic import BaseModel
 from typing import Literal
-from rich import print
-from huggingface_hub import InferenceClient
 ```
 
 Create a new cell and define a Pydantic model that describes the shape of the response you want from the LLM. In this case, we want a single field called `answer` that can only be one of three values: "MLB", "NFL" or "NBA".

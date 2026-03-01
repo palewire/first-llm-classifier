@@ -102,13 +102,7 @@ First, we need to install it. Run another cell like this:
 
 Import it in your top cell and rerun.
 
-{emphasize-lines="5"}
-
 ```python
-from pydantic import BaseModel
-from typing import Literal
-from rich import print
-from huggingface_hub import InferenceClient
 import pandas as pd
 ```
 
@@ -257,19 +251,12 @@ classify_payees(sample_list)
 
 That's nice for a sample. But how do you loop through the entire dataset and code it?
 
-Let's add a couple libraries that will let us avoid hammering Hugging Face and keep tabs on our progress.
-
-{emphasize-lines="3,4,6"}
+Let's add a couple libraries to our imports cell that will let us avoid hammering Hugging Face and keep tabs on our progress.
 
 ```python
-from pydantic import BaseModel
-from typing import Literal
 import time
 from itertools import batched
-from rich import print
 from rich.progress import track
-from huggingface_hub import InferenceClient
-import pandas as pd
 ```
 
 That batching trick can then be fit into a new function that will accept a big list of payees and classify them batch by batch.

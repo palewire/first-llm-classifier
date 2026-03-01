@@ -449,19 +449,9 @@ Install the Python packages [`scikit-learn`](https://scikit-learn.org/stable/) a
 !uv add scikit-learn matplotlib
 ```
 
-Add the [`train_test_split`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) function from `scikit-learn` to the import statement. This tool is used to split a supervised sample into separate sets for training and testing.
-
-{emphasize-lines="9"}
+Add the [`train_test_split`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) function from `scikit-learn` to your imports cell and rerun it. This tool is used to split a supervised sample into separate sets for training and testing.
 
 ```python
-from pydantic import BaseModel
-import time
-from typing import Literal
-from itertools import batched
-from rich import print
-from rich.progress import track
-from huggingface_hub import InferenceClient
-import pandas as pd
 from sklearn.model_selection import train_test_split
 ```
 
@@ -492,19 +482,9 @@ All that requires is that we pass the `payee` column from our `test_input` DataF
 llm_df = classify_batches(test_input.payee)
 ```
 
-Next, we import the `classification_report` function from `sklearn`, which is used to evaluate a model's performance.
-
-{emphasize-lines="9"}
+Next, we add the `classification_report` function from `sklearn` to our imports, which is used to evaluate a model's performance.
 
 ```python
-import json
-import time
-from rich import print
-from rich.progress import track
-from huggingface_hub import InferenceClient
-import pandas as pd
-from itertools import batched
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 ```
 
@@ -756,19 +736,9 @@ Due to the inherent randomness in the LLM's predictions, it's a good idea to tes
 
 Another technique for evaluating classifiers is to visualize the results using a chart known as a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix). It shows how often the model correctly predicted each category and where it got things wrong.
 
-The [ConfusionMatrixDisplay](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) tool from `sklearn` can draw one for us. We just need to add it to our imports.
-
-{emphasize-lines="9,10"}
+The [ConfusionMatrixDisplay](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) tool from `sklearn` can draw one for us. We just need to update our `sklearn.metrics` import to include it.
 
 ```python
-import json
-import time
-from rich import print
-from rich.progress import track
-from huggingface_hub import InferenceClient
-import pandas as pd
-from itertools import batched
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report
 ```
 
@@ -788,18 +758,9 @@ Before we look at how you might improve the LLM's performance, let's take a mome
 
 This will require importing a mess of `sklearn` functions and classes. We'll use `TfidfVectorizer` to convert the payee text into a numerical representation that can be used by a `LinearSVC` classifier. We'll then use a `Pipeline` to chain the two together. If you have no idea what any of that means, don't worry. Now that we have LLMs in this world, you might never need to know.
 
-{emphasize-lines="10-13"}
+Add these to your imports cell.
 
 ```python
-import json
-import time
-from rich import print
-from rich.progress import track
-from huggingface_hub import InferenceClient
-import pandas as pd
-from itertools import batched
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import ConfusionMatrixDisplay, classification_report
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer

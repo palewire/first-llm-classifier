@@ -29,6 +29,10 @@ Remember your API key? You'll need it now. Copy it from that text file and paste
 token = "Paste your key here"
 ```
 
+```{note}
+In a more formal setting, you would want to keep your API key secret and not include it directly in your notebook. You could use [environment variables](https://www.danielcorin.com/til/uv/env-vars/) to keep it safe. For the sake of simplicity in this class, we'll just paste it in directly.
+```
+
 Next we need to create a client that will allow us to send requests to Hugging Face's API. We do that by calling the [`InferenceClient`](https://huggingface.co/docs/huggingface_hub/en/guides/inference) tool provided by the `huggingface_hub` library. We need to pass it our API token so it can authenticate our requests.
 
 ```python
