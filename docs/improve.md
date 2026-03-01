@@ -6,7 +6,9 @@ With our LLM prompt showing such strong results, you might be content to leave i
 
 One common tactic is to examine your model's misclassifications and tweak your prompt to address any patterns they reveal.
 
-One simple way to do this is to merge the LLM's predictions with the human-labeled data and filter for discrepancies.
+One simple way to do this is to merge the LLM's predictions with the human-labeled data and take a look at the discrepancies with your own eyes.
+
+First, merge the LLM's predictions with the human-labeled data.
 
 ```python
 comparison_df = llm_df.merge(
@@ -14,52 +16,48 @@ comparison_df = llm_df.merge(
 )
 ```
 
-And filter to cases where the LLM and human labels don't match.
+Then filter to cases where the LLM and human labels don't match.
 
 ```python
-comparison_df[comparison_df.category_llm != comparison_df.category_human]
+mistakes_df =comparison_df[comparison_df.category_llm != comparison_df.category_human]
 ```
 
 Looking at the misclassifications, you might notice that the LLM is struggling with a particular type of business name. You can then adjust your prompt to address that specific issue.
 
 ```python
-comparison_df.head()
+mistakes_df.head(10)
 ```
+
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|     | payee                            | category_llm   | category_human   |
+|----:|:---------------------------------|:---------------|:-----------------|
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">16</span> | SOTTOVOCE MADERO                 | Restaurant     | Other            |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">43</span> | SIBIA CAB                        | Bar            | Other            |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">56</span> | THE OVAL ROOM                    | Bar            | Restaurant       |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">85</span> | ELLA DINNING ROOM                | Restaurant     | Other            |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">87</span> | LAKELAND  VILLAGE                | Hotel          | Other            |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">95</span> | THE PALMS                        | Bar            | Restaurant       |
+| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">104</span> | GRUBHUB, INC.                    | Other          | Restaurant       |
+| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">136</span> | NORTHERN CALIFORNIA WINE COUNTRY | Bar            | Other            |
+| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">144</span> | MAYAHUEL                         | Bar            | Restaurant       |
+| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">146</span> | TWENTY EIGHT                     | Bar            | Other            |
+</pre>
 
 In this case, I observed that the LLM was struggling with businesses that had both the word bar and the word restaurant in their name. A simple fix would be to add a new line to your prompt that instructs the LLM what to do in that case.
 
-{emphasize-lines="23"}
-
-```python
-prompt = """You are an AI model trained to categorize businesses based on their names.
-
-You will be given a list of business names, each separated by a new line.
-
-Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
-
-It is extremely critical that there is a corresponding category output for each business name provided as an input.
-
-If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
-
-Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
-
-For example, if given the following input:
-
-"Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
-
-Your output should be a JSON list in the following format:
-
-["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]
-
-This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
-
-If a business name contains both the word "Restaurant" and the word "Bar", you should classify it as a Restaurant.
-
-Ensure that the number of classifications in your output matches the number of business names in the input. It is very important that the length of JSON list you return is exactly the same as the number of business names you receive.
-"""
+```
+If a business name contains both the word "Restaurant" and
+the word "Bar", you should classify it as a Restaurant.
 ```
 
 Repeating this disciplined, scientific process of prompt refinement, testing and review can, after a few careful cycles, gradually improve your prompt to return even better results.
+
+Look closely at the misclassifications above and you'll see another interesting example. The first entry, "SOTTOVOCE MADERO", was classified as a restaurant by the LLM but labeled as "Other" by the human. According to our evaluation routine, the LLM got it wrong.
+
+But a quick Google search will reveal that [Sottovoce](https://guide.michelin.com/us/en/ciudad-autonoma-de-buenos-aires/buenos-aires_777009/restaurant/sottovoce-1208879) is indeed a restaurant, found in the Madero Center neighborhood of Buenos Aires.
+
+[![Michelin Guide entry for Sottovoce Madero](_static/sottovoce.png)](https://guide.michelin.com/us/en/ciudad-autonoma-de-buenos-aires/buenos-aires_777009/restaurant/sottovoce-1208879)
+
+So, in this case, the LLM was actually correct and the human label was wrong, a truly humbling moment for the creators of this class. And reminder of how powerful LLMs can be at understanding and classifying data, even when the information is incomplete or ambiguous.
 
 ## Use training data as few shot prompts
 
