@@ -12,7 +12,7 @@ A common way to install packages inside your notebook's virtual environment is t
 
 Drop that into the first cell of a new notebook and hit the play button in the top toolbar. You should see something like this:
 
-![Installation output in Jupyter notebook](_static/uv-add.png)
+![A Jupyter notebook cell showing the output of uv add installing Python packages](_static/uv-add.png)
 
 Now let's import them in the cell that appears below the installation output. Hit play again.
 
@@ -48,11 +48,11 @@ The dictionary has a `messages` key that contains a list of dictionaries. Each d
 
 We also need to pick an LLM from [the list that Hugging Face supports](https://huggingface.co/models).
 
-[![Hugging Face model list](_static/huggingface-models.png)](https://huggingface.co/models)
+[![Hugging Face models page showing a filterable list of available LLMs](_static/huggingface-models.png)](https://huggingface.co/models)
 
 Let's start with Llama 4 from Meta. At the time of this writing, it was the company's latest offering. Its full name is a mouthful: [Llama-4-Maverick-17B-128E-Instruct-FP8](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8).
 
-[![Llama 4 model card](_static/llama-4.png)](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
+[![Hugging Face model card for Llama-4-Maverick-17B-128E-Instruct-FP8 showing its license, usage stats and API options](_static/llama-4.png)](https://huggingface.co/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8)
 
 We'll drop that into the `model` parameter with our first prompt and see what happens. Let's start by asking the model to explain the importance of data journalism in a concise sentence.
 

@@ -433,7 +433,7 @@ df.sample(250).to_csv("./sample.csv", index=False)
 
 You would then open the file in a spreadsheet program like Excel or Google Sheets. For each payee in the sample, you would provide the correct category in a new companion column. As you fill it in with the correct answers, this gradually becomes your supervised sample. That's all there is to it.
 
-![Sample](_static/sample.png)
+![A Google Sheets spreadsheet with payee names in one column and hand-labeled categories in another](_static/sample.png)
 
 To speed the class along, we've already prepared a sample for you in [the class repository](https://github.com/palewire/first-llm-classifier). Create a new cell and read it into a DataFrame.
 
@@ -778,7 +778,7 @@ Then pass in the correct answers and the model's predictions.
 ConfusionMatrixDisplay.from_predictions(test_output, llm_df.category)
 ```
 
-![confusion matrix](_static/matrix-llm.png)
+![Confusion matrix heatmap showing the LLM's predictions, with most correct classifications along the diagonal](_static/matrix-llm.png)
 
 The diagonal line of cells running from the upper left to the lower right shows where the model correctly predicted the category. The off-diagonal cells show where it got things wrong. The color of the cells indicates how often the model made that prediction. For instance, we can see that four miscategorized restaurants in the sample were mistakenly predicted to be bars or filed under other.
 
@@ -861,7 +861,7 @@ weighted avg       0.44      0.67      0.53       168
 ConfusionMatrixDisplay.from_predictions(test_output, predictions)
 ```
 
-![confusion matrix](_static/matrix-ml.png)
+![Confusion matrix heatmap for the traditional ML model, with nearly all predictions falling in the Other column](_static/matrix-ml.png)
 
 Not great. The traditional model is guessing correctly about 67% of the time, but it's missing most cases of our "Bar", "Hotel" and "Restaurant" categories as almost everything is getting filed as "Other." The LLM, on the other hand, is guessing correctly more than 90% of the time and flagging many of the rare categories that we're seeking to find in the haystack of data.
 
@@ -935,8 +935,10 @@ Now we can test our prompt against a list of models. Let's try three.
 model_list = [
     # The Facebook Llama model we've been using so far
     "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+
     # This is a competing model from Google
     "google/gemma-3-27b-it",
+
     # Let's try a Chinese one from Alibaba for good measure
     "Qwen/Qwen3-235B-A22B-Instruct-2507",
 ]

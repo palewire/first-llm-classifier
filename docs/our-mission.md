@@ -309,7 +309,7 @@ Large-language models offer a better deal. We will demonstrate how you can use t
 
 ## The LLM advantage
 
-![A rotating set of LLM providers](_static/llm-chatbots.gif)
+![Animated logos of LLM chatbot providers including ChatGPT, Claude and Gemini](_static/llm-chatbots.gif)
 
 A [large-language model](https://en.wikipedia.org/wiki/Large_language_model) is an artificial intelligence system capable of understanding and generating human language due to its extensive training on vast amounts of text. These systems are commonly referred to by the acronym LLM. The most prominent examples include OpenAI’s GPT, Google’s Gemini and Anthropic’s Claude. There are many others, including numerous open-source options.
 
@@ -331,10 +331,10 @@ It’s no easy task. Each election cycle, thousands of candidates log their tran
 
 For instance, it wasn’t until after his 2022 election to Congress that [journalists discovered](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html) that Rep. George Santos of New York had spent thousands of campaign dollars on questionable and potentially illegal expenses. While much of his shady spending was publicly disclosed, it was largely overlooked in the run-up to election day.
 
-[![Santos story](_static/santos.png)](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html)
+[![New York Times article headlined "Santos, a Suburban House and $11,000 in Campaign Payments for Rent"](_static/santos.png)](https://www.nytimes.com/2022/12/29/nyregion/george-santos-campaign-finance.html)
 
 Inspired by this scoop, we will create a classifier that can scan the expenditures logged in campaign finance reports and identify those that may be newsworthy.
 
-[![CCDC](_static/ccdc.png)](https://californiacivicdata.org/)
+[![California Civic Data Coalition homepage with a geometric bear logo and a button to download campaign finance data](_static/ccdc.png)](https://californiacivicdata.org/)
 
 We will draw data from The Golden State, where the California Civic Data Coalition developed a clean, structured version of the statehouse's disclosure data, which tracks the spending of candidates for state legislature, governor and other statewide offices. The records are now stored by [Big Local News](https://biglocalnews.org/), an open-source journalism project hosted by Stanford University.
