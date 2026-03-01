@@ -851,9 +851,6 @@ Then, in the `client.chat.completions.create` call, replace the hardcoded model 
         },
         temperature=0,
     )
-
-    result = PayeeList.model_validate_json(response.choices[0].message.content)
-    return dict(zip(name_list, result.answers))
 ```
 
 We also need the same change in `classify_batches`, accepting the model and passing it through.
@@ -873,12 +870,6 @@ def classify_batches(name_list, model, batch_size=10, wait=1):
     for batch in track(batch_list, description="Classifying batches..."):
         # Classify it with the LLM
         batch_results = classify_payees(list(batch), model)
-
-        # Verify that we got back the same number of results as we sent in
-        try:
-            assert len(batch_results) == len(batch)
-        except AssertionError:
-            raise AssertionError(f"Expected {len(batch)} results but got back {len(batch_results)}.")
 
         # Add what we get back to the results
         all_results.update(batch_results)

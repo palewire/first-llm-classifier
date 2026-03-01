@@ -145,16 +145,35 @@ class PayeeList(BaseModel):
     answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
 ```
 
+Since we'll be making many API calls as we work through this data, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
+
+Install that.
+
+```
+!uv add tenacity
+```
+
+Import it in your top cell.
+
+```python
+from tenacity import retry, stop_after_attempt, wait_exponential
+```
+
 Then we will:
 
+- Add the `@retry` decorator to our function with the appropriate configuration.
 - Rename our function to `classify_payees`.
 - Rewrite our prompt to explain the new task and categories.
 - Update our few-shot training examples to reflect the new task.
 - Swap in the new model for the response format and validation.
+- Add a check to make sure the LLM returned the right number of answers.
 
-{emphasize-lines="1-22,30-45,55-56,62"}
+Here's where that ends up
+
+{emphasize-lines="1-23,31-46,53-59,63-65"}
 
 ```python
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
@@ -217,6 +236,8 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
     )
 
     result = PayeeList.model_validate_json(response.choices[0].message.content)
+    assert len(result.answers) == len(name_list), \
+        f"Expected {len(name_list)} answers but got {len(result.answers)}"
     return dict(zip(name_list, result.answers))
 ```
 
@@ -274,12 +295,6 @@ def classify_batches(name_list, batch_size=10, wait=1):
     for batch in track(batch_list, description="Classifying batches..."):
         # Classify it with the LLM
         batch_results = classify_payees(list(batch))
-
-        # Verify that we got back the same number of results as we sent in
-        try:
-            assert len(batch_results) == len(batch)
-        except AssertionError:
-            raise AssertionError(f"Expected {len(batch)} results but got back {len(batch_results)}.")
 
         # Add what we get back to the results
         all_results.update(batch_results)
