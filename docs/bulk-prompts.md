@@ -254,18 +254,18 @@ See how it does.
 classify_payees(sample_list)
 ```
 
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                                          | category   |
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                                           | category   |
 |---:|:------------------------------------------------|:-----------|
-|  0 | ARCLIGHT CINEMAS                                | Other      |
-|  1 | 99 CENTS ONLY                                   | Other      |
-|  2 | COMMONWEALTH COMMUNICATIONS                     | Other      |
-|  3 | CHILBO MYUNOK                                   | Other      |
-|  4 | ADAM SCHIFF FOR SENATE                          | Other      |
-|  5 | CENTER FOR CREATIVE FUNDING                     | Other      |
-|  6 | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
-|  7 | MULVANEY'S BUILDING & LOAN                      | Other      |
-|  8 | ATV VIDEO CENTER                                | Other      |
-|  9 | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | ARCLIGHT CINEMAS                                | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | 99 CENTS ONLY                                   | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | COMMONWEALTH COMMUNICATIONS                     | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | CHILBO MYUNOK                                   | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> | ADAM SCHIFF FOR SENATE                          | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> | CENTER FOR CREATIVE FUNDING                     | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> | MULVANEY'S BUILDING & LOAN                      | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> | ATV VIDEO CENTER                                | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
 </pre>
 
 ## Submitting in batches
