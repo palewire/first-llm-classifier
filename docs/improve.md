@@ -50,7 +50,7 @@ You could then output the mistakes to a spreadsheet and inspect them more closel
 mistakes_df.to_csv("mistakes.csv", index=False)
 ```
 
-As I scanned the full list of mistakes, I observed that the LLM was struggling with businesses that had both the word bar and the word restaurant in their name. A simple fix would be to add a new line to your prompt that instructs the LLM what to do in that case.
+As I scanned the full list, I observed that the LLM was struggling with businesses that had both the word bar and the word restaurant in their name. A simple fix would be to add a new line to your prompt that instructs the LLM what to do in that case.
 
 ```
 If a business name contains both the word "Restaurant" and
