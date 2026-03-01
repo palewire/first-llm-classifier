@@ -194,7 +194,7 @@ Ensure that the number of classifications in your output matches the number of b
 And all you need to do is run it again.
 
 ```python
-llm_df = classify_batches(list(test_input.payee))
+llm_df = classify_batches(test_input.payee)
 ```
 
 How can you tell if your results have improved? You run that same classification report and see if the numbers have gone up.

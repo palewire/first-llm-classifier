@@ -275,15 +275,24 @@ import pandas as pd
 That batching trick can then be fit into a new function that will accept a big list of payees and classify them batch by batch.
 
 ```python
-def classify_batches(name_list, batch_size=20, wait=1):
-    """Split a list of names into batches and classify them one by one."""
+def classify_batches(name_list, batch_size=10, wait=1):
+    """Split the provided list of names into batches and classify with our LLM them one by one."""
     # Create a place to store the results
     all_results = {}
 
+    # Create an list that will split the name_list into batches
+    batch_list = list(batched(list(name_list), batch_size))
+
     # Loop through the list in batches
-    for batch in track(batched(name_list, batch_size)):
+    for batch in track(batch_list, description="Classifying batches..."):
         # Classify it with the LLM
         batch_results = classify_payees(list(batch))
+
+        # Verify that we got back the same number of results as we sent in
+        try:
+            assert len(batch_results) == len(batch)
+        except AssertionError:
+            raise AssertionError(f"Expected {len(batch)} results but got back {len(batch_results)}.")
 
         # Add what we get back to the results
         all_results.update(batch_results)
@@ -291,7 +300,7 @@ def classify_batches(name_list, batch_size=20, wait=1):
         # Tap the brakes to avoid overloading Hugging Face's API
         time.sleep(wait)
 
-    # Return the results as a pandas DataFrame
+    # Return the results
     return pd.DataFrame(all_results.items(), columns=["payee", "category"])
 ```
 
@@ -300,7 +309,7 @@ Look closely at that last line and you'll see that the function is now returning
 Select a bigger sample.
 
 ```python
-bigger_sample = list(df.sample(100).payee)
+bigger_sample = df.sample(100).payee
 ```
 
 Fire away.

@@ -2,17 +2,17 @@
 
 Before you publish anything, you'll want to be sure you can trust the LLM's classifications. Spot checks are not enough. You need a systematic way to evaluate your model's performance.
 
-This is where traditional machine-learning techniques still play a vital role. Let's take a step back to learn how a technique known as supervision can evaluate an LLM prompt.
+This is where traditional machine-learning techniques still play a vital role. Let's take a step back to learn how a longstanding technique known as supervision can evaluate an LLM prompt.
 
 ## Lessons from the past
 
-Before the advent of large-language models, machine-learning systems were trained using a technique called [supervised learning](https://en.wikipedia.org/wiki/Supervised_learning). This approach required users to provide carefully prepared data that showed the computer what was expected.
+Before the advent of large-language models, machine-learning systems were created using a technique called [supervised learning](https://en.wikipedia.org/wiki/Supervised_learning). This approach required users to provide carefully prepared data that showed the computer how to behave.
 
-For instance, if you were developing a model to distinguish spam emails from legitimate ones, you would provide the model with a set of emails that had already been properly classified as spam or not spam.
+For instance, if you were developing a model to distinguish between spam emails and legitimate ones, you would provide the model with a set of emails that had already been properly classified as spam or not spam.
 
-The model uses that data to learn the relationships between the inputs and outputs, which it could then apply to new emails it hadn't seen before. This process is called training.
+The model would then use that data to learn the relationships between the inputs and outputs, which it could apply to new emails it hadn't seen before. This process is called training.
 
-In those systems, the supervised input is split into two separate sets: one for training and another held aside for testing. After the model was trained using the first set, it is evaluated using the second set.
+In systems like that, the supervised input is split into two separate sets: one for training the model and another held aside for testing its performance.
 
 ```{raw} html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -199,7 +199,7 @@ In those systems, the supervised input is split into two separate sets: one for 
 </script>
 ```
 
-Since the testing set is withheld from the model during training, it provides a way to measure how well the model can generalize to new data. If the training is successful, the model should be able to correctly classify most of the instances in the test set it hasn't seen before.
+After the model is trained using the first set, it is evaluated using the second set. Since the testing set is withheld from the model during training, it provides a way to measure how well the model can generalize to data it hasn't seen before. If the training was successful, the model should be able to correctly classify most of the instances in the test set.
 
 ```{raw} html
 <div id="test-evaluation" style="margin: 20px 0; width: 100%;"></div>
@@ -417,23 +417,25 @@ Since the testing set is withheld from the model during training, it provides a 
 </script>
 ```
 
-Large-language models operate differently. They are trained on vast amounts of text and can generate responses based on the relationships they derive from various machine-learning approaches. The result is that you can use them without providing supervised data beforehand.
+Large-language models operate differently. They are trained on vast amounts of text and can generate responses based on various machine-learning approaches. The result is that you can use them without providing supervised data beforehand.
 
-This is a significant advantage. However, it also raises questions about how to evaluate the accuracy of an LLM prompt. Without a supervised sample to test its results, we can't be sure if the model is performing well or just getting lucky with its guesses. Without knowing where it gets things wrong, we don't know what adjustments could improve its performance.
+This is a significant advantage. However, it raises questions about how to evaluate the accuracy of an LLM prompt. Without a supervised sample to test its results, we can't be sure if the model is performing well or just getting lucky with its guesses. Furthermore, without knowing where it gets things wrong, we don't know what adjustments could improve its performance.
 
 ## Creating a supervised sample
 
-Start by outputting a random sample from the dataset to a file of comma-separated values. It will serve as our supervised sample. In general, the larger the sample the better the evaluation. But at a certain point the returns diminish. For this exercise, we will use a sample of 250 records.
+That's why, even though LLMs don't require supervised data to function, it's still a good idea to create a supervised sample for evaluation purposes.
+
+Start by outputting a random sample from the dataset you're studying to a file of comma-separated values. In general, the larger the sample the better the evaluation, though at a certain point the returns diminish. For this exercise, let's use pandas to create a sample of 250 records and export it to a file called `sample.csv`.
 
 ```python
 df.sample(250).to_csv("./sample.csv", index=False)
 ```
 
-You can open the file in a spreadsheet program like Excel or Google Sheets. For each payee in the sample, you would provide the correct category in a companion column. This gradually becomes the supervised sample.
+You would then open the file in a spreadsheet program like Excel or Google Sheets. For each payee in the sample, you would provide the correct category in a new companion column. As you fill it in with the correct answers, this gradually becomes your supervised sample. That's all there is to it.
 
 ![Sample](_static/sample.png)
 
-To speed the class along, we've already prepared a sample for you in [the class repository](https://github.com/palewire/first-llm-classifier). Our next step is to read it back into a DataFrame.
+To speed the class along, we've already prepared a sample for you in [the class repository](https://github.com/palewire/first-llm-classifier). Create a new cell and read it into a DataFrame.
 
 ```python
 sample_df = pd.read_csv(
@@ -441,40 +443,39 @@ sample_df = pd.read_csv(
 )
 ```
 
-We'll install the Python packages `scikit-learn` and `matplotlib`. Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
-
-Return to the Jupyter notebook and install the packages alongside our other dependencies.
+Install the Python packages [`scikit-learn`](https://scikit-learn.org/stable/) and [`matplotlib`](https://matplotlib.org/). Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
 
 ```
-!uv add huggingface_hub rich ipywidgets pandas scikit-learn matplotlib
+!uv add scikit-learn matplotlib
 ```
 
-Add the `train_test_split` function from `scikit-learn` to the import statement.
+Add the [`train_test_split`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) function from `scikit-learn` to the import statement. This tool is used to split a supervised sample into separate sets for training and testing.
 
-{emphasize-lines="8"}
+{emphasize-lines="9"}
 
 ```python
-import json
+from pydantic import BaseModel
 import time
+from typing import Literal
+from itertools import batched
 from rich import print
 from rich.progress import track
 from huggingface_hub import InferenceClient
 import pandas as pd
-from itertools import batched
 from sklearn.model_selection import train_test_split
 ```
 
-This tool is used to split a supervised sample into separate sets for training and testing.
+The first input is the DataFrame column containing the payee names. The second input is the DataFrame column containing the correct categories.
 
-The first input is the DataFrame column containing our supervised payees. The second input is the DataFrame column containing the correct categories.
+The `test_size` parameter determines the proportion of the sample that will be used for testing. In traditional machine-learning setups, a common split is 67% for training and 33% for testing. In our circumstance, where we're not actually training a model, we will reverse the proportions and use 67% of the sample for testing to get a more robust evaluation of our LLM's performance.
 
-The `test_size` parameter determines the proportion of the sample that will be used for testing. The `random_state` parameter ensures that the split is reproducible by setting a seed for the random number generator that draws the samples.
+The `random_state` parameter ensures that the split is reproducible by setting a seed for the random number generator that draws the samples. This will ensure that you get the same training and testing sets each time you run the code, which is important for consistent evaluation.
 
 ```python
 training_input, test_input, training_output, test_output = train_test_split(
     sample_df[["payee"]],
     sample_df["category"],
-    test_size=0.33,
+    test_size=0.67,
     random_state=42,  # Remember Jackie Robinson. Remember Douglas Adams.
 )
 ```
@@ -483,12 +484,12 @@ training_input, test_input, training_output, test_output = train_test_split(
 
 In a traditional training setup, the next step would be to train a machine-learning model in `sklearn` using the `training_input` and `training_output` sets. The model would then be evaluated using the `test_input` and `test_output` sets.
 
-With the LLM we skip ahead to the testing phase. We pass the `test_input` set to our LLM prompt and compare the results to the right answers found in `test_output` set.
+With an LLM we skip ahead to the testing phase. We pass the `test_input` set to our LLM prompt and compare its guesses to the right answers found in `test_output` set.
 
 All that requires is that we pass the `payee` column from our `test_input` DataFrame to the function we created in the previous chapters.
 
 ```python
-llm_df = classify_batches(list(test_input.payee))
+llm_df = classify_batches(test_input.payee)
 ```
 
 Next, we import the `classification_report` function from `sklearn`, which is used to evaluate a model's performance.
@@ -507,7 +508,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 ```
 
-The `classification_report` function generates a report card on a model's performance. You provide it with the correct answers in the `test_output` set and the model's predictions in your prompt's DataFrame. In this case, our LLM's predictions are stored in the `llm_df` DataFrame's `category` column.
+The [`classification_report`](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html) function generates a report card on a model's performance. You provide it with the correct answers in the `test_output` set and the model's predictions in your prompt's DataFrame. In this case, our LLM's predictions are stored in the `llm_df` DataFrame's `category` column.
 
 ```python
 print(classification_report(test_output, llm_df.category))
@@ -516,31 +517,29 @@ print(classification_report(test_output, llm_df.category))
 That will output a report that looks something like this:
 
 ```
-              precision    recall  f1-score   support
+             precision    recall  f1-score   support
 
-         Bar       0.25      0.50      0.33         2
-       Hotel       1.00      0.78      0.88         9
-       Other       0.95      0.93      0.94        57
-  Restaurant       0.88      0.93      0.90        15
+         Bar       0.25      1.00      0.40         2
+       Hotel       0.90      1.00      0.95        18
+       Other       0.99      0.93      0.96       112
+  Restaurant       0.91      0.89      0.90        36
 
-    accuracy                           0.90        83
-   macro avg       0.77      0.79      0.76        83
-weighted avg       0.92      0.90      0.91        83
+    accuracy                           0.93       168
+   macro avg       0.76      0.95      0.80       168
+weighted avg       0.96      0.93      0.94       168
 ```
 
-At first, the report can be a bit overwhelming. What are all these technical terms?
+At first, the report can be a bit overwhelming. What are all these technical terms? How do I read this damn thing? Let's walk through it.
 
-Precision measures what statistics nerds call "positive predictive value." It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct. An analogy here is a baseball player's contact rate. Precision is a measure of how often the model connects with the ball when it swings its bat.
+The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct. An analogy here is a baseball player's contact rate. Precision is a measure of how often the model connects with the ball when it swings its bat. Our model swung at the "Bar" category four times and only made contact once.
 
-Recall measures how many of the supervised instances were identified by the model. In this case, it shows that the LLM correctly spotted about 78% of the hotels in our manual sample.
+The recall column measures how many of the supervised instances were identified by the model. In this case, it shows that the LLM correctly spotted about 89% of the restaurants in our manual sample. The total number of hotels in the sample is shown in the support column. So, out of 36 hotels, the model correctly identified 32 of them.
 
 The f1-score is a combination of precision and recall. It's a way to measure a model's overall performance by balancing the two.
 
-The support column shows how many instances of each category were in the supervised sample.
+The averages at the bottom combine the results for all categories. The accuracy row shows how often the model got the right answer across all categories as a grand total. The macro row is a simple average of the precision, recall and f1-score for each category, which treats all categories equally regardless of how many instances they have in the sample. The weighted row is a weighted average based on the number of instances in each category.
 
-The averages at the bottom combine the results for all categories. The macro row is a simple average of all the scores in that column. The weighted row is a weighted average based on the number of instances in each category.
-
-In the example result above, the overall accuracy is about 90%, but the lower macro average (0.76) shows the model is less consistent on rarer categories.
+In the example result above, the overall accuracy is about 93%, but the lower macro average of 0.80 shows the model is less consistent on rarer categories.
 
 ## Visualizing the results
 
@@ -768,7 +767,7 @@ Loop through each model, classify the test set and print a `classification_repor
 ```python
 for m in model_list:
     print(f"Model: {m}")
-    result_df = classify_batches(list(test_input.payee), m)
+    result_df = classify_batches(test_input.payee, m)
     print(classification_report(test_output, result_df.category))
 ```
 
