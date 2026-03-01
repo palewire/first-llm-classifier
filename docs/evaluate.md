@@ -531,21 +531,232 @@ weighted avg       0.96      0.93      0.94       168
 
 At first, the report can be a bit overwhelming. What are all these technical terms? How do I read this damn thing? Let's walk through it.
 
-The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct. An analogy here is a baseball player's contact rate. Precision is a measure of how often the model connects with the ball when it swings its bat. Our model swung at the "Bar" category four times and only made contact once.
+The precision column measures what statistics nerds call ["positive predictive value."](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) It's how often the model made the correct decision when it applied a category. For instance, in the "Bar" category here, the LLM has a precision of 0.25, which means only one out of four "Bar" predictions was correct.
 
-The recall column measures how many of the supervised instances were identified by the model. In this case, it shows that the LLM correctly spotted about 89% of the restaurants in our manual sample. The total number of hotels in the sample is shown in the support column. So, out of 36 hotels, the model correctly identified 32 of them.
+An analogy here is a baseball player's [contact rate](https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage), which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the "Bar" category eight times and only made contact once.
 
-The f1-score is a combination of precision and recall. It's a way to measure a model's overall performance by balancing the two.
+```{raw} html
+<div id="precision-graphic" style="margin: 20px 0; width: 100%;"></div>
+<script>
+(function() {
+  const width = 600;
+  const height = 150;
+  const dotRadius = 12;
+  const dotSpacing = 36;
+  const cols = 10;
 
-The averages at the bottom combine the results for all categories. The accuracy row shows how often the model got the right answer across all categories as a grand total. The macro row is a simple average of the precision, recall and f1-score for each category, which treats all categories equally regardless of how many instances they have in the sample. The weighted row is a weighted average based on the number of instances in each category.
+  const barColor = "#e65100";
+  const otherColor = "#ccc";
 
-In the example result above, the overall accuracy is about 93%, but the lower macro average of 0.80 shows the model is less consistent on rarer categories.
+  // 20 test items: 2 actual Bars, 18 not-Bars
+  // Model predicted 8 as Bar: the 2 real Bars + 6 wrong ones
+  const items = [
+    { isBar: false, predBar: false },
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+  ];
+
+  const centerX = width / 2;
+  const gridTop = 50;
+
+  function pos(idx) {
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const gridW = (cols - 1) * dotSpacing;
+    return {
+      x: centerX - gridW / 2 + col * dotSpacing,
+      y: gridTop + row * dotSpacing,
+    };
+  }
+
+  const svg = d3.select("#precision-graphic")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
+
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", 20)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 15)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Precision");
+
+  items.forEach((d, i) => {
+    const p = pos(i);
+    const tp = d.predBar && d.isBar;
+
+    if (d.predBar) {
+      svg.append("circle")
+        .attr("cx", p.x)
+        .attr("cy", p.y)
+        .attr("r", dotRadius + 5)
+        .attr("fill", "none")
+        .attr("stroke", tp ? "#2e7d32" : "#d32f2f")
+        .attr("stroke-width", 3);
+    }
+
+    svg.append("circle")
+      .attr("cx", p.x)
+      .attr("cy", p.y)
+      .attr("r", dotRadius)
+      .attr("fill", d.isBar ? barColor : otherColor)
+      .attr("opacity", d.predBar ? 0.95 : 0.25);
+  });
+
+  // Score label
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", height - 12)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 14)
+    .attr("font-weight", 400)
+    .attr("fill", "#555")
+    .text("2 of 8 predictions correct = 0.25 precision");
+})();
+</script>
+```
+
+The recall column measures how many of the supervised instances were correctly identified by the model. In this case, it shows that the LLM spotted 89% of the restaurants in our manual sample. The total number of hotels in the sample is shown in the support column. So, out of 36 hotels, the model correctly identified 32 of them.
+
+It did even better with the two bars in the sample, correctly identifying both of them for a recall of 100%.
+
+```{raw} html
+<div id="recall-graphic" style="margin: 20px 0; width: 100%;"></div>
+<script>
+(function() {
+  const width = 600;
+  const height = 150;
+  const dotRadius = 12;
+  const dotSpacing = 36;
+  const cols = 10;
+
+  const barColor = "#e65100";
+  const otherColor = "#ccc";
+
+  // Same 20 items as precision graphic
+  const items = [
+    { isBar: false, predBar: false },
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+  ];
+
+  const centerX = width / 2;
+  const gridTop = 50;
+
+  function pos(idx) {
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const gridW = (cols - 1) * dotSpacing;
+    return {
+      x: centerX - gridW / 2 + col * dotSpacing,
+      y: gridTop + row * dotSpacing,
+    };
+  }
+
+  const svg = d3.select("#recall-graphic")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
+
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", 20)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 15)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Recall");
+
+  items.forEach((d, i) => {
+    const p = pos(i);
+    const found = d.isBar && d.predBar;
+
+    if (d.isBar) {
+      svg.append("circle")
+        .attr("cx", p.x)
+        .attr("cy", p.y)
+        .attr("r", dotRadius + 5)
+        .attr("fill", "none")
+        .attr("stroke", found ? "#2e7d32" : "#d32f2f")
+        .attr("stroke-width", 3);
+    }
+
+    svg.append("circle")
+      .attr("cx", p.x)
+      .attr("cy", p.y)
+      .attr("r", dotRadius)
+      .attr("fill", d.isBar ? barColor : otherColor)
+      .attr("opacity", d.isBar ? 0.95 : 0.25);
+  });
+
+  // Score label
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", height - 12)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 14)
+    .attr("font-weight", 400)
+    .attr("fill", "#555")
+    .text("2 of 2 correctly identified = 1.00 recall");
+})();
+</script>
+```
+
+The [f1-score](https://en.wikipedia.org/wiki/F-score) is a combination of precision and recall. It's a way to measure a model's overall performance by balancing the two.
+
+The averages at the bottom combine the results for all categories. The accuracy row shows how often the model got the right answer across all categories as a grand total. The macro row is a simple average of the precision, recall and f1-score for each category, which treats all categories equally regardless of how many instances they have in the sample. The weighted row is a mixed average based on the number of instances in each category.
+
+In the example result above, the overall accuracy is about 93%, but the lower macro average of 80% shows the model is less consistent on rarer categories like bars.
+
+```{note}
+Due to the inherent randomness in the LLM's predictions, it's a good idea to test your sample and run these reports multiple times to get a sense of the model's performance.
+```
 
 ## Visualizing the results
 
-Another technique for evaluating classifiers is to visualize the results using a chart known as a confusion matrix. It shows how often the model correctly predicted each category and where it got things wrong.
+Another technique for evaluating classifiers is to visualize the results using a chart known as a [confusion matrix](https://en.wikipedia.org/wiki/Confusion_matrix). It shows how often the model correctly predicted each category and where it got things wrong.
 
-The `ConfusionMatrixDisplay` tool from `sklearn` can draw one for us. We just need to add it and `matplotlib` to our imports.
+The [ConfusionMatrixDisplay](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html) tool from `sklearn` can draw one for us. We just need to add it and `matplotlib` to our imports.
 
 {emphasize-lines="9,10"}
 
@@ -558,7 +769,6 @@ from huggingface_hub import InferenceClient
 import pandas as pd
 from itertools import batched
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report
 ```
 
@@ -570,9 +780,7 @@ ConfusionMatrixDisplay.from_predictions(test_output, llm_df.category)
 
 ![confusion matrix](_static/matrix-llm.png)
 
-The diagonal line of cells running from the upper left to the lower right shows where the model correctly predicted the category. The off-diagonal cells show where it got things wrong. The color of the cells indicates how often the model made that prediction. For instance, we can see that one miscategorized hotel in the sample was predicted to be a restaurant and the second was predicted to be "Other."
-
-Due to the inherent randomness in the LLM's predictions, it's a good idea to test your sample and run these reports multiple times to get a sense of the model's performance.
+The diagonal line of cells running from the upper left to the lower right shows where the model correctly predicted the category. The off-diagonal cells show where it got things wrong. The color of the cells indicates how often the model made that prediction. For instance, we can see that four miscategorized restaurants in the sample were mistakenly predicted to be bars or filed under other.
 
 ## The way we were
 
@@ -580,7 +788,7 @@ Before we look at how you might improve the LLM's performance, let's take a mome
 
 This will require importing a mess of `sklearn` functions and classes. We'll use `TfidfVectorizer` to convert the payee text into a numerical representation that can be used by a `LinearSVC` classifier. We'll then use a `Pipeline` to chain the two together. If you have no idea what any of that means, don't worry. Now that we have LLMs in this world, you might never need to know.
 
-{emphasize-lines="11-14"}
+{emphasize-lines="10-13"}
 
 ```python
 import json
@@ -591,7 +799,6 @@ from huggingface_hub import InferenceClient
 import pandas as pd
 from itertools import batched
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
@@ -641,13 +848,13 @@ print(classification_report(test_output, predictions))
               precision    recall  f1-score   support
 
          Bar       0.00      0.00      0.00         2
-       Hotel       1.00      0.33      0.50         9
-       Other       0.76      1.00      0.86        57
-  Restaurant       1.00      0.33      0.50        15
+       Hotel       0.00      0.00      0.00        18
+       Other       0.67      1.00      0.80       112
+  Restaurant       0.00      0.00      0.00        36
 
-    accuracy                           0.78        83
-   macro avg       0.69      0.42      0.47        83
-weighted avg       0.81      0.78      0.74        83
+    accuracy                           0.67       168
+   macro avg       0.17      0.25      0.20       168
+weighted avg       0.44      0.67      0.53       168
 ```
 
 ```python
@@ -656,67 +863,23 @@ ConfusionMatrixDisplay.from_predictions(test_output, predictions)
 
 ![confusion matrix](_static/matrix-ml.png)
 
-Not great. The traditional model is guessing correctly about 75% of the time, but it's missing most cases of our "Bar", "Hotel" and "Restaurant" categories as almost everything is getting filed as "Other." The LLM, on the other hand, is guessing correctly more than 90% of the time and flagging many of the rare categories that we're seeking to find in the haystack of data.
+Not great. The traditional model is guessing correctly about 67% of the time, but it's missing most cases of our "Bar", "Hotel" and "Restaurant" categories as almost everything is getting filed as "Other." The LLM, on the other hand, is guessing correctly more than 90% of the time and flagging many of the rare categories that we're seeking to find in the haystack of data.
 
 ## Comparing models
 
 Our evaluation so far has only tested one LLM. But Hugging Face offers [dozens of models](https://huggingface.co/models) and we can't be sure that the one we picked is the best for our task. Let's adapt our code so we can easily compare how different models perform.
 
-The first step is to add a `model` parameter to our `classify_payees` function and pass it through to the API call. This replaces the hardcoded model name with a variable.
-
-{emphasize-lines="1,36"}
+The first step is to add a `model` parameter to our `classify_payees` function's input.
 
 ```python
 def classify_payees(name_list, model):
-    prompt = """
-You are an AI model trained to categorize businesses based on their names.
+```
 
-You will be given a list of business names, each separated by a new line.
+Then, in the `client.chat.completions.create` call, replace the hardcoded model name with the `model` parameter.
 
-Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
+{emphasize-lines="1"}
 
-If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
-
-Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
-
-For example, if given the following input:
-
-"Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
-
-Your output should be a JSON object in the following format:
-
-{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}
-
-This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
-"""
-
-    response = client.chat.completions.create(
-        messages=[
-            {
-                "role": "system",
-                "content": prompt,
-            },
-            {
-                "role": "user",
-                "content": "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing",
-            },
-            {
-                "role": "assistant",
-                "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
-            },
-            {
-                "role": "user",
-                "content": "Subway Sandwiches\nRuth Chris Steakhouse\nPolitical Consulting Co\nThe Lamb's Club",
-            },
-            {
-                "role": "assistant",
-                "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
-            },
-            {
-                "role": "user",
-                "content": "\n".join(name_list),
-            },
-        ],
+```python
         model=model,
         response_format={
             "type": "json_schema",
@@ -732,23 +895,37 @@ This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza 
     return dict(zip(name_list, result.answers))
 ```
 
-We need the same change in `classify_batches`, accepting the model and passing it through.
+We also need the same change in `classify_batches`, accepting the model and passing it through.
 
-{emphasize-lines="1,7"}
+{emphasize-lines="1,12"}
 
 ```python
-def classify_batches(name_list, model, batch_size=20, wait=1):
-    """Split a list of names into batches and classify them one by one."""
+def classify_batches(name_list, model, batch_size=10, wait=1):
+    """Split the provided list of names into batches and classify with our LLM them one by one."""
+    # Create a place to store the results
     all_results = {}
 
-    for batch in track(batched(name_list, batch_size)):
+    # Create an list that will split the name_list into batches
+    batch_list = list(batched(list(name_list), batch_size))
+
+    # Loop through the list in batches
+    for batch in track(batch_list, description="Classifying batches..."):
         # Classify it with the LLM
         batch_results = classify_payees(list(batch), model)
 
+        # Verify that we got back the same number of results as we sent in
+        try:
+            assert len(batch_results) == len(batch)
+        except AssertionError:
+            raise AssertionError(f"Expected {len(batch)} results but got back {len(batch_results)}.")
+
+        # Add what we get back to the results
         all_results.update(batch_results)
 
+        # Tap the brakes to avoid overloading Hugging Face's API
         time.sleep(wait)
 
+    # Return the results
     return pd.DataFrame(all_results.items(), columns=["payee", "category"])
 ```
 
@@ -756,9 +933,12 @@ Now we can test our prompt against a list of models. Let's try three.
 
 ```python
 model_list = [
+    # The Facebook Llama model we've been using so far
     "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+    # This is a competing model from Google
     "google/gemma-3-27b-it",
-    "Qwen/Qwen2.5-72B-Instruct",
+    # Let's try a Chinese one form Alibaba for good measure
+    "Qwen/Qwen3-235B-A22B-Instruct-2507",
 ]
 ```
 
@@ -771,4 +951,4 @@ for m in model_list:
     print(classification_report(test_output, result_df.category))
 ```
 
-Now you can see at a glance which model does the best job on your task and make an informed choice about which one to use going forward.
+Let that rip and then see if you can spot any differences in performance between the models. Do they all do about the same? Does one outperform the others? Are there certain categories that one model is better at spotting than the others?
