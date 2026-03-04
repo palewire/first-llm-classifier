@@ -303,7 +303,7 @@ scheduleNext();
 
 A common goal in this work is to classify text into categories. For example, you might want to sort a collection of emails as “spam” and “not spam” or identify corporate filings that suggest a company is about to go bankrupt.
 
-Traditional techniques for classifying text — like keyword searches and [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) — can be brittle and error-prone. Traditional machine-learning models can be more flexible, though they require large amounts of human training, a high level of computer programming expertise and often yield unimpressive results.
+Traditional techniques for classifying text — like keyword searches and [regular expressions](https://en.wikipedia.org/wiki/Regular_expression) — can be brittle and error-prone. Traditional machine-learning models can be more flexible, though they require a high level of programming expertise and often yield unimpressive results.
 
 Large-language models offer a better deal. We will demonstrate how you can use them to get superior results with less effort.
 
@@ -315,7 +315,7 @@ A [large-language model](https://en.wikipedia.org/wiki/Large_language_model) is 
 
 While these LLMs are most famous for their ability to converse with humans as chatbots, they can also perform a wide range of language processing tasks, including text classification, summarization and translation.
 
-Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs can be prompted with a broad description of their goals and a few examples of rules they should follow. This approach is called prompting.
+Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs only ask gor a broad description of their goals and a few examples of rules to follow. This approach is called prompting.
 
 After parsing the user's request, the LLMs will generate responses informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large datasets that are difficult for humans to process on their own.
 
