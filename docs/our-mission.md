@@ -315,11 +315,11 @@ A [large-language model](https://en.wikipedia.org/wiki/Large_language_model) is 
 
 While these LLMs are most famous for their ability to converse with humans as chatbots, they can also perform a wide range of language processing tasks, including text classification, summarization and translation.
 
-Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs only ask gor a broad description of their goals and a few examples of rules to follow. This approach is called prompting.
+Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs only ask for a broad description of their goals and a few examples of rules to follow. This approach is called prompting.
 
-After parsing the user's request, the LLMs will generate responses informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large datasets that would be too time consuming for a human to process alone.
+After parsing the user's request, the LLMs will generate responses informed by the massive amount of information they contain. That deep knowledge base is far larger than anything a human could curate and provide for training.
 
-LLMs also do not require the user to understand machine-learning concepts, like vectorization or Bayesian statistics, or to write complex code to train and evaluate the model. Instead, users can submit prompts in plain language, which the model will use to generate responses. This makes it easier for journalists to experiment with different approaches and quickly iterate on their work.
+LLMs also do not require the user to understand machine-learning concepts, like vectorization or Bayesian statistics, or to write complex code to train and evaluate the model. Instead, users can submit prompts in plain language, which the model will use to generate responses. This makes it easier for journalists to quickly experiment with different approaches.
 
 ## Our example case
 
