@@ -317,7 +317,7 @@ While these LLMs are most famous for their ability to converse with humans as ch
 
 Unlike traditional machine-learning models, LLMs do not require users to provide pre-prepared training data to perform a specific task. Instead, LLMs only ask gor a broad description of their goals and a few examples of rules to follow. This approach is called prompting.
 
-After parsing the user's request, the LLMs will generate responses informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large datasets that are difficult for humans to process on their own.
+After parsing the user's request, the LLMs will generate responses informed by the massive amount of information they contain. That deep knowledge can be especially beneficial when dealing with large datasets that would be too time consuming for a human to process alone.
 
 LLMs also do not require the user to understand machine-learning concepts, like vectorization or Bayesian statistics, or to write complex code to train and evaluate the model. Instead, users can submit prompts in plain language, which the model will use to generate responses. This makes it easier for journalists to experiment with different approaches and quickly iterate on their work.
 
