@@ -390,7 +390,14 @@ def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
             total=len(futures),
             description="Classifying batches...",
         ):
-            all_results.append(future.result())
+            # Get the results as they come in and add them to our list
+            batch_results = future.result()
+            
+            # Convert the batch results to a DataFrame
+            batch_df = pd.DataFrame(batch_results.items(), columns=["payee", "category"])
+
+            # Add it to our list of results
+            all_results.append(batch_df)
 
     # Combine the batch results into a single DataFrame
     return pd.concat(all_results, ignore_index=True)
