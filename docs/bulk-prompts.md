@@ -356,4 +356,56 @@ results_df.category.value_counts()
 
 Now you can start to dig into the details and see which payees were classified in which categories, and maybe even spot some interesting patterns in the data.
 
-If you ran this routine across the full list of payees, you could merge the results with the line-time spending reported by candidates and quickly calculate which candidates spent the most on hotels, or bars, or restaurants. If someone had a system like this in place during the 2022 election cycle, they might have been able to flag George Santos' suspicious spending patterns months before The New York Times broke the story.
+## Submitting in parallel
+
+Our batching routine is a big improvement, but it still processes one batch at a time. Each batch has to finish before the next one starts. When you're working through thousands of payees, that wait adds up.
+
+Python's standard library offers a simple way to speed things up. The [`concurrent.futures`](https://docs.python.org/3/library/concurrent.futures.html) module can send multiple batches to the API at the same time.
+
+Add it to your imports cell.
+
+```python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+```
+
+Now we can write a new version of our batching function that submits requests in parallel instead of waiting in line.
+
+```python
+def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
+    """Split the provided list of names into batches and classify with our LLM in parallel."""
+    # Create a place to store the results
+    all_results = []
+
+    # Create a list that will split the name_list into batches
+    batch_list = list(batched(list(name_list), batch_size))
+
+    # Submit all the batches in parallel
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [
+            executor.submit(classify_payees, list(batch))
+            for batch in batch_list
+        ]
+        for future in track(
+            as_completed(futures),
+            total=len(futures),
+            description="Classifying batches...",
+        ):
+            all_results.append(future.result())
+
+    # Combine the batch results into a single DataFrame
+    return pd.concat(all_results, ignore_index=True)
+```
+
+The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `track` keeps our progress bar ticking. And since `classify_payees` already has the `@retry` decorator from `tenacity`, any failed requests will be retried automatically — even when running in parallel.
+
+Try it with the same sample.
+
+```python
+results_df = classify_batches_parallel(bigger_sample)
+```
+
+You should see the same results, but faster. With four workers running at once, you're making the most of the time you'd otherwise spend waiting for the API.
+
+If you're working with a particularly large dataset, you can experiment with the `max_workers` parameter. Start low and increase it gradually. Push it too high and you'll risk overwhelming the API, but a modest number like four or five can cut your processing time dramatically.
+
+If you ran this routine across the full list of payees, you could merge the results with the line-item spending reported by candidates and quickly calculate which candidates spent the most on hotels, or bars, or restaurants. If someone had a system like this in place during the 2022 election cycle, they might have been able to flag George Santos' suspicious spending patterns months before The New York Times broke the story.
