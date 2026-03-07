@@ -139,12 +139,6 @@ class PayeeList(BaseModel):
     answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
 ```
 
-We'll apply the `@retry` decorator from `tenacity` that we covered in the [tips chapter](tips.md#retrying-failed-requests) to make the function resilient to API failures. Import it in your top cell if you haven't already.
-
-```python
-from tenacity import retry
-```
-
 Then we will:
 
 - Rename our function to `classify_payees`.
