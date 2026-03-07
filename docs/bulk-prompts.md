@@ -104,7 +104,7 @@ We're ready to load the California expenditures data prepared for the class. It 
 
 ```python
 df = pd.read_csv(
-    "https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/Form460ScheduleESubItem.csv"
+    "https://palewi.re/docs/first-llm-classifier/_static/Form460ScheduleESubItem.csv"
 )
 ```
 
