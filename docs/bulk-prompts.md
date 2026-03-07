@@ -139,17 +139,8 @@ class PayeeList(BaseModel):
     answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
 ```
 
-Since we'll be making many API calls as we work through this data, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
-
-Import it in your top cell.
-
-```python
-from tenacity import retry, stop_after_attempt, wait_exponential
-```
-
 Then we will:
 
-- Add the `@retry` decorator to our function with the appropriate configuration.
 - Rename our function to `classify_payees`.
 - Rewrite our prompt to explain the new task and categories.
 - Update our few-shot training examples to reflect the new task.
@@ -159,7 +150,7 @@ Then we will:
 
 Here's where that ends up
 
-{emphasize-lines="1-13,21-36,43-49,53-56"}
+{emphasize-lines="2-13,21-36,43-49,53-56"}
 
 ```python
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
