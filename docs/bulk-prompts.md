@@ -140,6 +140,8 @@ Instead of asking for a sports league, we will ask the LLM to classify each paye
 
 Start by creating a new Pydantic model for the payee classifications.
 
+{emphasize-lines="1,2"}
+
 ```python
 class PayeeList(BaseModel):
     answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
