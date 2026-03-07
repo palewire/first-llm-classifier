@@ -2,20 +2,13 @@
 
 Now that you've got your Python environment set up, it's time to start writing prompts and sending them off to Hugging Face.
 
-First, you need to install the libraries we'll use across this class. A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
+First, you need to install the outside libraries we'll use across this class. Python has a vast ecosystem of open-source packages. We'll explain the ones we need as they take the stage.
+
+A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
 
 ```text
 !uv add huggingface_hub rich ipywidgets pydantic pandas tenacity scikit-learn matplotlib
 ```
-
-Here's what each package does:
-
-- [`huggingface_hub`](https://pypi.org/project/huggingface-hub/): The official client for Hugging Face's API
-- [`rich`](https://pypi.org/project/rich/) and [`ipywidgets`](https://pypi.org/project/ipywidgets/): Helper libraries that will improve how your outputs look in Jupyter notebooks
-- [`pydantic`](https://docs.pydantic.dev/): A data validation library we'll use to structure LLM responses
-- [`pandas`](https://pandas.pydata.org/): A popular data manipulation library
-- [`tenacity`](https://tenacity.readthedocs.io/): A retry library that adds resilience to API calls
-- [`scikit-learn`](https://scikit-learn.org/stable/) and [`matplotlib`](https://matplotlib.org/): Machine-learning and plotting libraries we'll use for evaluation
 
 Drop that into the first cell of a new notebook and hit the play button in the top toolbar. You should see something like this:
 
