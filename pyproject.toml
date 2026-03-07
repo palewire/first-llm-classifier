@@ -31,8 +31,12 @@ dependencies = [
     "tenacity>=9.1.4",
 ]
 
+[project.scripts]
+download = "download:main"
+
 [tool.setuptools]
 packages = ["docs",]
+py-modules = ["download"]
 
 [tool.ruff]
 exclude = ["_notebooks"]
