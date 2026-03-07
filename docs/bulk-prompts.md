@@ -171,7 +171,7 @@ Then we will:
 
 Here's where that ends up
 
-{emphasize-lines="1-23,31-46,53-59,63-66"}
+{emphasize-lines="1-13,21-36,43-49,53-56"}
 
 ```python
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
@@ -186,16 +186,6 @@ Your task is to analyze each name and classify it into one of the following cate
 If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
 
 Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
-
-For example, if given the following input:
-
-"Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
-
-Your output should be a JSON object in the following format:
-
-{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}
-
-This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
 
     response = client.chat.completions.create(
