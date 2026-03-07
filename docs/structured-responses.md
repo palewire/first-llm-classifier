@@ -18,7 +18,7 @@ You will reply with the sports league in which they compete.
 """
 ```
 
-Run that cell and then lace the variable into our request.
+Run that cell and then place the variable into our request.
 
 {emphasize-lines="5"}
 
@@ -259,7 +259,7 @@ class SportsLeague(BaseModel):
     answer: Literal["MLB", "NFL", "NBA", "Other"]
 ```
 
-It also helps to reinforce the out in the system prompt.
+It also helps to reinforce the escape option in the system prompt.
 
 {emphasize-lines="9"}
 
