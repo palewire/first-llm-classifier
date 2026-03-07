@@ -442,7 +442,7 @@ def classify_team(name):
 
 ## Retrying with tenacity
 
-When making repeated API calls, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
+When making repeated API calls, it's wise to add some resilience. The API could flake out due to network issues or rate limits. And in rare cases, the LLM might not obey our JSON schema, causing the structured response to fail validation. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
 
 Install that.
 
