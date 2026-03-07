@@ -2,6 +2,7 @@
 
 import os
 import sys
+from pathlib import Path
 
 import bln
 import pandas as pd
@@ -10,6 +11,10 @@ bln.pandas.register(pd)
 
 FILE_LIST = ["Form460ScheduleEItem.csv", "Form460ScheduleESubItem.csv"]
 PROJECT_ID = "UHJvamVjdDo2MDVjNzdiYS0wODI4LTRlOTEtOGM3OC03ZjA4NGI2ZDEwZWE="
+
+# Output directory: the Sphinx project's _static folder so files are served
+# at https://palewi.re/docs/first-llm-classifier/_static/<filename>
+OUTPUT_DIR = Path(__file__).parent / "docs" / "_static"
 
 
 def get_payees(file_name: str) -> None:
@@ -34,14 +39,17 @@ def get_payees(file_name: str) -> None:
     payee_df = pd.DataFrame(distinct_payees, columns=["payee"]).sort_values("payee")
     print(f"- {len(payee_df)} distinct payees")
 
-    # Write it out
-    payee_df.to_csv(file_name, index=False)
+    # Write it out into the Sphinx _static directory.
+    output_path = OUTPUT_DIR / file_name
+    payee_df.to_csv(output_path, index=False)
+    print(f"- Written to {output_path}")
 
 
 def main() -> None:
     """Run the download for all files."""
     if not os.getenv("BLN_API_KEY"):
         sys.exit("Error: BLN_API_KEY environment variable is not set.")
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for file_name in FILE_LIST:
         get_payees(file_name)
 

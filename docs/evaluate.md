@@ -439,7 +439,7 @@ To speed the class along, we've already prepared a sample for you in [the class 
 
 ```python
 sample_df = pd.read_csv(
-    "https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/sample.csv"
+    "https://palewi.re/docs/first-llm-classifier/_static/sample.csv"
 )
 ```
 
