@@ -150,7 +150,7 @@ Then we will:
 
 Here's where that ends up
 
-{emphasize-lines="2-23,31-46,53-59,63-66"}
+{emphasize-lines="2-13,21-36,43-49,53-56"}
 
 ```python
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
@@ -165,16 +165,6 @@ Your task is to analyze each name and classify it into one of the following cate
 If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
 
 Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
-
-For example, if given the following input:
-
-"Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing"
-
-Your output should be a JSON object in the following format:
-
-{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}
-
-This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
 
     response = client.chat.completions.create(
@@ -370,10 +360,7 @@ def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
             description="Classifying batches...",
         ):
             # Get the results as they come in and add them to our list
-            batch_results = future.result()
-            
-            # Convert the batch results to a DataFrame
-            batch_df = pd.DataFrame(batch_results.items(), columns=["payee", "category"])
+            batch_df = future.result()
 
             # Add it to our list of results
             all_results.append(batch_df)
