@@ -20,7 +20,7 @@ By the end, you will understand how LLM classifiers can outperform traditional m
 
 This course is free. Anyone who has dabbled with code and AI is qualified to work through the materials. A curious mind and good attitude are all that’s required, but a familiarity with Python will certainly come in handy.
 
-The documentation assumes you are working on an Apple computer or with the Linux operating system. If you are using Windows, we recommend that you install the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install), which will allow you to run Linux on your Windows machine.
+The documentation assumes you are working on an Apple computer or with the Linux operating system. If you are using Windows, we recommend that you use [GitHub Codespaces](github-codespaces.md) or install the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install), which will allow you to run Linux on your Windows machine.
 
 ## Table of contents
 
@@ -31,6 +31,7 @@ The documentation assumes you are working on an Apple computer or with the Linux
 
 our-mission
 huggingface
+github-codespaces
 visual-studio-code
 prompting-with-python
 structured-responses

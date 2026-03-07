@@ -1,10 +1,14 @@
 # Visual Studio Code
 
+```{note}
+If you want to skip the local installation steps below, you can use [GitHub Codespaces](github-codespaces.md) to get started in your browser with no setup required.
+```
+
 This class will show you how to interact with a large-language model on Hugging Face using the Python computer programming language.
 
 You can write Python code in your terminal, in a text file and any number of other places. If you're a skilled programmer who already has a preferred venue for coding, feel free to use it as you work through this class.
 
-If you're not, the tool we recommend for beginners is [Visual Studio Code](https://code.visualstudio.com/), a free code editor supported by Microsoft.
+If you're not, the tool we recommend for local development is [Visual Studio Code](https://code.visualstudio.com/), a free code editor supported by Microsoft. Follow the steps below to install it and set up a Python project on your computer.
 
 [![Visual Studio Code homepage with the tagline "The open source AI code editor" and a download button](_static/vs-code-homepage.png)](https://code.visualstudio.com/)
 

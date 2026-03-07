@@ -445,6 +445,10 @@ sample_df = pd.read_csv(
 
 Install the Python packages [`scikit-learn`](https://scikit-learn.org/stable/) and [`matplotlib`](https://matplotlib.org/). Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
 
+```{note}
+If you are using [GitHub Codespaces](github-codespaces.md), these packages are already installed and you can skip this step.
+```
+
 ```
 !uv add scikit-learn matplotlib
 ```

@@ -4,6 +4,10 @@ Now that you've got your Python environment set up, it's time to start writing p
 
 First, you need to install the libraries we need. The [`huggingface_hub`](https://pypi.org/project/huggingface-hub/) package is the official client for Hugging Face's API. You should also install [`rich`](https://pypi.org/project/rich/) and [`ipywidgets`](https://pypi.org/project/ipywidgets/), helper libraries that will improve how your outputs look in Jupyter notebooks.
 
+```{note}
+If you are using [GitHub Codespaces](github-codespaces.md), these libraries are already installed. You can skip the `!uv add` step below and go straight to the import statement.
+```
+
 A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
 
 ```text

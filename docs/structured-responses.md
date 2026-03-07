@@ -167,6 +167,10 @@ Rather than write JSON schema by hand, we'll use [Pydantic](https://docs.pydanti
 
 Like Hugging Face's Python library, Pydantic will need to be installed using `uv`. Run the following command in a new cell.
 
+```{note}
+If you are using [GitHub Codespaces](github-codespaces.md), Pydantic is already installed and you can skip this step.
+```
+
 ```
 !uv add pydantic
 ```
