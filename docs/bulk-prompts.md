@@ -24,7 +24,7 @@ Then, in our function, we make the following changes:
 
 Put all that together and here's where we land.
 
-{emphasize-lines="1,5,18-25,28,43"}
+{emphasize-lines="1,5,18-25,28,32-38,42-43"}
 
 ```python
 def classify_teams(name_list):
@@ -139,8 +139,6 @@ Let's adapt what we've learned so far to fit this data.
 Instead of asking for a sports league, we will ask the LLM to classify each payee as a restaurant, bar, hotel or other establishment. The kind of places where George Santos, and other politicians like him, might enjoy spending campaign funds.
 
 Start by creating a new Pydantic model for the payee classifications.
-
-{emphasize-lines="1,2"}
 
 ```python
 class PayeeList(BaseModel):
