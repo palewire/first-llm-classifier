@@ -145,29 +145,36 @@ class PayeeList(BaseModel):
     answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
 ```
 
-Since we'll be making many API calls as we work through this data, it's wise to add some resilience. We'll build a retry loop into our function that will automatically try again if an API call fails. It will retry up to three times with exponential backoff, meaning it waits longer between each attempt. It will also print a warning each time it retries, so you can see what's happening.
+Since we'll be making many API calls as we work through this data, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
 
-Add `import time` to your imports cell.
+Install that.
+
+```
+!uv add tenacity
+```
+
+Import it in your top cell.
 
 ```python
-import time
+from tenacity import retry, stop_after_attempt, wait_exponential
 ```
 
 Then we will:
 
+- Add the `@retry` decorator to our function with the appropriate configuration.
 - Rename our function to `classify_payees`.
 - Rewrite our prompt to explain the new task and categories.
 - Update our few-shot training examples to reflect the new task.
 - Swap in the new model for the response format and validation.
-- Add a retry loop that will try up to three times if the API call fails.
 - Add a check to make sure the LLM returned the right number of answers.
 - Return a DataFrame instead of a dictionary to make it easier to work with downstream.
 
 Here's where that ends up
 
-{emphasize-lines="1-22,30-45,52-70"}
+{emphasize-lines="1-23,31-46,53-59,63-66"}
 
 ```python
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
@@ -191,56 +198,48 @@ Your output should be a JSON object in the following format:
 This means that you have classified "Intercontinental Hotel" as a Hotel, "Pizza Hut" as a Restaurant, "Cheers" as a Bar, "Welsh's Family Restaurant" as a Restaurant, and both "KTLA" and "Direct Mailing" as Other.
 """
 
-    for attempt in range(1, 4):
-        try:
-            response = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "system",
-                        "content": prompt,
-                    },
-                    {
-                        "role": "user",
-                        "content": "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing",
-                    },
-                    {
-                        "role": "assistant",
-                        "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
-                    },
-                    {
-                        "role": "user",
-                        "content": "Subway Sandwiches\nRuth Chris Steakhouse\nPolitical Consulting Co\nThe Lamb's Club",
-                    },
-                    {
-                        "role": "assistant",
-                        "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
-                    },
-                    {
-                        "role": "user",
-                        "content": "\n".join(name_list),
-                    },
-                ],
-                model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
-                response_format={
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "PayeeList",
-                        "schema": PayeeList.model_json_schema()
-                    }
-                },
-                temperature=0,
-            )
+    response = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            },
+            {
+                "role": "user",
+                "content": "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
+            },
+            {
+                "role": "user",
+                "content": "Subway Sandwiches\nRuth Chris Steakhouse\nPolitical Consulting Co\nThe Lamb's Club",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
+            },
+            {
+                "role": "user",
+                "content": "\n".join(name_list),
+            },
+        ],
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "PayeeList",
+                "schema": PayeeList.model_json_schema()
+            }
+        },
+        temperature=0,
+    )
 
-            result = PayeeList.model_validate_json(response.choices[0].message.content)
-            assert len(result.answers) == len(name_list), \
-                f"Expected {len(name_list)} answers but got {len(result.answers)}"
-            return pd.DataFrame({"payee": name_list, "category": result.answers})
-        except Exception as e:
-            if attempt == 3:
-                raise
-            wait_time = 2 ** attempt
-            print(f"⚠️ Attempt {attempt} failed: {e}. Retrying in {wait_time} seconds...")
-            time.sleep(wait_time)
+    result = PayeeList.model_validate_json(response.choices[0].message.content)
+    assert len(result.answers) == len(name_list), \
+        f"Expected {len(name_list)} answers but got {len(result.answers)}"
+    return pd.DataFrame({"payee": name_list, "category": result.answers})
 ```
 
 Pull out a random sample of payees as a list.
@@ -273,9 +272,10 @@ classify_payees(sample_list)
 
 That's nice for a sample. But how do you loop through the entire dataset and code it?
 
-Let's add a couple more libraries to our imports cell that will let us avoid hammering Hugging Face and keep tabs on our progress.
+Let's add a couple libraries to our imports cell that will let us avoid hammering Hugging Face and keep tabs on our progress.
 
 ```python
+import time
 from itertools import batched
 from rich.progress import track
 ```
@@ -403,7 +403,7 @@ def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
     return pd.concat(all_results, ignore_index=True)
 ```
 
-The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `track` keeps our progress bar ticking. And since `classify_payees` already has built-in retry logic, any failed requests will be retried automatically — even when running in parallel.
+The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `track` keeps our progress bar ticking. And since `classify_payees` already has the `@retry` decorator from `tenacity`, any failed requests will be retried automatically — even when running in parallel.
 
 Try it with the same sample.
 
