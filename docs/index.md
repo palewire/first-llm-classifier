@@ -34,6 +34,7 @@ huggingface
 visual-studio-code
 prompting-with-python
 structured-responses
+tips
 bulk-prompts
 evaluate
 improve
