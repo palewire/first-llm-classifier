@@ -5,7 +5,7 @@ If you want to get started quickly without installing anything on your computer,
 GitHub Codespaces provides a complete, pre-configured coding environment in the cloud. It runs Visual Studio Code with Python, Jupyter notebooks and all the libraries you need — no installation required.
 
 ```{note}
-GitHub offers a [free tier](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-codespaces/about-billing-for-github-codespaces#monthly-included-storage-and-core-hours-for-personal-accounts) that includes 60 hours of usage per month. That should be more than enough for this class. You will need a free [GitHub account](https://github.com/signup) to use it.
+GitHub offers a [free tier](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-codespaces/about-billing-for-github-codespaces#monthly-included-storage-and-core-hours-for-personal-accounts) that includes 60 hours of usage per month. That should be more than enough for this class. You will need a free [GitHub account](https://github.com/signup) to use it. If you reach the free tier limit, you won't be charged — you simply won't be able to create new codespaces until the next billing cycle.
 ```
 
 ## Open a codespace

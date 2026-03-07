@@ -9,5 +9,5 @@
             ]
         }
     },
-    "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && . $HOME/.local/bin/env && uv sync && uv run python -m ipykernel install --user --name=first-llm-classifier --display-name='First LLM Classifier'"
+    "postCreateCommand": "bash .devcontainer/setup.sh"
 }
