@@ -1,4 +1,4 @@
-# Tips
+# Improving reliability
 
 With a working LLM classifier in hand, there are a few tips and tricks that can improve its reliability and accuracy.
 
