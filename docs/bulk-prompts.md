@@ -24,7 +24,7 @@ Then, in our function, we make the following changes:
 
 Put all that together and here's where we land.
 
-{emphasize-lines="1,5,18-25,28,43"}
+{emphasize-lines="1,5,18-25,28,32-38,42-43"}
 
 ```python
 def classify_teams(name_list):
@@ -92,13 +92,7 @@ You'll see that it works with only a single API call. The same technique will wo
 
 Okay. Naming sports teams is a cute trick, but what about something a bit harder? And whatever happened to that George Santos idea?
 
-We'll tackle that by pulling in our example dataset using [`pandas`](https://pandas.pydata.org/), a popular data manipulation library in Python.
-
-First, we need to install it. Run another cell like this:
-
-```text
-!uv add pandas
-```
+We'll tackle that by pulling in our example dataset using [`pandas`](https://pandas.pydata.org/), a popular data manipulation library in Python that we installed at the start.
 
 Import it in your top cell and rerun.
 
