@@ -24,7 +24,7 @@ Then, in our function, we make the following changes:
 
 Put all that together and here's where we land.
 
-{emphasize-lines="1,5,18-25,28,43"}
+{emphasize-lines="1,5,18-25,28,32-38,42-43"}
 
 ```python
 def classify_teams(name_list):
