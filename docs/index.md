@@ -20,7 +20,14 @@ By the end, you will understand how LLM classifiers can outperform traditional m
 
 This course is free. Anyone who has dabbled with code and AI is qualified to work through the materials. A curious mind and good attitude are all that’s required, but a familiarity with Python will certainly come in handy.
 
-The documentation assumes you are working on an Apple computer or with the Linux operating system. If you are using Windows, we recommend that you install the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install), which will allow you to run Linux on your Windows machine.
+## Set up your coding environment
+
+Before you start writing code, you’ll need a place to write it. There are two options — pick whichever suits you best:
+
+| Option | Best for | Setup time |
+|--------|----------|------------|
+| **[Google Colab](google-colab)** | Beginners or anyone who wants to start immediately | ~2 minutes — runs in your browser, nothing to install |
+| **[Visual Studio Code](visual-studio-code)** | Anyone who wants a full local environment for ongoing work or offline access | ~15–30 minutes |
 
 ## Table of contents
 
@@ -31,6 +38,7 @@ The documentation assumes you are working on an Apple computer or with the Linux
 
 our-mission
 huggingface
+google-colab
 visual-studio-code
 prompting-with-python
 structured-responses

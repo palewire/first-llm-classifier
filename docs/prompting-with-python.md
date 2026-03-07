@@ -1,10 +1,10 @@
 # Prompting with Python
 
-Now that you've got your Python environment set up, it's time to start writing prompts and sending them off to Hugging Face.
+Now that you’ve got your Python environment set up, it’s time to start writing prompts and sending them off to Hugging Face.
 
-First, you need to install the outside libraries we'll use across this class. Python has a vast ecosystem of open-source packages. We'll explain the ones we need as they take the stage.
+First, you need to install the outside libraries we’ll use across this class. Python has a vast ecosystem of open-source packages. We’ll explain the ones we need as they take the stage.
 
-A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
+If you’re using **Visual Studio Code**, install packages with `uv add`. The `!` is a shortcut that allows you to run terminal commands from inside a notebook cell:
 
 ```text
 !uv add huggingface_hub rich ipywidgets pydantic pandas tenacity scikit-learn matplotlib
@@ -14,7 +14,15 @@ Drop that into the first cell of a new notebook and hit the play button in the t
 
 ![A Jupyter notebook cell showing the output of uv add installing Python packages](_static/uv-add.png)
 
-Now let's import them in the cell that appears below the installation output. Hit play again.
+:::{note}
+If you’re using **Google Colab**, use `pip install` instead:
+
+```text
+!pip install huggingface_hub rich ipywidgets pydantic pandas tenacity scikit-learn matplotlib
+```
+:::
+
+Now let’s import them in the cell that appears below the installation output. Hit play again.
 
 ```python
 from rich import print
@@ -23,15 +31,25 @@ from huggingface_hub import InferenceClient
 
 If everything is installed, that cell should complete without any errors. If you get an error, check the output from the installation cell to see if there were any issues you need to address.
 
-Remember your API key? You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
+Remember your API key? You’ll need it now.
+
+If you’re using **Visual Studio Code**, copy it from the text file where you saved it and paste it inside the quotation marks as a variable:
 
 ```python
 token = "Paste your key here"
 ```
 
-```{note}
-In a more formal setting, you would want to keep your API key secret and not include it directly in your notebook. You could use [environment variables](https://www.danielcorin.com/til/uv/env-vars/) to keep it safe. For the sake of simplicity in this class, we'll just paste it in directly.
+:::{note}
+If you’re using **Google Colab**, retrieve it from the secrets manager you set up earlier:
+
+```python
+from google.colab import userdata
+
+token = userdata.get("HF_TOKEN")
 ```
+:::
+
+You should continue adding new cells as you need throughout the rest of the class.
 
 Next we need to create a client that will allow us to send requests to Hugging Face's API. We do that by calling the [`InferenceClient`](https://huggingface.co/docs/huggingface_hub/en/guides/inference) tool provided by the `huggingface_hub` library. We need to pass it our API token so it can authenticate our requests.
 
