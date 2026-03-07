@@ -165,13 +165,7 @@ Most LLM providers, including Hugging Face, support a `response_format` paramete
 
 Rather than write JSON schema by hand, we'll use [Pydantic](https://docs.pydantic.dev/) — a popular Python library for data validation — to generate it for us.
 
-Like Hugging Face's Python library, Pydantic will need to be installed using `uv`. Run the following command in a new cell.
-
-```
-!uv add pydantic
-```
-
-With Pydantic installed, you define a Python class that describes what the response should look like. The `Literal` type from Python's [typing](https://docs.python.org/3/library/typing.html) library restricts a field to specific values — exactly what we need for classification.
+Since we already installed Pydantic at the start of this walkthrough, you can go ahead and use it. You define a Python class that describes what the response should look like. The `Literal` type from Python's [typing](https://docs.python.org/3/library/typing.html) library restricts a field to specific values — exactly what we need for classification.
 
 Return to our top cell and import these two new libraries.
 
