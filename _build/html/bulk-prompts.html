@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Bulk prompts &#8212; First LLM Classifier  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/palewire.css?v=543a68c8" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. Evaluation" href="evaluate.html" />
+    <link rel="prev" title="5. Structured responses" href="structured-responses.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="canonical" href="https://palewi.re/docs/first-llm-classifier/bulk-prompts.html"/>
+  
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <link rel="shortcut icon" href="https://palewi.re/static/favicon.ico" />
+
+  </head><body>
+  <div class="document wide">
+      <div class="documentwrapper">
+        
+        
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo">
+    <a href="index.html">
+        First LLM Classifier
+    </a>
+</h1>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="our-mission.html">1. What we’ll do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="huggingface.html">2. Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visual-studio-code.html">3. Visual Studio Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prompting-with-python.html">4. Prompting with Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structured-responses.html">5. Structured responses</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Bulk prompts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluate.html">7. Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">8. Improvement</a></li>
+</ul>
+
+        </div>
+      </div>
+        
+        <div class="bodywrapper">
+          <nav class="nav">
+    <div class="row">
+        <div class="sevencol">
+            <div class="shingle">
+                <a href="https://palewi.re/">
+                    <div rel="rnews:copyrightedBy rnews:hasSource rnews:providedBy">
+                        <div about="http://palewi.re/" typeof="rnews:Organization">
+                            <div property="rnews:name">palewire</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="fivecol last links">
+            <ul>
+                <li>
+                    <a href="http://palewi.re/posts/" title="Posts">
+                        Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/work/" title="Work">
+                        Work
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/talks/" title="Talks">
+                        Talks
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/docs/" title="Docs">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/who-is-ben-welsh/" title="Who is Ben Welsh?">
+                        About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row topbar">
+    <div class="twelvecol last"></div>
+</div>
+<link rel="me" href="https://mastodon.social/@palewire">
+          <div class="body" role="main">
+            
+              <div class="breadcrumbs  hide-desktop">
+                <a href="index.html">First LLM Classifier</a>
+              </div>
+            
+            
+  <section id="bulk-prompts">
+<h1><span class="section-number">6. </span>Bulk prompts<a class="headerlink" href="#bulk-prompts" title="Link to this heading">¶</a></h1>
+<p>Our reusable prompting function is pretty cool. But requesting answers one by one across a big dataset could take forever. And it could cost us money to hit the Hugging Face API so many times.</p>
+<p>One solution is to submit your requests in batches and ask the LLM to return its responses all at once.</p>
+<p>We’ll need to make a series of changes to our function to adapt it to work with a batch of inputs. Get ready. It’s a lot.</p>
+<p>We define a new Pydantic model for bulk responses that expects a list of answers.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SportsLeagueList</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">answers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;MLB&quot;</span><span class="p">,</span> <span class="s2">&quot;NFL&quot;</span><span class="p">,</span> <span class="s2">&quot;NBA&quot;</span><span class="p">,</span> <span class="s2">&quot;Other&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>Then, in our function, we make the following changes:</p>
+<ul class="simple">
+<li><p>Tweak the name of the classify function to <code class="docutils literal notranslate"><span class="pre">classify_teams</span></code> to reflect the fact that it will now accept a list of team names instead of just one.</p></li>
+<li><p>Change our input argument from a single value to a list of values.</p></li>
+<li><p>Expand our prompt to explain that we will provide a list of team names.</p></li>
+<li><p>Tweak our few-shot training to reflect this new approach.</p></li>
+<li><p>Submit our input as a single string with new lines separating each team name.</p></li>
+<li><p>Merge the team names and the LLM’s answers into a dictionary returned by the function.</p></li>
+</ul>
+<p>Put all that together and here’s where we land.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="k">def</span><span class="w"> </span><span class="nf">classify_teams</span><span class="p">(</span><span class="n">name_list</span><span class="p">):</span>
+</span>    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are an AI model trained to classify text.</span>
+
+<span class="hll"><span class="s2">I will provide a list of professional sports team names separated by newlines.</span>
+</span>
+<span class="s2">You will reply with the sports league in which they compete.</span>
+
+<span class="s2">If the team&#39;s league is not on the list, you should label them as &quot;Other&quot;.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+<span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Los Angeles Rams</span><span class="se">\n</span><span class="s2">Los Angeles Dodgers</span><span class="se">\n</span><span class="s2">Los Angeles Lakers</span><span class="se">\n</span><span class="s2">Los Angeles Kings&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answers&quot;: [&quot;NFL&quot;, &quot;MLB&quot;, &quot;NBA&quot;, &quot;Other&quot;]}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span>            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span>
+</span>            <span class="p">},</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;SportsLeagueList&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">SportsLeagueList</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">SportsLeagueList</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="hll">    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">))</span>
+</span></pre></div>
+</div>
+<p>Try that with our team list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">classify_teams</span><span class="p">(</span><span class="n">team_list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You’ll see that it works with only a single API call. The same technique will work for a batch of any size. Due to LLMs’ tendency to lose attention and engage in strange loops as answers get longer, start off with smaller batches of around 10 to 20 items, but you can experiment with what works best for your use case and see if you can push it further.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;Chicago Cubs&quot;</span><span class="p">:</span> <span class="s2">&quot;MLB&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Chicago Bears&quot;</span><span class="p">:</span> <span class="s2">&quot;NFL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Chicago Bulls&quot;</span><span class="p">:</span> <span class="s2">&quot;NBA&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="introducing-campaign-finance-data">
+<h2><span class="section-number">6.1. </span>Introducing campaign finance data<a class="headerlink" href="#introducing-campaign-finance-data" title="Link to this heading">¶</a></h2>
+<p>Okay. Naming sports teams is a cute trick, but what about something a bit harder? And whatever happened to that George Santos idea?</p>
+<p>We’ll tackle that by pulling in our example dataset using <a class="reference external" href="https://pandas.pydata.org/"><code class="docutils literal notranslate"><span class="pre">pandas</span></code></a>, a popular data manipulation library in Python.</p>
+<p>First, we need to install it. Run another cell like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>!uv add pandas
+</pre></div>
+</div>
+<p>Import it in your top cell and rerun.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</pre></div>
+</div>
+<p>We’re ready to load the California expenditures data prepared for the class. It contains the distinct list of all vendors listed as payees in itemized receipts attached to disclosure filings.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/Form460ScheduleESubItem.csv&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Have a look at a random sample to get a taste of what’s in there.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    |   index | payee                               |
+|---:|--------:|:------------------------------------|
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">14901</span> | THE STATIONERY STUDIO               |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1389</span> | BELL WINE AND SPIRITS               |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">10472</span> | NEWSOM FOR CALIFORNIA GOVERNOR <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2022</span> |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">11301</span> | PASADENA JOURNAL NEWS               |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3133</span> | CLEARMAN'S STEAK AND STEIN          |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4606</span> | EL SAUZ TACOS                       |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5491</span> | FRIENDS OF MARK TWAIN MIDDLE SCHOOL |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5050</span> | FAT CITY                            |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">11294</span> | PARVINDER KANG - PETTY CASHIER      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">11410</span> | PEARL'S CAFE                        |
+</pre>
+<p>Let’s adapt what we’ve learned so far to fit this data.</p>
+<p>Instead of asking for a sports league, we will ask the LLM to classify each payee as a restaurant, bar, hotel or other establishment. The kind of places where George Santos, and other politicians like him, might enjoy spending campaign funds.</p>
+<p>Start by creating a new Pydantic model for the payee classifications.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PayeeList</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">answers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Restaurant&quot;</span><span class="p">,</span> <span class="s2">&quot;Bar&quot;</span><span class="p">,</span> <span class="s2">&quot;Hotel&quot;</span><span class="p">,</span> <span class="s2">&quot;Other&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>Since we’ll be making many API calls as we work through this data, it’s wise to add some resilience. The <a class="reference external" href="https://tenacity.readthedocs.io/"><code class="docutils literal notranslate"><span class="pre">tenacity</span></code></a> library provides a <code class="docutils literal notranslate"><span class="pre">retry</span></code> decorator that will automatically retry a function if it raises an exception. We’ll configure it to retry up to three times.</p>
+<p>Install that.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!uv add tenacity
+</pre></div>
+</div>
+<p>Import it in your top cell.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry</span><span class="p">,</span> <span class="n">stop_after_attempt</span>
+</pre></div>
+</div>
+<p>Then we will:</p>
+<ul class="simple">
+<li><p>Add the <code class="docutils literal notranslate"><span class="pre">&#64;retry</span></code> decorator to our function with the appropriate configuration.</p></li>
+<li><p>Rename our function to <code class="docutils literal notranslate"><span class="pre">classify_payees</span></code>.</p></li>
+<li><p>Rewrite our prompt to explain the new task and categories.</p></li>
+<li><p>Update our few-shot training examples to reflect the new task.</p></li>
+<li><p>Swap in the new model for the response format and validation.</p></li>
+<li><p>Add a check to make sure the LLM returned the right number of answers.</p></li>
+<li><p>Return a DataFrame instead of a dictionary to make it easier to work with downstream.</p></li>
+</ul>
+<p>Here’s where that ends up</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="nd">@retry</span><span class="p">(</span><span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</span><span class="hll"><span class="k">def</span><span class="w"> </span><span class="nf">classify_payees</span><span class="p">(</span><span class="n">name_list</span><span class="p">):</span>
+</span><span class="hll">    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+</span><span class="hll"><span class="s2">You are an AI model trained to categorize businesses based on their names.</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">You will be given a list of business names, each separated by a new line.</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as &quot;Other&quot;.</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can&#39;t make a good guess, classify it as Other.</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">For example, if given the following input:</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">&quot;Intercontinental Hotel</span><span class="se">\n</span><span class="s2">Pizza Hut</span><span class="se">\n</span><span class="s2">Cheers</span><span class="se">\n</span><span class="s2">Welsh&#39;s Family Restaurant</span><span class="se">\n</span><span class="s2">KTLA</span><span class="se">\n</span><span class="s2">Direct Mailing&quot;</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">Your output should be a JSON object in the following format:</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">{&quot;answers&quot;: [&quot;Hotel&quot;, &quot;Restaurant&quot;, &quot;Bar&quot;, &quot;Restaurant&quot;, &quot;Other&quot;, &quot;Other&quot;]}</span>
+</span><span class="hll">
+</span><span class="hll"><span class="s2">This means that you have classified &quot;Intercontinental Hotel&quot; as a Hotel, &quot;Pizza Hut&quot; as a Restaurant, &quot;Cheers&quot; as a Bar, &quot;Welsh&#39;s Family Restaurant&quot; as a Restaurant, and both &quot;KTLA&quot; and &quot;Direct Mailing&quot; as Other.</span>
+</span><span class="hll"><span class="s2">&quot;&quot;&quot;</span>
+</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+<span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Intercontinental Hotel</span><span class="se">\n</span><span class="s2">Pizza Hut</span><span class="se">\n</span><span class="s2">Cheers</span><span class="se">\n</span><span class="s2">Welsh&#39;s Family Restaurant</span><span class="se">\n</span><span class="s2">KTLA</span><span class="se">\n</span><span class="s2">Direct Mailing&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answers&quot;: [&quot;Hotel&quot;, &quot;Restaurant&quot;, &quot;Bar&quot;, &quot;Restaurant&quot;, &quot;Other&quot;, &quot;Other&quot;]}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Subway Sandwiches</span><span class="se">\n</span><span class="s2">Ruth Chris Steakhouse</span><span class="se">\n</span><span class="s2">Political Consulting Co</span><span class="se">\n</span><span class="s2">The Lamb&#39;s Club&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answers&quot;: [&quot;Restaurant&quot;, &quot;Restaurant&quot;, &quot;Other&quot;, &quot;Bar&quot;]}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span>            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+<span class="hll">        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+</span><span class="hll">            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PayeeList&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">PayeeList</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+</span><span class="hll">            <span class="p">}</span>
+</span><span class="hll">        <span class="p">},</span>
+</span>        <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="hll">    <span class="n">result</span> <span class="o">=</span> <span class="n">PayeeList</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span><span class="hll">    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span> \
+</span><span class="hll">        <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">name_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> answers but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="hll">    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;payee&quot;</span><span class="p">:</span> <span class="n">name_list</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">answers</span><span class="p">})</span>
+</span></pre></div>
+</div>
+<p>Pull out a random sample of payees as a list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample_list</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">payee</span>
+</pre></div>
+</div>
+<p>See how it does.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">classify_payees</span><span class="p">(</span><span class="n">sample_list</span><span class="p">)</span>
+</pre></div>
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                                           | category   |
+|---:|:------------------------------------------------|:-----------|
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | ARCLIGHT CINEMAS                                | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | 99 CENTS ONLY                                   | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | COMMONWEALTH COMMUNICATIONS                     | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | CHILBO MYUNOK                                   | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> | ADAM SCHIFF FOR SENATE                          | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> | CENTER FOR CREATIVE FUNDING                     | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> | MULVANEY'S BUILDING & LOAN                      | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> | ATV VIDEO CENTER                                | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
+</pre>
+</section>
+<section id="submitting-in-batches">
+<h2><span class="section-number">6.2. </span>Submitting in batches<a class="headerlink" href="#submitting-in-batches" title="Link to this heading">¶</a></h2>
+<p>That’s nice for a sample. But how do you loop through the entire dataset and code it?</p>
+<p>Let’s add a couple libraries to our imports cell that will let us avoid hammering Hugging Face and keep tabs on our progress.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.progress</span><span class="w"> </span><span class="kn">import</span> <span class="n">track</span>
+</pre></div>
+</div>
+<p>That batching trick can then be fit into a new function that will accept a big list of payees and classify them batch by batch.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_batches</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the provided list of names into batches and classify with our LLM one by one.&quot;&quot;&quot;</span>
+    <span class="c1"># Create a place to store the results</span>
+    <span class="n">all_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Create a list that will split the name_list into batches</span>
+    <span class="n">batch_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batched</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">))</span>
+
+    <span class="c1"># Loop through the list in batches</span>
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">track</span><span class="p">(</span><span class="n">batch_list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Classifying batches...&quot;</span><span class="p">):</span>
+        <span class="c1"># Classify it with the LLM</span>
+        <span class="n">batch_df</span> <span class="o">=</span> <span class="n">classify_payees</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+
+        <span class="c1"># Add what we get back to the results</span>
+        <span class="n">all_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">)</span>
+
+        <span class="c1"># Tap the brakes to avoid overloading Hugging Face&#39;s API</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+
+    <span class="c1"># Combine the batch results into a single DataFrame</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_results</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since <code class="docutils literal notranslate"><span class="pre">classify_payees</span></code> now returns a DataFrame, <code class="docutils literal notranslate"><span class="pre">classify_batches</span></code> collects them into a list and concatenates them at the end. This makes the results easy to work with.</p>
+<p>Select a bigger sample.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bigger_sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">payee</span>
+</pre></div>
+</div>
+<p>Fire away.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span> <span class="o">=</span> <span class="n">classify_batches</span><span class="p">(</span><span class="n">bigger_sample</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once it finishes, the results will be returned as a DataFrame that you can inspect using the standard <code class="docutils literal notranslate"><span class="pre">pandas</span></code> tools. Like a peek at the first ten records:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                               | category   |
+|---:|:------------------------------------|:-----------|
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | PETE'S CAFE                         | Restaurant |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | ALAMO RENT-A-CAR SANTA ANA          | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | COMMITTEE TO ELECT ELENA            | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | FAIRMONT SAN JOSE                   | Hotel      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> | BEST WESTERN HOTELS SAN SIMEON      | Hotel      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> | VAROGA RICEW &amp; SHALETT, INC.        | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> | EL SEGUNDO HERALD                   | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> | MCI                                 | Other      |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> | TIKAL RESTAURANT                    | Restaurant |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> | PEREA FOR SCCCD TRUSTEE AREA <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2018</span> | Other      |
+</pre>
+<p>Or do a bit of analysis of the categories.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | category   |   count |
+|---:|:-----------|--------:|
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | Other      |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">61</span> |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | Restaurant |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">19</span> |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | Hotel      |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">17</span> |
+|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | Bar        |       <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> |
+</pre>
+<p>Now you can start to dig into the details and see which payees were classified in which categories, and maybe even spot some interesting patterns in the data.</p>
+</section>
+<section id="submitting-in-parallel">
+<h2><span class="section-number">6.3. </span>Submitting in parallel<a class="headerlink" href="#submitting-in-parallel" title="Link to this heading">¶</a></h2>
+<p>Our batching routine is a big improvement, but it still processes one batch at a time. Each batch has to finish before the next one starts. When you’re working through thousands of payees, that wait adds up.</p>
+<p>Python’s standard library offers a simple way to speed things up. The <a class="reference external" href="https://docs.python.org/3/library/concurrent.futures.html"><code class="docutils literal notranslate"><span class="pre">concurrent.futures</span></code></a> module can send multiple batches to the API at the same time.</p>
+<p>Add it to your imports cell.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+</pre></div>
+</div>
+<p>Now we can write a new version of our batching function that submits requests in parallel instead of waiting in line.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_batches_parallel</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the provided list of names into batches and classify with our LLM in parallel.&quot;&quot;&quot;</span>
+    <span class="c1"># Create a place to store the results</span>
+    <span class="n">all_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Create a list that will split the name_list into batches</span>
+    <span class="n">batch_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batched</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">))</span>
+
+    <span class="c1"># Submit all the batches in parallel</span>
+    <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">max_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">classify_payees</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batch_list</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">track</span><span class="p">(</span>
+            <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">),</span>
+            <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">futures</span><span class="p">),</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Classifying batches...&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="c1"># Get the results as they come in and add them to our list</span>
+            <span class="n">batch_results</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+            
+            <span class="c1"># Convert the batch results to a DataFrame</span>
+            <span class="n">batch_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">batch_results</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;payee&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">])</span>
+
+            <span class="c1"># Add it to our list of results</span>
+            <span class="n">all_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">)</span>
+
+    <span class="c1"># Combine the batch results into a single DataFrame</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_results</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The key change is small but powerful. Instead of a <code class="docutils literal notranslate"><span class="pre">for</span></code> loop that processes one batch at a time, we use a <code class="docutils literal notranslate"><span class="pre">ThreadPoolExecutor</span></code> to fire off all our batches at once. The <code class="docutils literal notranslate"><span class="pre">max_workers</span></code> argument controls how many can run simultaneously. The <code class="docutils literal notranslate"><span class="pre">as_completed</span></code> function collects results as they come back, and <code class="docutils literal notranslate"><span class="pre">track</span></code> keeps our progress bar ticking. And since <code class="docutils literal notranslate"><span class="pre">classify_payees</span></code> already has the <code class="docutils literal notranslate"><span class="pre">&#64;retry</span></code> decorator from <code class="docutils literal notranslate"><span class="pre">tenacity</span></code>, any failed requests will be retried automatically — even when running in parallel.</p>
+<p>Try it with the same sample.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results_df</span> <span class="o">=</span> <span class="n">classify_batches_parallel</span><span class="p">(</span><span class="n">bigger_sample</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You should see the same results, but faster. With four workers running at once, you’re making the most of the time you’d otherwise spend waiting for the API.</p>
+<p>If you’re working with a particularly large dataset, you can experiment with the <code class="docutils literal notranslate"><span class="pre">max_workers</span></code> parameter. Start low and increase it gradually. Push it too high and you’ll risk overwhelming the API, but a modest number like four or five can cut your processing time dramatically.</p>
+<p>If you ran this routine across the full list of payees, you could merge the results with the line-item spending reported by candidates and quickly calculate which candidates spent the most on hotels, or bars, or restaurants. If someone had a system like this in place during the 2022 election cycle, they might have been able to flag George Santos’ suspicious spending patterns months before The New York Times broke the story.</p>
+</section>
+</section>
+
+
+          </div>
+          
+  <nav id="rellinks">
+    <ul>
+        <li class="prev">
+          &larr;
+          <a href="structured-responses.html" title="Previous document"><span class="section-number">5. </span>Structured responses</a>
+        </li>
+        <li class="next">
+          <a href="evaluate.html" title="Next document"><span class="section-number">7. </span>Evaluation</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+          <div class="footer">
+            &copy; 2026 palewire
+          </div>
+        </div>
+      </div>
+  </div>
+
+  </body>
+</html>

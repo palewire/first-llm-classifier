@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>7. Evaluation &#8212; First LLM Classifier  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/palewire.css?v=543a68c8" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="8. Improvement" href="improve.html" />
+    <link rel="prev" title="6. Bulk prompts" href="bulk-prompts.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="canonical" href="https://palewi.re/docs/first-llm-classifier/evaluate.html"/>
+  
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <link rel="shortcut icon" href="https://palewi.re/static/favicon.ico" />
+
+  </head><body>
+  <div class="document wide">
+      <div class="documentwrapper">
+        
+        
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo">
+    <a href="index.html">
+        First LLM Classifier
+    </a>
+</h1>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="our-mission.html">1. What we’ll do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="huggingface.html">2. Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visual-studio-code.html">3. Visual Studio Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prompting-with-python.html">4. Prompting with Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structured-responses.html">5. Structured responses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bulk-prompts.html">6. Bulk prompts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">8. Improvement</a></li>
+</ul>
+
+        </div>
+      </div>
+        
+        <div class="bodywrapper">
+          <nav class="nav">
+    <div class="row">
+        <div class="sevencol">
+            <div class="shingle">
+                <a href="https://palewi.re/">
+                    <div rel="rnews:copyrightedBy rnews:hasSource rnews:providedBy">
+                        <div about="http://palewi.re/" typeof="rnews:Organization">
+                            <div property="rnews:name">palewire</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="fivecol last links">
+            <ul>
+                <li>
+                    <a href="http://palewi.re/posts/" title="Posts">
+                        Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/work/" title="Work">
+                        Work
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/talks/" title="Talks">
+                        Talks
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/docs/" title="Docs">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/who-is-ben-welsh/" title="Who is Ben Welsh?">
+                        About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row topbar">
+    <div class="twelvecol last"></div>
+</div>
+<link rel="me" href="https://mastodon.social/@palewire">
+          <div class="body" role="main">
+            
+              <div class="breadcrumbs  hide-desktop">
+                <a href="index.html">First LLM Classifier</a>
+              </div>
+            
+            
+  <section id="evaluation">
+<h1><span class="section-number">7. </span>Evaluation<a class="headerlink" href="#evaluation" title="Link to this heading">¶</a></h1>
+<p>Before you publish anything, you’ll want to be sure you can trust the LLM’s classifications. Spot checks are not enough. You need a systematic way to evaluate your model’s performance.</p>
+<p>This is where traditional machine-learning techniques still play a vital role. Let’s take a step back to learn how a longstanding technique known as supervision can evaluate an LLM prompt.</p>
+<section id="lessons-from-the-past">
+<h2><span class="section-number">7.1. </span>Lessons from the past<a class="headerlink" href="#lessons-from-the-past" title="Link to this heading">¶</a></h2>
+<p>Before the advent of large-language models, machine-learning systems were created using a technique called <a class="reference external" href="https://en.wikipedia.org/wiki/Supervised_learning">supervised learning</a>. This approach required users to provide carefully prepared data that showed the computer how to behave.</p>
+<p>For instance, if you were developing a model to distinguish between spam emails and legitimate ones, you would provide the model with a set of emails that had already been properly classified as spam or not spam.</p>
+<p>The model would then use that data to learn the relationships between the inputs and outputs, which it could apply to new emails it hadn’t seen before. This process is called training.</p>
+<p>In systems like that, the supervised input is split into two separate sets: one for training the model and another held aside for testing its performance.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<div id="train-test-split" style="margin: 20px 0; width: 100%;"></div>
+<script>
+(function() {
+  const width = 700;
+  const height = 280;
+  const dotRadius = 9;
+  const dotSpacing = 26;
+
+  const categories = [
+    { label: "Restaurant", color: "#43a047" },
+    { label: "Bar",        color: "#e65100" },
+    { label: "Hotel",      color: "#1565c0" },
+    { label: "Other",      color: "#7b1fa2" },
+  ];
+
+  // 50 dots with mixed colors, pre-arranged so both splits get all 4 colors
+  // Training (first 33): 8 Restaurant, 3 Bar, 5 Hotel, 17 Other
+  // Test (last 17): 4 Restaurant, 2 Bar, 3 Hotel, 8 Other
+  const pattern = [
+    3,0,2,3,1,0,3,2,0,3,
+    0,3,1,3,2,0,3,0,3,2,
+    3,1,0,3,3,0,2,3,3,3,
+    0,2,3,
+    3,0,2,1,3,0,3,2,0,1,
+    3,0,3,2,3,0,3,
+  ];
+  const dots = pattern.map((catIdx, i) => ({
+    id: i,
+    cat: categories[catIdx],
+  }));
+
+  const trainDots = dots.slice(0, 33);
+  const testDots = dots.slice(33);
+
+  // Combined grid: 10 columns x 5 rows
+  const cols = 10;
+  const centerX = width / 2;
+  const centerY = height / 2 + 8;
+
+  function gridPos(idx) {
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const totalRows = Math.ceil(dots.length / cols);
+    const gridW = (cols - 1) * dotSpacing;
+    const gridH = (totalRows - 1) * dotSpacing;
+    return {
+      x: centerX - gridW / 2 + col * dotSpacing,
+      y: centerY - gridH / 2 + row * dotSpacing,
+    };
+  }
+
+  // Training cluster: 7 columns, left side
+  const trainCenterX = width * 0.27;
+  const trainCols = 7;
+  function trainPos(idx) {
+    const row = Math.floor(idx / trainCols);
+    const col = idx % trainCols;
+    const totalRows = Math.ceil(trainDots.length / trainCols);
+    const gridW = (trainCols - 1) * dotSpacing;
+    const gridH = (totalRows - 1) * dotSpacing;
+    return {
+      x: trainCenterX - gridW / 2 + col * dotSpacing,
+      y: centerY - gridH / 2 + row * dotSpacing,
+    };
+  }
+
+  // Test cluster: 5 columns, right side
+  const testCenterX = width * 0.74;
+  const testCols = 5;
+  function testPos(idx) {
+    const row = Math.floor(idx / testCols);
+    const col = idx % testCols;
+    const totalRows = Math.ceil(testDots.length / testCols);
+    const gridW = (testCols - 1) * dotSpacing;
+    const gridH = (totalRows - 1) * dotSpacing;
+    return {
+      x: testCenterX - gridW / 2 + col * dotSpacing,
+      y: centerY - gridH / 2 + row * dotSpacing,
+    };
+  }
+
+  const svg = d3.select("#train-test-split")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
+
+  const combinedLabel = svg.append("text")
+    .attr("x", centerX)
+    .attr("y", 24)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 16)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Supervised Sample");
+
+  const trainLabel = svg.append("text")
+    .attr("x", trainCenterX)
+    .attr("y", 24)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 16)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .attr("opacity", 0)
+    .text("Training (67%)");
+
+  const testLabel = svg.append("text")
+    .attr("x", testCenterX)
+    .attr("y", 24)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 16)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .attr("opacity", 0)
+    .text("Test (33%)");
+
+  const divider = svg.append("line")
+    .attr("x1", centerX)
+    .attr("y1", 38)
+    .attr("x2", centerX)
+    .attr("y2", height - 8)
+    .attr("stroke", "#ccc")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "6,4")
+    .attr("opacity", 0);
+
+  const dotEls = svg.selectAll("circle.dot")
+    .data(dots)
+    .enter()
+    .append("circle")
+    .attr("class", "dot")
+    .attr("cx", (d, i) => gridPos(i).x)
+    .attr("cy", (d, i) => gridPos(i).y)
+    .attr("r", dotRadius)
+    .attr("fill", d => d.cat.color)
+    .attr("opacity", 0.9);
+
+  function animate() {
+    setTimeout(() => {
+      combinedLabel.transition().duration(400).attr("opacity", 0);
+      trainLabel.transition().duration(400).delay(300).attr("opacity", 1);
+      testLabel.transition().duration(400).delay(300).attr("opacity", 1);
+      divider.transition().duration(400).delay(300).attr("opacity", 1);
+
+      dotEls.transition()
+        .duration(1000)
+        .delay((d, i) => 200 + Math.random() * 300)
+        .ease(d3.easeQuadInOut)
+        .attr("cx", d => {
+          const trainIdx = trainDots.indexOf(d);
+          if (trainIdx >= 0) return trainPos(trainIdx).x;
+          return testPos(testDots.indexOf(d)).x;
+        })
+        .attr("cy", d => {
+          const trainIdx = trainDots.indexOf(d);
+          if (trainIdx >= 0) return trainPos(trainIdx).y;
+          return testPos(testDots.indexOf(d)).y;
+        });
+
+      setTimeout(() => {
+        trainLabel.transition().duration(400).attr("opacity", 0);
+        testLabel.transition().duration(400).attr("opacity", 0);
+        divider.transition().duration(400).attr("opacity", 0);
+        combinedLabel.transition().duration(400).delay(300).attr("opacity", 1);
+
+        dotEls.transition()
+          .duration(1000)
+          .delay((d, i) => 200 + Math.random() * 300)
+          .ease(d3.easeQuadInOut)
+          .attr("cx", (d, i) => gridPos(i).x)
+          .attr("cy", (d, i) => gridPos(i).y);
+
+        setTimeout(animate, 2000);
+      }, 3500);
+    }, 2000);
+  }
+
+  animate();
+})();
+</script><p>After the model is trained using the first set, it is evaluated using the second set. Since the testing set is withheld from the model during training, it provides a way to measure how well the model can generalize to data it hasn’t seen before. If the training was successful, the model should be able to correctly classify most of the instances in the test set.</p>
+<div id="test-evaluation" style="margin: 20px 0; width: 100%;"></div>
+<script>
+(function() {
+  const width = 700;
+  const height = 260;
+  const dotRadius = 9;
+  const dotSpacing = 28;
+
+  const categories = [
+    { label: "Restaurant", color: "#43a047" },
+    { label: "Bar",        color: "#e65100" },
+    { label: "Hotel",      color: "#1565c0" },
+    { label: "Other",      color: "#7b1fa2" },
+  ];
+
+  // 17 test dots: 4 Restaurant, 2 Bar, 3 Hotel, 8 Other (matches first graphic)
+  const truePattern =  [3,0,2,1,3,0,3,2,0,1,3,0,3,2,3,0,3];
+  // Predictions: 15 correct, 2 wrong (~88% accuracy)
+  // Mismatches at index 7 (Hotel->Other) and index 11 (Restaurant->Other)
+  const predPattern =  [3,0,2,1,3,0,3,3,0,1,3,3,3,2,3,0,3];
+
+  const dots = truePattern.map((catIdx, i) => ({
+    id: i,
+    trueCat: categories[catIdx],
+    predCat: categories[predPattern[i]],
+    correct: catIdx === predPattern[i],
+  }));
+
+  const cols = 5;
+  const leftCenterX = width * 0.27;
+  const rightCenterX = width * 0.73;
+  const centerY = height / 2 + 4;
+
+  function gridPos(idx, cx) {
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const totalRows = Math.ceil(dots.length / cols);
+    const gridW = (cols - 1) * dotSpacing;
+    const gridH = (totalRows - 1) * dotSpacing;
+    return {
+      x: cx - gridW / 2 + col * dotSpacing,
+      y: centerY - gridH / 2 + row * dotSpacing,
+    };
+  }
+
+  const svg = d3.select("#test-evaluation")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
+
+  // Labels
+  svg.append("text")
+    .attr("x", leftCenterX)
+    .attr("y", 20)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 16)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Test Answers");
+
+  svg.append("text")
+    .attr("x", rightCenterX)
+    .attr("y", 20)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 16)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Model Predictions");
+
+  // Divider
+  svg.append("line")
+    .attr("x1", width / 2)
+    .attr("y1", 30)
+    .attr("x2", width / 2)
+    .attr("y2", height - 20)
+    .attr("stroke", "#ccc")
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "6,4");
+
+  // Left dots: always show true colors
+  const trueDots = svg.selectAll("circle.true-dot")
+    .data(dots)
+    .enter()
+    .append("circle")
+    .attr("class", "true-dot")
+    .attr("cx", (d, i) => gridPos(i, leftCenterX).x)
+    .attr("cy", (d, i) => gridPos(i, leftCenterX).y)
+    .attr("r", dotRadius)
+    .attr("fill", d => d.trueCat.color)
+    .attr("opacity", 0.9);
+
+  // Right dots: start gray, will animate
+  const predDots = svg.selectAll("circle.pred-dot")
+    .data(dots)
+    .enter()
+    .append("circle")
+    .attr("class", "pred-dot")
+    .attr("cx", (d, i) => gridPos(i, rightCenterX).x)
+    .attr("cy", (d, i) => gridPos(i, rightCenterX).y)
+    .attr("r", dotRadius)
+    .attr("fill", "#ccc")
+    .attr("opacity", 0.9);
+
+  // Red rings for wrong answers (left side)
+  const wrongLeftRings = svg.selectAll("circle.wrong-left")
+    .data(dots.filter(d => !d.correct))
+    .enter()
+    .append("circle")
+    .attr("class", "wrong-left")
+    .attr("cx", (d) => gridPos(dots.indexOf(d), leftCenterX).x)
+    .attr("cy", (d) => gridPos(dots.indexOf(d), leftCenterX).y)
+    .attr("r", dotRadius + 5)
+    .attr("fill", "none")
+    .attr("stroke", "#d32f2f")
+    .attr("stroke-width", 3)
+    .attr("opacity", 0);
+
+  // Red rings for wrong answers (right side)
+  const wrongRightRings = svg.selectAll("circle.wrong-right")
+    .data(dots.filter(d => !d.correct))
+    .enter()
+    .append("circle")
+    .attr("class", "wrong-right")
+    .attr("cx", (d) => gridPos(dots.indexOf(d), rightCenterX).x)
+    .attr("cy", (d) => gridPos(dots.indexOf(d), rightCenterX).y)
+    .attr("r", dotRadius + 5)
+    .attr("fill", "none")
+    .attr("stroke", "#d32f2f")
+    .attr("stroke-width", 3)
+    .attr("opacity", 0);
+
+  // Red connecting lines between mismatched pairs
+  const wrongLines = svg.selectAll("line.wrong-line")
+    .data(dots.filter(d => !d.correct))
+    .enter()
+    .append("line")
+    .attr("class", "wrong-line")
+    .attr("x1", (d) => gridPos(dots.indexOf(d), leftCenterX).x + dotRadius + 6)
+    .attr("y1", (d) => gridPos(dots.indexOf(d), leftCenterX).y)
+    .attr("x2", (d) => gridPos(dots.indexOf(d), rightCenterX).x - dotRadius - 6)
+    .attr("y2", (d) => gridPos(dots.indexOf(d), rightCenterX).y)
+    .attr("stroke", "#d32f2f")
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "4,3")
+    .attr("opacity", 0);
+
+  // Accuracy label
+  const correctCount = dots.filter(d => d.correct).length;
+  const accuracy = Math.round(correctCount / dots.length * 100);
+  const scoreLabel = svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", height - 6)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 15)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .attr("opacity", 0)
+    .text(`Accuracy: ${accuracy}%`);
+
+  function animate() {
+    // Phase 1: Reveal predictions one by one
+    predDots.transition()
+      .duration(300)
+      .delay((d, i) => i * 120)
+      .attr("fill", d => d.predCat.color);
+
+    const revealTime = dots.length * 120 + 500;
+
+    // Phase 2: Fade correct dots back, spotlight errors
+    setTimeout(() => {
+      // Dim correct dots on both sides
+      trueDots.filter(d => d.correct).transition().duration(500).attr("opacity", 0.25);
+      predDots.filter(d => d.correct).transition().duration(500).attr("opacity", 0.25);
+
+      // Pop wrong dots: scale up slightly
+      trueDots.filter(d => !d.correct).transition().duration(400).attr("r", dotRadius + 2);
+      predDots.filter(d => !d.correct).transition().duration(400).attr("r", dotRadius + 2);
+
+      // Show red rings and connecting lines
+      wrongLeftRings.transition().duration(400).attr("opacity", 1);
+      wrongRightRings.transition().duration(400).attr("opacity", 1);
+      wrongLines.transition().duration(400).delay(200).attr("opacity", 0.7);
+
+      // Show score
+      scoreLabel.transition().duration(400).delay(600).attr("opacity", 1);
+    }, revealTime);
+
+    // Phase 3: Hold, then reset
+    setTimeout(() => {
+      // Fade out error highlights
+      wrongLeftRings.transition().duration(400).attr("opacity", 0);
+      wrongRightRings.transition().duration(400).attr("opacity", 0);
+      wrongLines.transition().duration(400).attr("opacity", 0);
+      scoreLabel.transition().duration(400).attr("opacity", 0);
+
+      // Restore all dots to normal
+      trueDots.transition().duration(400).delay(400).attr("opacity", 0.9).attr("r", dotRadius);
+      predDots.transition().duration(400).delay(400).attr("opacity", 0.9).attr("r", dotRadius);
+
+      // Reset predictions to gray
+      predDots.transition().duration(400).delay(800).attr("fill", "#ccc");
+
+      // Restart
+      setTimeout(animate, 1800);
+    }, revealTime + 4000);
+  }
+
+  // Initial delay before first run
+  setTimeout(animate, 1500);
+})();
+</script><p>Large-language models operate differently. They are trained on vast amounts of text and can generate responses based on various machine-learning approaches. The result is that you can use them without providing supervised data beforehand.</p>
+<p>This is a significant advantage. However, it raises questions about how to evaluate the accuracy of an LLM prompt. Without a supervised sample to test its results, we can’t be sure if the model is performing well or just getting lucky with its guesses. Furthermore, without knowing where it gets things wrong, we don’t know what adjustments could improve its performance.</p>
+</section>
+<section id="creating-a-supervised-sample">
+<h2><span class="section-number">7.2. </span>Creating a supervised sample<a class="headerlink" href="#creating-a-supervised-sample" title="Link to this heading">¶</a></h2>
+<p>That’s why, even though LLMs don’t require supervised data to function, it’s still a good idea to create a supervised sample for evaluation purposes.</p>
+<p>Start by outputting a random sample from the dataset you’re studying to a file of comma-separated values. In general, the larger the sample the better the evaluation, though at a certain point the returns diminish. For this exercise, let’s use pandas to create a sample of 250 records and export it to a file called <code class="docutils literal notranslate"><span class="pre">sample.csv</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;./sample.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You would then open the file in a spreadsheet program like Excel or Google Sheets. For each payee in the sample, you would provide the correct category in a new companion column. As you fill it in with the correct answers, this gradually becomes your supervised sample. That’s all there is to it.</p>
+<p><img alt="A Google Sheets spreadsheet with payee names in one column and hand-labeled categories in another" src="_images/sample.png" /></p>
+<p>To speed the class along, we’ve already prepared a sample for you in <a class="reference external" href="https://github.com/palewire/first-llm-classifier">the class repository</a>. Create a new cell and read it into a DataFrame.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">&quot;https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/sample.csv&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Install the Python packages <a class="reference external" href="https://scikit-learn.org/stable/"><code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code></a> and <a class="reference external" href="https://matplotlib.org/"><code class="docutils literal notranslate"><span class="pre">matplotlib</span></code></a>. Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We’ll primarily be using them for testing.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!uv add scikit-learn matplotlib
+</pre></div>
+</div>
+<p>Add the <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html"><code class="docutils literal notranslate"><span class="pre">train_test_split</span></code></a> function from <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> to your imports cell and rerun it. This tool is used to split a supervised sample into separate sets for training and testing.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+</pre></div>
+</div>
+<p>The first input is the DataFrame column containing the payee names. The second input is the DataFrame column containing the correct categories.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">test_size</span></code> parameter determines the proportion of the sample that will be used for testing. In traditional machine-learning setups, a common split is 67% for training and 33% for testing. In our circumstance, where we’re not actually training a model, we will reverse the proportions and use 67% of the sample for testing to get a more robust evaluation of our LLM’s performance.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">random_state</span></code> parameter ensures that the split is reproducible by setting a seed for the random number generator that draws the samples. This will ensure that you get the same training and testing sets each time you run the code, which is important for consistent evaluation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training_input</span><span class="p">,</span> <span class="n">test_input</span><span class="p">,</span> <span class="n">training_output</span><span class="p">,</span> <span class="n">test_output</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">sample_df</span><span class="p">[[</span><span class="s2">&quot;payee&quot;</span><span class="p">]],</span>
+    <span class="n">sample_df</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">],</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.67</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>  <span class="c1"># Remember Jackie Robinson. Remember Douglas Adams.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="evaluating-performance">
+<h2><span class="section-number">7.3. </span>Evaluating performance<a class="headerlink" href="#evaluating-performance" title="Link to this heading">¶</a></h2>
+<p>In a traditional training setup, the next step would be to train a machine-learning model in <code class="docutils literal notranslate"><span class="pre">sklearn</span></code> using the <code class="docutils literal notranslate"><span class="pre">training_input</span></code> and <code class="docutils literal notranslate"><span class="pre">training_output</span></code> sets. The model would then be evaluated using the <code class="docutils literal notranslate"><span class="pre">test_input</span></code> and <code class="docutils literal notranslate"><span class="pre">test_output</span></code> sets.</p>
+<p>With an LLM we skip ahead to the testing phase. We pass the <code class="docutils literal notranslate"><span class="pre">test_input</span></code> set to our LLM prompt and compare its guesses to the right answers found in the <code class="docutils literal notranslate"><span class="pre">test_output</span></code> set.</p>
+<p>All that requires is that we pass the <code class="docutils literal notranslate"><span class="pre">payee</span></code> column from our <code class="docutils literal notranslate"><span class="pre">test_input</span></code> DataFrame to the function we created in the previous chapters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">llm_df</span> <span class="o">=</span> <span class="n">classify_batches</span><span class="p">(</span><span class="n">test_input</span><span class="o">.</span><span class="n">payee</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we add the <code class="docutils literal notranslate"><span class="pre">classification_report</span></code> function from <code class="docutils literal notranslate"><span class="pre">sklearn</span></code> to our imports, which is used to evaluate a model’s performance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">classification_report</span>
+</pre></div>
+</div>
+<p>The <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html"><code class="docutils literal notranslate"><span class="pre">classification_report</span></code></a> function generates a report card on a model’s performance. You provide it with the correct answers in the <code class="docutils literal notranslate"><span class="pre">test_output</span></code> set and the model’s predictions in your prompt’s DataFrame. In this case, our LLM’s predictions are stored in the <code class="docutils literal notranslate"><span class="pre">llm_df</span></code> DataFrame’s <code class="docutils literal notranslate"><span class="pre">category</span></code> column.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="n">llm_df</span><span class="o">.</span><span class="n">category</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>That will output a report that looks something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>             <span class="n">precision</span>    <span class="n">recall</span>  <span class="n">f1</span><span class="o">-</span><span class="n">score</span>   <span class="n">support</span>
+
+         <span class="n">Bar</span>       <span class="mf">0.25</span>      <span class="mf">1.00</span>      <span class="mf">0.40</span>         <span class="mi">2</span>
+       <span class="n">Hotel</span>       <span class="mf">0.90</span>      <span class="mf">1.00</span>      <span class="mf">0.95</span>        <span class="mi">18</span>
+       <span class="n">Other</span>       <span class="mf">0.99</span>      <span class="mf">0.93</span>      <span class="mf">0.96</span>       <span class="mi">112</span>
+  <span class="n">Restaurant</span>       <span class="mf">0.91</span>      <span class="mf">0.89</span>      <span class="mf">0.90</span>        <span class="mi">36</span>
+
+    <span class="n">accuracy</span>                           <span class="mf">0.93</span>       <span class="mi">168</span>
+   <span class="n">macro</span> <span class="n">avg</span>       <span class="mf">0.76</span>      <span class="mf">0.95</span>      <span class="mf">0.80</span>       <span class="mi">168</span>
+<span class="n">weighted</span> <span class="n">avg</span>       <span class="mf">0.96</span>      <span class="mf">0.93</span>      <span class="mf">0.94</span>       <span class="mi">168</span>
+</pre></div>
+</div>
+<p>At first, the report can be a bit overwhelming. What are all these technical terms? How do I read this damn thing? Let’s walk through it.</p>
+<p>The precision column measures what statistics nerds call <a class="reference external" href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values">“positive predictive value.”</a> It’s how often the model made the correct decision when it applied a category. For instance, in the “Bar” category here, the LLM has a precision of 0.25, which means only 25% of “Bar” predictions were correct.</p>
+<p>An analogy here is a baseball player’s <a class="reference external" href="https://www.baseball-almanac.com/dictionary-term.php?term=Contact%25%20/%20Contact%20Percentage">contact rate</a>, which measures how often a batter connects with the ball when he swings his bat. In this case, our model swung at the “Bar” category eight times and only made contact twice.</p>
+<div id="precision-graphic" style="margin: 20px 0; width: 100%;"></div>
+<script>
+(function() {
+  const width = 600;
+  const height = 150;
+  const dotRadius = 12;
+  const dotSpacing = 36;
+  const cols = 10;
+
+  const barColor = "#e65100";
+  const otherColor = "#ccc";
+
+  // 20 test items: 2 actual Bars, 18 not-Bars
+  // Model predicted 8 as Bar: the 2 real Bars + 6 wrong ones
+  const items = [
+    { isBar: false, predBar: false },
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },    // FP
+    { isBar: false, predBar: false },
+  ];
+
+  const centerX = width / 2;
+  const gridTop = 50;
+
+  function pos(idx) {
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const gridW = (cols - 1) * dotSpacing;
+    return {
+      x: centerX - gridW / 2 + col * dotSpacing,
+      y: gridTop + row * dotSpacing,
+    };
+  }
+
+  const svg = d3.select("#precision-graphic")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
+
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", 20)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 15)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Precision");
+
+  items.forEach((d, i) => {
+    const p = pos(i);
+    const tp = d.predBar && d.isBar;
+
+    if (d.predBar) {
+      svg.append("circle")
+        .attr("cx", p.x)
+        .attr("cy", p.y)
+        .attr("r", dotRadius + 5)
+        .attr("fill", "none")
+        .attr("stroke", tp ? "#2e7d32" : "#d32f2f")
+        .attr("stroke-width", 3);
+    }
+
+    svg.append("circle")
+      .attr("cx", p.x)
+      .attr("cy", p.y)
+      .attr("r", dotRadius)
+      .attr("fill", d.isBar ? barColor : otherColor)
+      .attr("opacity", d.predBar ? 0.95 : 0.25);
+  });
+
+  // Score label
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", height - 12)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 14)
+    .attr("font-weight", 400)
+    .attr("fill", "#555")
+    .text("2 of 8 predictions correct = 0.25 precision");
+})();
+</script><p>The recall column measures how many of the supervised instances were correctly identified by the model. In this case, it shows that the LLM spotted 89% of the restaurants in our manual sample. The total number of restaurants in the sample is shown in the support column. So, out of 36 restaurants, the model correctly identified 32 of them.</p>
+<p>It did even better with the two bars in the sample, correctly identifying both of them for a recall of 100%.</p>
+<div id="recall-graphic" style="margin: 20px 0; width: 100%;"></div>
+<script>
+(function() {
+  const width = 600;
+  const height = 150;
+  const dotRadius = 12;
+  const dotSpacing = 36;
+  const cols = 10;
+
+  const barColor = "#e65100";
+  const otherColor = "#ccc";
+
+  // Same 20 items as precision graphic
+  const items = [
+    { isBar: false, predBar: false },
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: true,  predBar: true },    // TP
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: false },
+    { isBar: false, predBar: true },
+    { isBar: false, predBar: false },
+  ];
+
+  const centerX = width / 2;
+  const gridTop = 50;
+
+  function pos(idx) {
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const gridW = (cols - 1) * dotSpacing;
+    return {
+      x: centerX - gridW / 2 + col * dotSpacing,
+      y: gridTop + row * dotSpacing,
+    };
+  }
+
+  const svg = d3.select("#recall-graphic")
+    .append("svg")
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .style("width", "100%")
+    .style("height", "auto");
+
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", 20)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 15)
+    .attr("font-weight", 600)
+    .attr("fill", "#333")
+    .text("Recall");
+
+  items.forEach((d, i) => {
+    const p = pos(i);
+    const found = d.isBar && d.predBar;
+
+    if (d.isBar) {
+      svg.append("circle")
+        .attr("cx", p.x)
+        .attr("cy", p.y)
+        .attr("r", dotRadius + 5)
+        .attr("fill", "none")
+        .attr("stroke", found ? "#2e7d32" : "#d32f2f")
+        .attr("stroke-width", 3);
+    }
+
+    svg.append("circle")
+      .attr("cx", p.x)
+      .attr("cy", p.y)
+      .attr("r", dotRadius)
+      .attr("fill", d.isBar ? barColor : otherColor)
+      .attr("opacity", d.isBar ? 0.95 : 0.25);
+  });
+
+  // Score label
+  svg.append("text")
+    .attr("x", centerX)
+    .attr("y", height - 12)
+    .attr("text-anchor", "middle")
+    .attr("font-size", 14)
+    .attr("font-weight", 400)
+    .attr("fill", "#555")
+    .text("2 of 2 correctly identified = 1.00 recall");
+})();
+</script><p>The <a class="reference external" href="https://en.wikipedia.org/wiki/F-score">f1-score</a> is a combination of precision and recall. It’s a way to measure a model’s overall performance by balancing the two.</p>
+<p>The averages at the bottom combine the results for all categories. The accuracy row shows how often the model got the right answer across all categories as a grand total. The macro row is a simple average of the precision, recall and f1-score for each category, which treats all categories equally regardless of how many instances they have in the sample. The weighted row is a mixed average based on the number of instances in each category.</p>
+<p>In the example result above, the overall accuracy is about 93%, but the lower macro average of 80% shows the model is less consistent on rarer categories like bars.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Due to the inherent randomness in the LLM’s predictions, it’s a good idea to test your sample and run these reports multiple times to get a sense of the model’s performance.</p>
+</div>
+</section>
+<section id="visualizing-the-results">
+<h2><span class="section-number">7.4. </span>Visualizing the results<a class="headerlink" href="#visualizing-the-results" title="Link to this heading">¶</a></h2>
+<p>Another technique for evaluating classifiers is to visualize the results using a chart known as a <a class="reference external" href="https://en.wikipedia.org/wiki/Confusion_matrix">confusion matrix</a>. It shows how often the model correctly predicted each category and where it got things wrong.</p>
+<p>The <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatrixDisplay.html">ConfusionMatrixDisplay</a> tool from <code class="docutils literal notranslate"><span class="pre">sklearn</span></code> can draw one for us. We just need to update our <code class="docutils literal notranslate"><span class="pre">sklearn.metrics</span></code> import to include it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfusionMatrixDisplay</span><span class="p">,</span> <span class="n">classification_report</span>
+</pre></div>
+</div>
+<p>Then pass in the correct answers and the model’s predictions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ConfusionMatrixDisplay</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="n">llm_df</span><span class="o">.</span><span class="n">category</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="Confusion matrix heatmap showing the LLM's predictions, with most correct classifications along the diagonal" src="_images/matrix-llm.png" /></p>
+<p>The diagonal line of cells running from the upper left to the lower right shows where the model correctly predicted the category. The off-diagonal cells show where it got things wrong. The color of the cells indicates how often the model made that prediction. For instance, we can see that four miscategorized restaurants in the sample were mistakenly predicted to be bars or filed under other.</p>
+</section>
+<section id="the-way-we-were">
+<h2><span class="section-number">7.5. </span>The way we were<a class="headerlink" href="#the-way-we-were" title="Link to this heading">¶</a></h2>
+<p>Before we look at how you might improve the LLM’s performance, let’s take a moment to compare the results of this evaluation against the old school approach where the supervised sample is used to train a machine-learning model that doesn’t have access to the ocean of knowledge poured into an LLM.</p>
+<p>This will require importing a mess of <code class="docutils literal notranslate"><span class="pre">sklearn</span></code> functions and classes. We’ll use <code class="docutils literal notranslate"><span class="pre">TfidfVectorizer</span></code> to convert the payee text into a numerical representation that can be used by a <code class="docutils literal notranslate"><span class="pre">LinearSVC</span></code> classifier. We’ll then use a <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> to chain the two together. If you have no idea what any of that means, don’t worry. Now that we have LLMs in this world, you might never need to know.</p>
+<p>Add these to your imports cell.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.svm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSVC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.compose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+</pre></div>
+</div>
+<p>Here’s a simple example of how you might train and evaluate a traditional machine-learning model using the supervised sample.</p>
+<p>First you setup all the machinery.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">(</span>
+    <span class="n">sublinear_tf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span>
+    <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;latin-1&quot;</span><span class="p">,</span>
+    <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
+    <span class="n">transformers</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;payee&quot;</span><span class="p">,</span> <span class="n">vectorizer</span><span class="p">,</span> <span class="s2">&quot;payee&quot;</span><span class="p">)],</span> <span class="n">sparse_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">remainder</span><span class="o">=</span><span class="s2">&quot;drop&quot;</span>
+<span class="p">)</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span>
+    <span class="p">[(</span><span class="s2">&quot;preprocessor&quot;</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;classifier&quot;</span><span class="p">,</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">dual</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">))]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Then you train the model using those training sets we split out at the start.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_input</span><span class="p">,</span> <span class="n">training_output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And you ask the model to use its training to predict the right answers for the test set.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test_input</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, you can run the same evaluation code as before to see how the traditional model performed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="n">predictions</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>              <span class="n">precision</span>    <span class="n">recall</span>  <span class="n">f1</span><span class="o">-</span><span class="n">score</span>   <span class="n">support</span>
+
+         <span class="n">Bar</span>       <span class="mf">0.00</span>      <span class="mf">0.00</span>      <span class="mf">0.00</span>         <span class="mi">2</span>
+       <span class="n">Hotel</span>       <span class="mf">0.00</span>      <span class="mf">0.00</span>      <span class="mf">0.00</span>        <span class="mi">18</span>
+       <span class="n">Other</span>       <span class="mf">0.67</span>      <span class="mf">1.00</span>      <span class="mf">0.80</span>       <span class="mi">112</span>
+  <span class="n">Restaurant</span>       <span class="mf">0.00</span>      <span class="mf">0.00</span>      <span class="mf">0.00</span>        <span class="mi">36</span>
+
+    <span class="n">accuracy</span>                           <span class="mf">0.67</span>       <span class="mi">168</span>
+   <span class="n">macro</span> <span class="n">avg</span>       <span class="mf">0.17</span>      <span class="mf">0.25</span>      <span class="mf">0.20</span>       <span class="mi">168</span>
+<span class="n">weighted</span> <span class="n">avg</span>       <span class="mf">0.44</span>      <span class="mf">0.67</span>      <span class="mf">0.53</span>       <span class="mi">168</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ConfusionMatrixDisplay</span><span class="o">.</span><span class="n">from_predictions</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="Confusion matrix heatmap for the traditional ML model, with nearly all predictions falling in the Other column" src="_images/matrix-ml.png" /></p>
+<p>Not great. The traditional model is guessing correctly about 67% of the time, but it’s missing most cases of our “Bar”, “Hotel” and “Restaurant” categories as almost everything is getting filed as “Other.” The LLM, on the other hand, is guessing correctly more than 90% of the time and flagging many of the rare categories that we’re seeking to find in the haystack of data.</p>
+</section>
+<section id="comparing-models">
+<h2><span class="section-number">7.6. </span>Comparing models<a class="headerlink" href="#comparing-models" title="Link to this heading">¶</a></h2>
+<p>Our evaluation so far has only tested one LLM. But Hugging Face offers <a class="reference external" href="https://huggingface.co/models">dozens of models</a> and we can’t be sure that the one we picked is the best for our task. Let’s adapt our code so we can easily compare how different models perform.</p>
+<p>The first step is to add a <code class="docutils literal notranslate"><span class="pre">model</span></code> parameter to our <code class="docutils literal notranslate"><span class="pre">classify_payees</span></code> function’s input.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_payees</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>Then, in the <code class="docutils literal notranslate"><span class="pre">client.chat.completions.create</span></code> call, replace the hardcoded model name with the <code class="docutils literal notranslate"><span class="pre">model</span></code> parameter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll">        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+</span>        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;PayeeList&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">PayeeList</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>We also need the same change in <code class="docutils literal notranslate"><span class="pre">classify_batches</span></code>, accepting the model and passing it through.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="k">def</span><span class="w"> </span><span class="nf">classify_batches</span><span class="p">(</span><span class="n">name_list</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+</span><span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the provided list of names into batches and classify with our LLM one by one.&quot;&quot;&quot;</span>
+    <span class="c1"># Create a place to store the results</span>
+    <span class="n">all_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Create a list that will split the name_list into batches</span>
+    <span class="n">batch_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">batched</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">name_list</span><span class="p">),</span> <span class="n">batch_size</span><span class="p">))</span>
+
+    <span class="c1"># Loop through the list in batches</span>
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">track</span><span class="p">(</span><span class="n">batch_list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Classifying batches...&quot;</span><span class="p">):</span>
+        <span class="c1"># Classify it with the LLM</span>
+<span class="hll">        <span class="n">batch_df</span> <span class="o">=</span> <span class="n">classify_payees</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">batch</span><span class="p">),</span> <span class="n">model</span><span class="p">)</span>
+</span>
+        <span class="c1"># Add what we get back to the results</span>
+        <span class="n">all_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_df</span><span class="p">)</span>
+
+        <span class="c1"># Tap the brakes to avoid overloading Hugging Face&#39;s API</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+
+    <span class="c1"># Combine the batch results into a single DataFrame</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">all_results</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we can test our prompt against a list of models. Let’s try three.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model_list</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># The Facebook Llama model we&#39;ve been using so far</span>
+    <span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+
+    <span class="c1"># This is a competing model from Google</span>
+    <span class="s2">&quot;google/gemma-3-27b-it&quot;</span><span class="p">,</span>
+
+    <span class="c1"># Let&#39;s try a Chinese one from Alibaba for good measure</span>
+    <span class="s2">&quot;Qwen/Qwen3-235B-A22B-Instruct-2507&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Loop through each model, classify the test set and print a <code class="docutils literal notranslate"><span class="pre">classification_report</span></code> for each.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">model_list</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model: </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">classify_batches</span><span class="p">(</span><span class="n">test_input</span><span class="o">.</span><span class="n">payee</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="n">result_df</span><span class="o">.</span><span class="n">category</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Let that rip and then see if you can spot any differences in performance between the models. Do they all do about the same? Does one outperform the others? Are there certain categories that one model is better at spotting than the others?</p>
+</section>
+</section>
+
+
+          </div>
+          
+  <nav id="rellinks">
+    <ul>
+        <li class="prev">
+          &larr;
+          <a href="bulk-prompts.html" title="Previous document"><span class="section-number">6. </span>Bulk prompts</a>
+        </li>
+        <li class="next">
+          <a href="improve.html" title="Next document"><span class="section-number">8. </span>Improvement</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+          <div class="footer">
+            &copy; 2026 palewire
+          </div>
+        </div>
+      </div>
+  </div>
+
+  </body>
+</html>

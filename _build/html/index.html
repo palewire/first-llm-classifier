@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>First LLM Classifier &#8212; First LLM Classifier  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/palewire.css?v=543a68c8" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1. What we’ll do" href="our-mission.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="canonical" href="https://palewi.re/docs/first-llm-classifier/index.html"/>
+  
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <link rel="shortcut icon" href="https://palewi.re/static/favicon.ico" />
+
+  </head><body>
+  <div class="document wide">
+      <div class="documentwrapper">
+        
+        
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1>Table of Contents</h1>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="our-mission.html">1. What we’ll do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="huggingface.html">2. Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visual-studio-code.html">3. Visual Studio Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prompting-with-python.html">4. Prompting with Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structured-responses.html">5. Structured responses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bulk-prompts.html">6. Bulk prompts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluate.html">7. Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">8. Improvement</a></li>
+</ul>
+
+        </div>
+      </div>
+        
+        <div class="bodywrapper">
+          <nav class="nav">
+    <div class="row">
+        <div class="sevencol">
+            <div class="shingle">
+                <a href="https://palewi.re/">
+                    <div rel="rnews:copyrightedBy rnews:hasSource rnews:providedBy">
+                        <div about="http://palewi.re/" typeof="rnews:Organization">
+                            <div property="rnews:name">palewire</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="fivecol last links">
+            <ul>
+                <li>
+                    <a href="http://palewi.re/posts/" title="Posts">
+                        Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/work/" title="Work">
+                        Work
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/talks/" title="Talks">
+                        Talks
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/docs/" title="Docs">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/who-is-ben-welsh/" title="Who is Ben Welsh?">
+                        About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row topbar">
+    <div class="twelvecol last"></div>
+</div>
+<link rel="me" href="https://mastodon.social/@palewire">
+          <div class="body" role="main">
+            
+            
+  <section id="first-llm-classifier">
+<h1>First LLM Classifier<a class="headerlink" href="#first-llm-classifier" title="Link to this heading">¶</a></h1>
+<p>Learn how journalists use large-language models to organize and analyze massive datasets</p>
+<section id="what-you-will-learn">
+<h2>What you will learn<a class="headerlink" href="#what-you-will-learn" title="Link to this heading">¶</a></h2>
+<p>This class will give you hands-on experience creating a machine-learning model that can read and categorize the text recorded in newsworthy datasets.</p>
+<p>It will teach you how to:</p>
+<ul class="simple">
+<li><p>Submit large-language model prompts with the Python programming language</p></li>
+<li><p>Write structured prompts that can classify text into predefined categories</p></li>
+<li><p>Send dozens of prompts at once as part of an automated routine</p></li>
+<li><p>Evaluate results using a rigorous, scientific approach</p></li>
+<li><p>Improve results by training the model with rules and examples</p></li>
+</ul>
+<p>By the end, you will understand how LLM classifiers can outperform traditional machine-learning methods with significantly less code. And you will be ready to write a classifier on your own.</p>
+</section>
+<section id="who-can-take-it">
+<h2>Who can take it<a class="headerlink" href="#who-can-take-it" title="Link to this heading">¶</a></h2>
+<p>This course is free. Anyone who has dabbled with code and AI is qualified to work through the materials. A curious mind and good attitude are all that’s required, but a familiarity with Python will certainly come in handy.</p>
+<p>The documentation assumes you are working on an Apple computer or with the Linux operating system. If you are using Windows, we recommend that you install the <a class="reference external" href="https://learn.microsoft.com/en-us/windows/wsl/install">Windows Subsystem for Linux</a>, which will allow you to run Linux on your Windows machine.</p>
+</section>
+<section id="table-of-contents">
+<h2>Table of contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound" id="mastertoc">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="our-mission.html">1. What we’ll do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="huggingface.html">2. Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visual-studio-code.html">3. Visual Studio Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prompting-with-python.html">4. Prompting with Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structured-responses.html">5. Structured responses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bulk-prompts.html">6. Bulk prompts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluate.html">7. Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">8. Improvement</a></li>
+</ul>
+</div>
+</section>
+<section id="about-this-class">
+<h2>About this class<a class="headerlink" href="#about-this-class" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://palewi.re/who-is-ben-welsh/">Ben Welsh</a> and <a class="reference external" href="https://thescoop.org/about/">Derek Willis</a> prepared this guide for <a class="reference external" href="https://schedules.ire.org/nicar-2025/index.html#2045">a training session</a> at the National Institute for Computer-Assisted Reporting’s 2025 conference in Minneapolis. The project was adapted to <a class="reference external" href="https://huggingface.co/spaces/JournalistsonHF/first-llm-classifier">run on Hugging Face</a> by <a class="reference external" href="https://www.linkedin.com/in/fdaudens/">Florent Daudens</a>. <a class="reference external" href="https://www.linkedin.com/in/andrewbriz/">Andrew Briz</a> updated it to incorporate structured responses for the <a class="reference external" href="https://schedules.ire.org/nicar-2026/#/session/1274">2026 NICAR conference</a> in Indianapolis.</p>
+<p>Some of the copy was written with the assistance of GitHub’s Copilot and Anthropic’s Claude. The materials are available for free and <a class="reference external" href="https://github.com/palewire/first-llm-classifier">open source on GitHub</a>.</p>
+</section>
+</section>
+
+
+          </div>
+          
+  <nav id="rellinks">
+    <ul>
+        <li class="next">
+          <a href="our-mission.html" title="Next document"><span class="section-number">1. </span>What we’ll do</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+          <div class="footer">
+            &copy; 2026 palewire
+          </div>
+        </div>
+      </div>
+  </div>
+
+  </body>
+</html>

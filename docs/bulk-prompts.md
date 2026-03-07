@@ -145,7 +145,7 @@ class PayeeList(BaseModel):
     answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
 ```
 
-Since we'll be making many API calls as we work through this data, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
+Since we'll be making many API calls as we work through this data, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times.
 
 Install that.
 
@@ -156,7 +156,7 @@ Install that.
 Import it in your top cell.
 
 ```python
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt
 ```
 
 Then we will:
@@ -174,7 +174,7 @@ Here's where that ends up
 {emphasize-lines="1-23,31-46,53-59,63-66"}
 
 ```python
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+@retry(stop=stop_after_attempt(3))
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>5. Structured responses &#8212; First LLM Classifier  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/palewire.css?v=543a68c8" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. Bulk prompts" href="bulk-prompts.html" />
+    <link rel="prev" title="4. Prompting with Python" href="prompting-with-python.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+    <link rel="canonical" href="https://palewi.re/docs/first-llm-classifier/structured-responses.html"/>
+  
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <link rel="shortcut icon" href="https://palewi.re/static/favicon.ico" />
+
+  </head><body>
+  <div class="document wide">
+      <div class="documentwrapper">
+        
+        
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo">
+    <a href="index.html">
+        First LLM Classifier
+    </a>
+</h1>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="our-mission.html">1. What we’ll do</a></li>
+<li class="toctree-l1"><a class="reference internal" href="huggingface.html">2. Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visual-studio-code.html">3. Visual Studio Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prompting-with-python.html">4. Prompting with Python</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Structured responses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bulk-prompts.html">6. Bulk prompts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evaluate.html">7. Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="improve.html">8. Improvement</a></li>
+</ul>
+
+        </div>
+      </div>
+        
+        <div class="bodywrapper">
+          <nav class="nav">
+    <div class="row">
+        <div class="sevencol">
+            <div class="shingle">
+                <a href="https://palewi.re/">
+                    <div rel="rnews:copyrightedBy rnews:hasSource rnews:providedBy">
+                        <div about="http://palewi.re/" typeof="rnews:Organization">
+                            <div property="rnews:name">palewire</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="fivecol last links">
+            <ul>
+                <li>
+                    <a href="http://palewi.re/posts/" title="Posts">
+                        Posts
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/work/" title="Work">
+                        Work
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/talks/" title="Talks">
+                        Talks
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/docs/" title="Docs">
+                        Docs
+                    </a>
+                </li>
+                <li>
+                    <a href="http://palewi.re/who-is-ben-welsh/" title="Who is Ben Welsh?">
+                        About
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="row topbar">
+    <div class="twelvecol last"></div>
+</div>
+<link rel="me" href="https://mastodon.social/@palewire">
+          <div class="body" role="main">
+            
+              <div class="breadcrumbs  hide-desktop">
+                <a href="index.html">First LLM Classifier</a>
+              </div>
+            
+            
+  <section id="structured-responses">
+<h1><span class="section-number">5. </span>Structured responses<a class="headerlink" href="#structured-responses" title="Link to this heading">¶</a></h1>
+<p>Here’s a public service announcement. There’s no law that says you have to ask LLMs for essays, poems or relationship advice.</p>
+<p>Yes, they’re great at drumming up long blocks of text. An LLM can spit out a long answer to almost any question. It’s how they’ve been tuned and marketed by companies selling chatbots and more conversational forms of search.</p>
+<p>But they’re also great at answering simple questions with simple answers, a skill that has been overlooked in much of the hoopla that followed the introduction of ChatGPT.</p>
+<p>Here’s an example that simply prompts the LLM to answer a straightforward question. Since this prompt is a little longer than the one we used in the previous notebook, we’ll assign it to a variable and use <a class="reference external" href="https://docs.python.org/3/tutorial/introduction.html#strings">Python’s triple quote syntax</a> to break across multiple lines and make it easier to read.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are an AI model trained to classify text.</span>
+
+<span class="s2">I will provide the name of a professional sports team.</span>
+
+<span class="s2">You will reply with the sports league in which they compete.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p>Run that cell and then lace the variable into our request.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+<span class="hll">            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span>
+</span>        <span class="p">},</span>
+    <span class="p">],</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>And now add a user message that provides the name of a professional sports team.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span>
+        <span class="p">},</span>
+<span class="hll">        <span class="p">{</span>
+</span><span class="hll">            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Chicago Cubs&quot;</span><span class="p">,</span>
+</span><span class="hll">        <span class="p">}</span>
+</span>    <span class="p">],</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Check the response.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And we’ll bet you get the right answer.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Major</span> <span class="n">League</span> <span class="n">Baseball</span> <span class="p">(</span><span class="n">MLB</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Try another one.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+<span class="hll">            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Chicago Bears&quot;</span><span class="p">,</span>
+</span>        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See what we mean?</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">National</span> <span class="n">Football</span> <span class="n">League</span> <span class="p">(</span><span class="n">NFL</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This approach can be used to classify large datasets, adding a new column of data that categorizes text in a way that makes it easier to analyze.</p>
+<p>Let’s try it by making a function that will classify whatever team you provide. We’ll include everything we’ve done so far in a single, reusable chunk of code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_team</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are an AI model trained to classify text.</span>
+
+<span class="s2">I will provide the name of a professional sports team.</span>
+
+<span class="s2">You will reply with the sports league in which they compete.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+</pre></div>
+</div>
+<p>Try it with a single team to see how it works.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">classify_team</span><span class="p">(</span><span class="s2">&quot;Chicago Bulls&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To show the power of reusability, let’s make a list of teams.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">team_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Chicago Cubs&quot;</span><span class="p">,</span> <span class="s2">&quot;Chicago Bears&quot;</span><span class="p">,</span> <span class="s2">&quot;Chicago Bulls&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Loop through the list and ask the LLM to classify them one by one.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="n">team_list</span><span class="p">:</span>
+    <span class="n">league</span> <span class="o">=</span> <span class="n">classify_team</span><span class="p">(</span><span class="n">team</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">([</span><span class="n">team</span><span class="p">,</span> <span class="n">league</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Chicago Cubs&#39;</span><span class="p">,</span> <span class="s1">&#39;Major League Baseball (MLB)&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s1">&#39;Chicago Bears&#39;</span><span class="p">,</span> <span class="s1">&#39;National Football League (NFL)&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s1">&#39;Chicago Bulls&#39;</span><span class="p">,</span> <span class="s1">&#39;National Basketball Association (NBA)&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="validating-responses-with-pydantic">
+<h2><span class="section-number">5.1. </span>Validating responses with Pydantic<a class="headerlink" href="#validating-responses-with-pydantic" title="Link to this heading">¶</a></h2>
+<p>Due to its probabilistic nature, the LLM can sometimes return slight variations on the same answer. For instance, in one case it might say the Cubs are in “MLB” and in another it might say “Major League Baseball.” This can make it difficult to analyze the data later on, since you have to account for all the different ways the same answer might be phrased.</p>
+<p>In other circumstances, you might want to restrict the LLM to a specific set of answers, like a multiple choice question. For instance, when classifying email, you might want to restrict the LLM to only return “Spam” or “Not Spam.”</p>
+<p>You can handle these situations by adding a validation system that will only accept responses from a pre-defined list.</p>
+<p>Most LLM providers, including Hugging Face, support a <code class="docutils literal notranslate"><span class="pre">response_format</span></code> parameter that enforces the shape of the output using <a class="reference external" href="https://json-schema.org">JSON schema</a>, an arcane specification system used to describe the structure of JSON data.</p>
+<p>Rather than write JSON schema by hand, we’ll use <a class="reference external" href="https://docs.pydantic.dev/">Pydantic</a> — a popular Python library for data validation — to generate it for us.</p>
+<p>Like Hugging Face’s Python library, Pydantic will need to be installed using <code class="docutils literal notranslate"><span class="pre">uv</span></code>. Run the following command in a new cell.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>!uv add pydantic
+</pre></div>
+</div>
+<p>With Pydantic installed, you define a Python class that describes what the response should look like. The <code class="docutils literal notranslate"><span class="pre">Literal</span></code> type from Python’s <a class="reference external" href="https://docs.python.org/3/library/typing.html">typing</a> library restricts a field to specific values — exactly what we need for classification.</p>
+<p>Return to our top cell and import these two new libraries.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+</pre></div>
+</div>
+<p>Create a new cell and define a Pydantic model that describes the shape of the response you want from the LLM. In this case, we want a single field called <code class="docutils literal notranslate"><span class="pre">answer</span></code> that can only be one of three values: “MLB”, “NFL” or “NBA”.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SportsLeague</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">answer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;MLB&quot;</span><span class="p">,</span> <span class="s2">&quot;NFL&quot;</span><span class="p">,</span> <span class="s2">&quot;NBA&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Pydantic can then generate the JSON schema automatically with its method <code class="docutils literal notranslate"><span class="pre">.model_json_schema()</span></code>, which we pass to the API’s <code class="docutils literal notranslate"><span class="pre">response_format</span></code> parameter. We have to be careful to nest it in the way the API expects, which is a dictionary with a <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">schema</span></code> key.</p>
+<p>We’ll also need to parse the response using Pydantic’s <code class="docutils literal notranslate"><span class="pre">model_validate_json</span></code> method, which takes the raw JSON string and converts it into a Python object that we can work with. This method also validates the response against our schema, so if the LLM returns something that doesn’t fit our defined structure, we’ll get an error instead of bad data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_team</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are an AI model trained to classify text.</span>
+
+<span class="s2">I will provide the name of a professional sports team.</span>
+
+<span class="s2">You will reply with the sports league in which they compete.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+<span class="hll">        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+</span><span class="hll">            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;SportsLeague&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+</span><span class="hll">            <span class="p">}</span>
+</span><span class="hll">        <span class="p">},</span>
+</span>    <span class="p">)</span>
+
+<span class="hll">    <span class="n">result</span> <span class="o">=</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span><span class="hll">    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">answer</span>
+</span></pre></div>
+</div>
+<p>With the new structured output in place, run the loop again.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">team</span> <span class="ow">in</span> <span class="n">team_list</span><span class="p">:</span>
+    <span class="n">league</span> <span class="o">=</span> <span class="n">classify_team</span><span class="p">(</span><span class="n">team</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">([</span><span class="n">team</span><span class="p">,</span> <span class="n">league</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>You’ll notice it’s only using the acronym as our allowlist instructs.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;Chicago Cubs&#39;</span><span class="p">,</span> <span class="s1">&#39;MLB&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s1">&#39;Chicago Bears&#39;</span><span class="p">,</span> <span class="s1">&#39;NFL&#39;</span><span class="p">]</span>
+<span class="p">[</span><span class="s1">&#39;Chicago Bulls&#39;</span><span class="p">,</span> <span class="s1">&#39;NBA&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>But what if you ask it for a team that’s not in one of those leagues. Try it with the Chicago Blackhawks, a hockey team in the NHL.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">classify_team</span><span class="p">(</span><span class="s2">&quot;Chicago Blackhawks&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;NFL&#39;</span>
+</pre></div>
+</div>
+<p>You’ve forced it to hallucinate. To avoid these circumstances, it’s vital to give any LLM task a way to classify things that don’t fit nicely into the categories you’ve given it.</p>
+<p>In this case, we can do that by adding an “Other” option to our <code class="docutils literal notranslate"><span class="pre">Literal</span></code> type and instructing the LLM to use it when a team doesn’t fit into one of the three leagues.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SportsLeague</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="hll">    <span class="n">answer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;MLB&quot;</span><span class="p">,</span> <span class="s2">&quot;NFL&quot;</span><span class="p">,</span> <span class="s2">&quot;NBA&quot;</span><span class="p">,</span> <span class="s2">&quot;Other&quot;</span><span class="p">]</span>
+</span></pre></div>
+</div>
+<p>It also helps to reinforce the out in the system prompt.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_team</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">You are an AI model trained to classify text.</span>
+
+<span class="s2">I will provide the name of a professional sports team.</span>
+
+<span class="s2">You will reply with the sports league in which they compete.</span>
+
+<span class="hll"><span class="s2">If the team&#39;s league is not in the provided options, reply with &quot;Other&quot;.</span>
+</span><span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;SportsLeague&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">answer</span>
+</pre></div>
+</div>
+<p>Now try the Chicago Blackhawks again.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">classify_team</span><span class="p">(</span><span class="s2">&quot;Chicago Blackhawks&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You’ll get the answer you expect.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;Other&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="reducing-creativity-with-temperature">
+<h2><span class="section-number">5.2. </span>Reducing creativity with temperature<a class="headerlink" href="#reducing-creativity-with-temperature" title="Link to this heading">¶</a></h2>
+<p>Most LLMs are pre-programmed to be creative and generate a range of responses to the same prompt. For structured responses like this, we don’t want that. We want consistency. So it’s a good idea to ask the LLM to be more straightforward by reducing a creativity setting known as <code class="docutils literal notranslate"><span class="pre">temperature</span></code> to zero.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_team</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    You are an AI model trained to classify text.</span>
+
+<span class="s2">    I will provide the name of a professional sports team.</span>
+
+<span class="s2">    You will reply with the sports league in which they compete.</span>
+
+<span class="s2">    If the team doesn&#39;t belong in the provided sports league options, reply with &quot;Other&quot;.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;SportsLeague&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+<span class="hll">        <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span>    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">answer</span>
+</pre></div>
+</div>
+</section>
+<section id="few-shot-prompting">
+<h2><span class="section-number">5.3. </span>Few shot prompting<a class="headerlink" href="#few-shot-prompting" title="Link to this heading">¶</a></h2>
+<p>You can also increase reliability by priming the LLM with examples of the type of response you want. This technique is called <a class="reference external" href="https://www.ibm.com/think/topics/few-shot-prompting">“few shot prompting.”</a> This approach, which can feel like a strange form of roleplaying, calls on you to provide examples of the “user” input and “assistant” response you want the LLM to mimic.</p>
+<p>Here’s how it’s done, using the Los Angeles teams as examples.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">classify_team</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    You are an AI model trained to classify text.</span>
+
+<span class="s2">    I will provide the name of a professional sports team.</span>
+
+<span class="s2">    You will reply with the sports league in which they compete.</span>
+
+<span class="s2">    If the team doesn&#39;t belong in the provided sports league options, reply with &quot;Other&quot;.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+<span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Los Angeles Rams&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answer&quot;: &quot;NFL&quot;}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Los Angeles Dodgers&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answer&quot;: &quot;MLB&quot;}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Los Angeles Lakers&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answer&quot;: &quot;NBA&quot;}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Los Angeles Kings&quot;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span><span class="hll">                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span>
+</span><span class="hll">                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;answer&quot;: &quot;Other&quot;}&#39;</span><span class="p">,</span>
+</span><span class="hll">            <span class="p">},</span>
+</span><span class="hll">            <span class="p">{</span>
+</span>                <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8&quot;</span><span class="p">,</span>
+        <span class="n">response_format</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_schema&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;json_schema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;SportsLeague&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;schema&quot;</span><span class="p">:</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">SportsLeague</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">answer</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+  <nav id="rellinks">
+    <ul>
+        <li class="prev">
+          &larr;
+          <a href="prompting-with-python.html" title="Previous document"><span class="section-number">4. </span>Prompting with Python</a>
+        </li>
+        <li class="next">
+          <a href="bulk-prompts.html" title="Next document"><span class="section-number">6. </span>Bulk prompts</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+          <div class="footer">
+            &copy; 2026 palewire
+          </div>
+        </div>
+      </div>
+  </div>
+
+  </body>
+</html>
