@@ -443,11 +443,7 @@ sample_df = pd.read_csv(
 )
 ```
 
-Install the Python packages [`scikit-learn`](https://scikit-learn.org/stable/) and [`matplotlib`](https://matplotlib.org/). Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
-
-```
-!uv add scikit-learn matplotlib
-```
+The Python packages [`scikit-learn`](https://scikit-learn.org/stable/) and [`matplotlib`](https://matplotlib.org/) were installed at the start of this walkthrough. Prior to LLMs, these libraries were the go-to tools for training and evaluating machine-learning models. We'll primarily be using them for testing.
 
 Add the [`train_test_split`](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html) function from `scikit-learn` to your imports cell and rerun it. This tool is used to split a supervised sample into separate sets for training and testing.
 

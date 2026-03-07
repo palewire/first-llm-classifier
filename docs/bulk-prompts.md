@@ -92,13 +92,7 @@ You'll see that it works with only a single API call. The same technique will wo
 
 Okay. Naming sports teams is a cute trick, but what about something a bit harder? And whatever happened to that George Santos idea?
 
-We'll tackle that by pulling in our example dataset using [`pandas`](https://pandas.pydata.org/), a popular data manipulation library in Python.
-
-First, we need to install it. Run another cell like this:
-
-```text
-!uv add pandas
-```
+We'll tackle that by pulling in our example dataset using [`pandas`](https://pandas.pydata.org/), a popular data manipulation library in Python that we installed at the start.
 
 Import it in your top cell and rerun.
 
@@ -146,12 +140,6 @@ class PayeeList(BaseModel):
 ```
 
 Since we'll be making many API calls as we work through this data, it's wise to add some resilience. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
-
-Install that.
-
-```
-!uv add tenacity
-```
 
 Import it in your top cell.
 
