@@ -165,17 +165,7 @@ Most LLM providers, including Hugging Face, support a `response_format` paramete
 
 Rather than write JSON schema by hand, we'll use [Pydantic](https://docs.pydantic.dev/) — a popular Python library for data validation — to generate it for us.
 
-Like Hugging Face's Python library, Pydantic will need to be installed using `uv`. Run the following command in a new cell.
-
-```{note}
-If you are using [GitHub Codespaces](github-codespaces.md), Pydantic is already installed and you can skip this step.
-```
-
-```
-!uv add pydantic
-```
-
-With Pydantic installed, you define a Python class that describes what the response should look like. The `Literal` type from Python's [typing](https://docs.python.org/3/library/typing.html) library restricts a field to specific values — exactly what we need for classification.
+Since we already installed Pydantic at the start of this walkthrough, you can go ahead and use it. You define a Python class that describes what the response should look like. The `Literal` type from Python's [typing](https://docs.python.org/3/library/typing.html) library restricts a field to specific values — exactly what we need for classification.
 
 Return to our top cell and import these two new libraries.
 
@@ -375,6 +365,91 @@ Here's how it's done, using the Los Angeles teams as examples.
 {emphasize-lines="19-50"}
 
 ```python
+def classify_team(name):
+    prompt = """
+    You are an AI model trained to classify text.
+
+    I will provide the name of a professional sports team.
+
+    You will reply with the sports league in which they compete.
+
+    If the team doesn't belong in the provided sports league options, reply with "Other".
+    """
+
+    response = client.chat.completions.create(
+        messages=[
+            {
+                "role": "system",
+                "content": prompt,
+            },
+            {
+                "role": "user",
+                "content": "Los Angeles Rams",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answer": "NFL"}',
+            },
+            {
+                "role": "user",
+                "content": "Los Angeles Dodgers",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answer": "MLB"}',
+            },
+            {
+                "role": "user",
+                "content": "Los Angeles Lakers",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answer": "NBA"}',
+            },
+            {
+                "role": "user",
+                "content": "Los Angeles Kings",
+            },
+            {
+                "role": "assistant",
+                "content": '{"answer": "Other"}',
+            },
+            {
+                "role": "user",
+                "content": name,
+            }
+        ],
+        model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "SportsLeague",
+                "schema": SportsLeague.model_json_schema()
+            }
+        },
+        temperature=0,
+    )
+
+    result = SportsLeague.model_validate_json(response.choices[0].message.content)
+    return result.answer
+```
+
+## Retrying with tenacity
+
+When making repeated API calls, it's wise to add some resilience. The API could flake out due to network issues or rate limits. And in rare cases, the LLM might not obey our JSON schema, causing the structured response to fail validation. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception.
+
+Since we already installed tenacity at the start of this walkthrough, you can go ahead and import it in your top cell.
+
+```python
+from tenacity import retry
+```
+
+Now add the `@retry` decorator to our function.
+
+{emphasize-lines="1"}
+
+```python
+@retry
 def classify_team(name):
     prompt = """
     You are an AI model trained to classify text.

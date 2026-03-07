@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # GitHub Codespaces
 
 If you want to get started quickly without installing anything on your computer, you can use [GitHub Codespaces](https://github.com/features/codespaces) to work through this class entirely in your browser.
