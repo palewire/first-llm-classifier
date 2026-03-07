@@ -436,12 +436,12 @@ def classify_team(name):
 
 ## Retrying with tenacity
 
-When making repeated API calls, it's wise to add some resilience. The API could flake out due to network issues or rate limits. And in rare cases, the LLM might not obey our JSON schema, causing the structured response to fail validation. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception. We'll configure it to retry up to three times with exponential backoff, meaning it waits longer between each attempt.
+When making repeated API calls, it's wise to add some resilience. The API could flake out due to network issues or rate limits. And in rare cases, the LLM might not obey our JSON schema, causing the structured response to fail validation. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception.
 
 Since we already installed tenacity at the start of this walkthrough, you can go ahead and import it in your top cell.
 
 ```python
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry
 ```
 
 Now add the `@retry` decorator to our function.
@@ -449,7 +449,7 @@ Now add the `@retry` decorator to our function.
 {emphasize-lines="1"}
 
 ```python
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+@retry
 def classify_team(name):
     prompt = """
     You are an AI model trained to classify text.
