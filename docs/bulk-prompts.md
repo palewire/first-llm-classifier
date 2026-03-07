@@ -104,7 +104,7 @@ We're ready to load the California expenditures data prepared for the class. It 
 
 ```python
 df = pd.read_csv(
-    "https://raw.githubusercontent.com/palewire/first-llm-classifier/refs/heads/main/_notebooks/Form460ScheduleESubItem.csv"
+    "https://palewi.re/docs/first-llm-classifier/_static/Form460ScheduleESubItem.csv"
 )
 ```
 
@@ -142,7 +142,7 @@ class PayeeList(BaseModel):
 We'll apply the `@retry` decorator from `tenacity` that we covered in the [tips chapter](tips.md#retrying-failed-requests) to make the function resilient to API failures. Import it in your top cell if you haven't already.
 
 ```python
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry
 ```
 
 Then we will:
@@ -156,10 +156,10 @@ Then we will:
 
 Here's where that ends up
 
-{emphasize-lines="1-13,21-36,43-49,53-56"}
+{emphasize-lines="2-13,21-36,43-49,53-56"}
 
 ```python
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))
+@retry
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
