@@ -4,7 +4,9 @@ Instructions for AI coding assistants working on this project.
 
 ## Project overview
 
-This is an open-source educational tutorial that teaches journalists how to use large-language models to organize and analyze datasets. The primary deliverables are **Sphinx documentation** (in `docs/`) and an **interactive Jupyter notebook** (`notebook.ipynb`). This is not a library or application.
+This is an open-source educational tutorial that teaches journalists how to use large-language models to organize and analyze datasets. The primary deliverable is **Sphinx documentation** (in `docs/`), which is published at https://palewi.re/docs/first-llm-classifier/. The documentation includes Python code blocks that readers can copy and run themselves.
+
+This is not a library or application.
 
 ## Tech stack
 
@@ -64,7 +66,7 @@ The project enables `attrs_block` and `colon_fence` MyST extensions. Use `{note}
 
 ## Notebook sync rule
 
-**Always update `notebook.ipynb` when you change documentation in `docs/`.** The notebook mirrors the tutorial content and must stay in sync with the docs.
+**Always update `tests/notebook.ipynb` when you change documentation in `docs/`.** The notebook mirrors the tutorial content and must stay in sync with the docs.
 
 ## Testing
 
