@@ -76,27 +76,18 @@ Converting the training set you held to the side into a few-shot prompt is a sim
 ```python
 def get_fewshots(training_input, training_output, batch_size=5):
     """Convert the training data into a few-shot prompt"""
-    # Batch up the training input into groups of `batch_size`
-    input_batches = list(batched(training_input.payee, batch_size))
-
-    # Do the same for the output
-    output_batches = list(batched(training_output, batch_size))
-
     # Create a list to hold the formatted few-shot examples
     fewshot_list = []
 
-    # Loop through the batches
-    for input_list, output_list in zip(input_batches, output_batches):
-        # Create a "user" message for the LLM
-        prompt = "\n".join(input_list)
-
-        # Serialize the expected "assistant" response using the Pydantic model
-        response = PayeeList(answers=list(output_list)).model_dump_json()
-
-        # Add both to the fewshot list in the format expected by our LLM
+    # Loop through the batches of input and output
+    for input_list, output_list in zip(
+        batched(training_input.payee, batch_size),
+        batched(training_output, batch_size),
+    ):
+        # Add a "user" message and the expected "assistant" response
         fewshot_list.extend([
-            {"role": "user", "content": prompt},
-            {"role": "assistant", "content": response},
+            {"role": "user", "content": "\n".join(input_list)},
+            {"role": "assistant", "content": PayeeList(answers=list(output_list)).model_dump_json()},
         ])
 
     # Return the list of few-shot examples, one for each batch
