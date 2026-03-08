@@ -65,7 +65,7 @@ But a quick Google search will reveal that [Sottovoce](https://guide.michelin.co
 
 [![Michelin Guide entry for Sottovoce Madero](_static/sottovoce.png)](https://guide.michelin.com/us/en/ciudad-autonoma-de-buenos-aires/buenos-aires_777009/restaurant/sottovoce-1208879)
 
-So, in this case, the LLM was actually correct and the human label was wrong, a truly humbling moment for the creators of this class. And reminder of how powerful LLMs can be at understanding and classifying data, even when the information is incomplete or ambiguous.
+So, in this case, the LLM was actually correct and the human label was wrong, a truly humbling moment for the creators of this class. And a reminder of how powerful LLMs can be at understanding and classifying data, even when the information is incomplete or ambiguous.
 
 ## Use training data as few-shot prompts
 
@@ -128,7 +128,7 @@ fewshot_list[:2]
 ]
 ```
 
-Return to `classify_payees` and replacing the previous hardcoded prompt with the generated few-shot list.
+Return to `classify_payees` and replace the previous hardcoded prompt with the generated few-shot list.
 
 {emphasize-lines="7"}
 

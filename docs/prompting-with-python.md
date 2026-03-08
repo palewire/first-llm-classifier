@@ -23,7 +23,7 @@ from huggingface_hub import InferenceClient
 
 If everything is installed, that cell should complete without any errors. If you get an error, check the output from the installation cell to see if there were any issues you need to address.
 
-Remember your API key? You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need throughout the rest of the class.
+Remember your API key? You'll need it now. Copy it from that text file and paste it inside the quotation marks as a variable in a third cell. You should continue adding new cells as you need them throughout the rest of the class.
 
 ```python
 token = "Paste your key here"
