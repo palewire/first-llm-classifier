@@ -246,7 +246,7 @@ Let's add a couple libraries to our imports cell that will let us avoid hammerin
 ```python
 import time
 from itertools import batched
-from rich.progress import track
+from tqdm.auto import tqdm
 ```
 
 That batching trick can then be fit into a new function that will accept a big list of payees and classify them batch by batch.
@@ -261,7 +261,7 @@ def classify_batches(name_list, batch_size=10, wait=1):
     batch_list = list(batched(list(name_list), batch_size))
 
     # Loop through the list in batches
-    for batch in track(batch_list, description="Classifying batches..."):
+    for batch in tqdm(batch_list, desc="Classifying batches..."):
         # Classify it with the LLM
         batch_df = classify_payees(list(batch))
 
@@ -354,10 +354,10 @@ def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
             executor.submit(classify_payees, list(batch))
             for batch in batch_list
         ]
-        for future in track(
+        for future in tqdm(
             as_completed(futures),
             total=len(futures),
-            description="Classifying batches...",
+            desc="Classifying batches...",
         ):
             # Get the results as they come in and add them to our list
             batch_df = future.result()
@@ -369,7 +369,7 @@ def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
     return pd.concat(all_results, ignore_index=True)
 ```
 
-The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `track` keeps our progress bar ticking. And since `classify_payees` already has the `@stamina.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
+The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `tqdm` keeps our progress bar ticking. And since `classify_payees` already has the `@stamina.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
 
 Try it with the same sample.
 
