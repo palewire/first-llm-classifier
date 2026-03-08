@@ -160,7 +160,7 @@ Return to `classify_payees` and replace the previous hardcoded prompt with the g
 And all you need to do is run it again.
 
 ```python
-llm_df = classify_batches(
+llm_df = classify_batches_parallel(
     test_input.payee,
     model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
 )

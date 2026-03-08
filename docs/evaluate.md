@@ -472,10 +472,10 @@ In a traditional training setup, the next step would be to train a machine-learn
 
 With an LLM we skip ahead to the testing phase. We pass the `test_input` set to our LLM prompt and compare its guesses to the right answers found in the `test_output` set.
 
-All that requires is that we pass the `payee` column from our `test_input` DataFrame to the function we created in the previous chapters.
+All that requires is that we pass the `payee` column from our `test_input` DataFrame to the parallel batching function we created in the previous chapter.
 
 ```python
-llm_df = classify_batches(test_input.payee)
+llm_df = classify_batches_parallel(test_input.payee)
 ```
 
 Next, we add the `classification_report` function from `sklearn` to our imports, which is used to evaluate a model's performance.
@@ -849,29 +849,29 @@ Then, in the `client.chat.completions.create` call, replace the hardcoded model 
     )
 ```
 
-We also need the same change in `classify_batches`, accepting the model and passing it through.
+We also need the same change in `classify_batches_parallel`, accepting the model and passing it through.
 
-{emphasize-lines="1,12"}
+{emphasize-lines="1,9"}
 
 ```python
-def classify_batches(name_list, model, batch_size=10, wait=1):
-    """Split the provided list of names into batches and classify with our LLM one by one."""
-    # Create a place to store the results
-    all_results = []
-
+def classify_batches_parallel(name_list, model, batch_size=10, max_workers=4):
+    """Split the provided list of names into batches and classify with our LLM in parallel."""
     # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
 
-    # Loop through the list in batches
-    for batch in track(batch_list, description="Classifying batches..."):
-        # Classify it with the LLM
-        batch_df = classify_payees(list(batch), model)
-
-        # Add what we get back to the results
-        all_results.append(batch_df)
-
-        # Tap the brakes to avoid overloading Hugging Face's API
-        time.sleep(wait)
+    # Submit all the batches in parallel and collect results in order
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        all_results = list(
+            track(
+                executor.map(
+                    classify_payees,
+                    [list(b) for b in batch_list],
+                    [model] * len(batch_list),
+                ),
+                total=len(batch_list),
+                description="Classifying batches...",
+            )
+        )
 
     # Combine the batch results into a single DataFrame
     return pd.concat(all_results, ignore_index=True)
@@ -897,7 +897,7 @@ Loop through each model, classify the test set and print a `classification_repor
 ```python
 for m in model_list:
     print(f"Model: {m}")
-    result_df = classify_batches(test_input.payee, m)
+    result_df = classify_batches_parallel(test_input.payee, m)
     print(classification_report(test_output, result_df.category))
 ```
 
