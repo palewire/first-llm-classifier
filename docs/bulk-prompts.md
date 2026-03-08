@@ -153,7 +153,7 @@ Here's where that ends up
 {emphasize-lines="2-13,21-36,43-49,53-56"}
 
 ```python
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
+@tenacity.retry(stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_exponential(multiplier=1, min=4, max=10))
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
@@ -369,7 +369,7 @@ def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
     return pd.concat(all_results, ignore_index=True)
 ```
 
-The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `track` keeps our progress bar ticking. And since `classify_payees` already has the `@retry` decorator from `tenacity`, any failed requests will be retried automatically — even when running in parallel.
+The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `track` keeps our progress bar ticking. And since `classify_payees` already has the `@tenacity.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
 
 Try it with the same sample.
 
