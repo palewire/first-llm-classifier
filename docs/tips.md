@@ -52,7 +52,7 @@ You can also increase reliability by priming the LLM with examples of the type o
 
 Here's how it's done, using the Los Angeles teams as examples.
 
-{emphasize-lines="19-50"}
+{emphasize-lines="18-49"}
 
 ```python
 def classify_team(name):
