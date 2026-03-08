@@ -16,20 +16,18 @@ dependencies = [
     "sphinx-palewire-theme",
     # Tutorial dependencies
     "bln",
-    "pandas",
-    "altair",
     "jupyterlab",
-    "geopandas",
+    "pandas",
     "huggingface-hub",
-    "scikit-learn>=1.8.0",
-    "matplotlib>=3.10.8",
-    "stamina>=25.2.0",
+    "matplotlib",
+    "pydantic",
+    "scikit-learn",
+    "stamina",
+    "tqdm",
     # Dev stuff
     "pre-commit",
-    "tqdm>=4.67.1",
-    "pydantic>=2.12.5",
-    "ipywidgets>=8.1.8",
-    "tabulate>=0.9.0",
+    "ipywidgets",
+    "tabulate",
     "pytest",
 ]
 
