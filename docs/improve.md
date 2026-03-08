@@ -30,19 +30,20 @@ Looking at the misclassifications, you might notice that the LLM is struggling w
 mistakes_df.head(10)
 ```
 
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|     | payee                            | category_llm   | category_human   |
+```{code-block} text
+|     | payee                            | category_llm   | category_human   |
 |----:|:---------------------------------|:---------------|:-----------------|
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">16</span> | SOTTOVOCE MADERO                 | Restaurant     | Other            |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">43</span> | SIBIA CAB                        | Bar            | Other            |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">56</span> | THE OVAL ROOM                    | Bar            | Restaurant       |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">85</span> | ELLA DINNING ROOM                | Restaurant     | Other            |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">87</span> | LAKELAND  VILLAGE                | Hotel          | Other            |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">95</span> | THE PALMS                        | Bar            | Restaurant       |
-| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">104</span> | GRUBHUB, INC.                    | Other          | Restaurant       |
-| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">136</span> | NORTHERN CALIFORNIA WINE COUNTRY | Bar            | Other            |
-| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">144</span> | MAYAHUEL                         | Bar            | Restaurant       |
-| <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">146</span> | TWENTY EIGHT                     | Bar            | Other            |
-</pre>
+|  16 | SOTTOVOCE MADERO                 | Restaurant     | Other            |
+|  43 | SIBIA CAB                        | Bar            | Other            |
+|  56 | THE OVAL ROOM                    | Bar            | Restaurant       |
+|  85 | ELLA DINNING ROOM                | Restaurant     | Other            |
+|  87 | LAKELAND  VILLAGE                | Hotel          | Other            |
+|  95 | THE PALMS                        | Bar            | Restaurant       |
+| 104 | GRUBHUB, INC.                    | Other          | Restaurant       |
+| 136 | NORTHERN CALIFORNIA WINE COUNTRY | Bar            | Other            |
+| 144 | MAYAHUEL                         | Bar            | Restaurant       |
+| 146 | TWENTY EIGHT                     | Bar            | Other            |
+```
 
 You could then output the mistakes to a spreadsheet and inspect them more closely.
 

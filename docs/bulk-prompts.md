@@ -114,19 +114,20 @@ Have a look at a random sample to get a taste of what's in there.
 df.sample(10)
 ```
 
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    |   index | payee                               |
+```{code-block} text
+|    |   index | payee                               |
 |---:|--------:|:------------------------------------|
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">14901</span> | THE STATIONERY STUDIO               |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1389</span> | BELL WINE AND SPIRITS               |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">10472</span> | NEWSOM FOR CALIFORNIA GOVERNOR <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2022</span> |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">11301</span> | PASADENA JOURNAL NEWS               |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3133</span> | CLEARMAN'S STEAK AND STEIN          |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4606</span> | EL SAUZ TACOS                       |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5491</span> | FRIENDS OF MARK TWAIN MIDDLE SCHOOL |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> |    <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5050</span> | FAT CITY                            |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">11294</span> | PARVINDER KANG - PETTY CASHIER      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> |   <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">11410</span> | PEARL'S CAFE                        |
-</pre>
+|  0 |   14901 | THE STATIONERY STUDIO               |
+|  1 |    1389 | BELL WINE AND SPIRITS               |
+|  2 |   10472 | NEWSOM FOR CALIFORNIA GOVERNOR 2022 |
+|  3 |   11301 | PASADENA JOURNAL NEWS               |
+|  4 |    3133 | CLEARMAN'S STEAK AND STEIN          |
+|  5 |    4606 | EL SAUZ TACOS                       |
+|  6 |    5491 | FRIENDS OF MARK TWAIN MIDDLE SCHOOL |
+|  7 |    5050 | FAT CITY                            |
+|  8 |   11294 | PARVINDER KANG - PETTY CASHIER      |
+|  9 |   11410 | PEARL'S CAFE                        |
+```
 
 Let's adapt what we've learned so far to fit this data.
 
@@ -223,19 +224,20 @@ See how it does.
 classify_payees(sample_list)
 ```
 
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                                           | category   |
+```{code-block} text
+|    | payee                                           | category   |
 |---:|:------------------------------------------------|:-----------|
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | ARCLIGHT CINEMAS                                | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | 99 CENTS ONLY                                   | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | COMMONWEALTH COMMUNICATIONS                     | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | CHILBO MYUNOK                                   | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> | ADAM SCHIFF FOR SENATE                          | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> | CENTER FOR CREATIVE FUNDING                     | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> | MULVANEY'S BUILDING & LOAN                      | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> | ATV VIDEO CENTER                                | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
-</pre>
+|  0 | ARCLIGHT CINEMAS                                | Other      |
+|  1 | 99 CENTS ONLY                                   | Other      |
+|  2 | COMMONWEALTH COMMUNICATIONS                     | Other      |
+|  3 | CHILBO MYUNOK                                   | Other      |
+|  4 | ADAM SCHIFF FOR SENATE                          | Other      |
+|  5 | CENTER FOR CREATIVE FUNDING                     | Other      |
+|  6 | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
+|  7 | MULVANEY'S BUILDING & LOAN                      | Other      |
+|  8 | ATV VIDEO CENTER                                | Other      |
+|  9 | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
+```
 
 ## Submitting in batches
 
@@ -295,19 +297,20 @@ Once it finishes, the results will be returned as a DataFrame that you can inspe
 results_df.head(10)
 ```
 
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | payee                               | category   |
+```{code-block} text
+|    | payee                               | category   |
 |---:|:------------------------------------|:-----------|
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | PETE'S CAFE                         | Restaurant |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | ALAMO RENT-A-CAR SANTA ANA          | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | COMMITTEE TO ELECT ELENA            | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | FAIRMONT SAN JOSE                   | Hotel      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">4</span> | BEST WESTERN HOTELS SAN SIMEON      | Hotel      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> | VAROGA RICEW &amp; SHALETT, INC.        | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">6</span> | EL SEGUNDO HERALD                   | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">7</span> | MCI                                 | Other      |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">8</span> | TIKAL RESTAURANT                    | Restaurant |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">9</span> | PEREA FOR SCCCD TRUSTEE AREA <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">5</span> <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2018</span> | Other      |
-</pre>
+|  0 | PETE'S CAFE                         | Restaurant |
+|  1 | ALAMO RENT-A-CAR SANTA ANA          | Other      |
+|  2 | COMMITTEE TO ELECT ELENA            | Other      |
+|  3 | FAIRMONT SAN JOSE                   | Hotel      |
+|  4 | BEST WESTERN HOTELS SAN SIMEON      | Hotel      |
+|  5 | VAROGA RICEW & SHALETT, INC.        | Other      |
+|  6 | EL SEGUNDO HERALD                   | Other      |
+|  7 | MCI                                 | Other      |
+|  8 | TIKAL RESTAURANT                    | Restaurant |
+|  9 | PEREA FOR SCCCD TRUSTEE AREA 5 2018 | Other      |
+```
 
 Or do a bit of analysis of the categories.
 
@@ -315,13 +318,14 @@ Or do a bit of analysis of the categories.
 results_df.category.value_counts()
 ```
 
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">|    | category   |   count |
+```{code-block} text
+|    | category   |   count |
 |---:|:-----------|--------:|
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">0</span> | Other      |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">61</span> |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">1</span> | Restaurant |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">19</span> |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">2</span> | Hotel      |      <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">17</span> |
-|  <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> | Bar        |       <span style="color: #008080; text-decoration-color: #008080; font-weight: bold">3</span> |
-</pre>
+|  0 | Other      |      61 |
+|  1 | Restaurant |      19 |
+|  2 | Hotel      |      17 |
+|  3 | Bar        |       3 |
+```
 
 Now you can start to dig into the details and see which payees were classified in which categories, and maybe even spot some interesting patterns in the data.
 
