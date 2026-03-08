@@ -69,6 +69,5 @@ def test_python_block_syntax(filename: str, block_num: int, code: str) -> None:
             ast.parse(textwrap.dedent(code))
         except SyntaxError as exc:
             pytest.fail(
-                f"{filename} block {block_num}: {exc.msg} "
-                f"(line {exc.lineno})\n\n{code}"
+                f"{filename} block {block_num}: {exc.msg} (line {exc.lineno})\n\n{code}"
             )

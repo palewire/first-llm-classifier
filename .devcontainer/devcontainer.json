@@ -5,8 +5,13 @@
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "ms-toolsai.jupyter"
-            ]
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-keymap",
+                "ms-toolsai.jupyter-renderers"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python"
+            }
         }
     },
     "postCreateCommand": "bash .devcontainer/setup.sh"

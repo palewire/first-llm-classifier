@@ -401,6 +401,7 @@ source = { editable = "." }
 dependencies = [
     { name = "bln" },
     { name = "huggingface-hub" },
+    { name = "ipykernel" },
     { name = "ipywidgets" },
     { name = "jupyterlab" },
     { name = "matplotlib" },
@@ -423,6 +424,7 @@ dependencies = [
 requires-dist = [
     { name = "bln" },
     { name = "huggingface-hub" },
+    { name = "ipykernel" },
     { name = "ipywidgets" },
     { name = "jupyterlab" },
     { name = "matplotlib" },

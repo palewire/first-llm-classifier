@@ -26,6 +26,7 @@ dependencies = [
     "tqdm",
     # Dev stuff
     "pre-commit",
+    "ipykernel",
     "ipywidgets",
     "tabulate",
     "pytest",
