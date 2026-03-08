@@ -862,14 +862,14 @@ def classify_batches_parallel(name_list, model, batch_size=10, max_workers=4):
     # Submit all the batches in parallel and collect results in order
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         all_results = list(
-            track(
+            tqdm(
                 executor.map(
                     classify_payees,
                     [list(b) for b in batch_list],
                     [model] * len(batch_list),
                 ),
                 total=len(batch_list),
-                description="Classifying batches...",
+                desc="Classifying batches...",
             )
         )
 
