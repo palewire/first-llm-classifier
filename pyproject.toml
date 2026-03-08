@@ -11,9 +11,10 @@ dependencies = [
     # Docs stuff
     "sphinx",
     "sphinx-autobuild",
+    "sphinx-copybutton",
     "myst-parser",
     "sphinx-palewire-theme",
-    # Tutorial depeendencies
+    # Tutorial dependencies
     "bln",
     "pandas",
     "altair",
