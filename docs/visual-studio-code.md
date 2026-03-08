@@ -12,6 +12,10 @@ It can be used to run [Jupyter notebooks](https://jupyter.org/) — the interact
 
 [![Jupyter project homepage with its logo and the tagline "Free software, open standards, and web services for interactive computing"](_static/jupyter-homepage.png)](https://jupyter.org/)
 
+```{note}
+If you want to skip the local installation steps below, you can use [GitHub Codespaces](github-codespaces.md) to get started in your browser with no setup required.
+```
+
 ## Install Visual Studio Code
 
 Visual Studio Code can be installed on any operating system with a simple point-and-click interface. If you don't have it already, the first step is to visit [code.visualstudio.com](https://code.visualstudio.com/) and download the version tailored for your operating system.

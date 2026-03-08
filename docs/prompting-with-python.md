@@ -4,6 +4,10 @@ Now that you've got your Python environment set up, it's time to start writing p
 
 First, you need to install the outside libraries we'll use across this class. Python has a vast ecosystem of open-source packages. We'll explain the ones we need as they take the stage.
 
+```{note}
+If you are using [GitHub Codespaces](github-codespaces.md), these libraries are already installed. You can skip the `!uv add` step below and go straight to the import statement.
+```
+
 A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
 
 ```text
