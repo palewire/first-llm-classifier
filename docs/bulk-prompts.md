@@ -153,7 +153,7 @@ Here's where that ends up
 {emphasize-lines="2-13,21-36,43-49,53-56"}
 
 ```python
-@tenacity.retry(stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_exponential(multiplier=1, min=4, max=10))
+@tenacity.retry(stop=tenacity.stop_after_attempt(3))
 def classify_payees(name_list):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
