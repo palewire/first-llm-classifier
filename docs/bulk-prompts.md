@@ -363,7 +363,11 @@ def classify_batches_parallel(name_list, batch_size=5, max_workers=4):
     return pd.concat(all_results, ignore_index=True)
 ```
 
-The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The executor's `map` method collects results in the same order as the input, keeping our data lined up correctly. That doesn't cost us any speed — all the batches still run concurrently. The only difference is that `map` hands them back in the order they were submitted, rather than whichever finished first. Wrapping it in `tqdm` keeps our progress bar ticking. And since `classify_payees` already has the `@stamina.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
+The key change is small but powerful.
+
+Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The executor's `map` method collects results in the same order as the input, keeping our data lined up correctly. That doesn't cost us any speed — all the batches still run concurrently. The only difference is that `map` hands them back in the order they were submitted, rather than whichever finished first.
+
+Wrapping it in `tqdm` keeps our progress bar ticking. And since `classify_payees` already has the `@stamina.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
 
 Try it with the same sample.
 
