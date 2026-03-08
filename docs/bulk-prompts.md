@@ -334,7 +334,7 @@ Python's standard library offers a simple way to speed things up. The [`concurre
 Add it to your imports cell.
 
 ```python
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 ```
 
 Now we can write a new version of our batching function that submits requests in parallel instead of waiting in line.
@@ -342,34 +342,24 @@ Now we can write a new version of our batching function that submits requests in
 ```python
 def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
     """Split the provided list of names into batches and classify with our LLM in parallel."""
-    # Create a place to store the results
-    all_results = []
-
     # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
 
-    # Submit all the batches in parallel
+    # Submit all the batches in parallel and collect results in order
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [
-            executor.submit(classify_payees, list(batch))
-            for batch in batch_list
-        ]
-        for future in tqdm(
-            as_completed(futures),
-            total=len(futures),
-            desc="Classifying batches...",
-        ):
-            # Get the results as they come in and add them to our list
-            batch_df = future.result()
-
-            # Add it to our list of results
-            all_results.append(batch_df)
+        all_results = list(
+            tqdm(
+                executor.map(classify_payees, [list(b) for b in batch_list]),
+                total=len(batch_list),
+                desc="Classifying batches...",
+            )
+        )
 
     # Combine the batch results into a single DataFrame
     return pd.concat(all_results, ignore_index=True)
 ```
 
-The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The `as_completed` function collects results as they come back, and `tqdm` keeps our progress bar ticking. And since `classify_payees` already has the `@stamina.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
+The key change is small but powerful. Instead of a `for` loop that processes one batch at a time, we use a `ThreadPoolExecutor` to fire off all our batches at once. The `max_workers` argument controls how many can run simultaneously. The executor's `map` method collects results in the same order as the input, keeping our data lined up correctly. That doesn't cost us any speed — all the batches still run concurrently. The only difference is that `map` hands them back in the order they were submitted, rather than whichever finished first. Wrapping it in `tqdm` keeps our progress bar ticking. And since `classify_payees` already has the `@stamina.retry` decorator, any failed requests will be retried automatically — even when running in parallel.
 
 Try it with the same sample.
 
