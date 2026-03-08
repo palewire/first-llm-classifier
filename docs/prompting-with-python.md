@@ -7,7 +7,7 @@ First, you need to install the outside libraries we'll use across this class. Py
 A common way to install packages inside your notebook's virtual environment is to run `uv add` in a cell. The `!` is a shortcut that allows you to run terminal commands. You can put the two together like:
 
 ```text
-!uv add huggingface_hub rich ipywidgets pydantic pandas tenacity scikit-learn matplotlib
+!uv add huggingface_hub tqdm ipywidgets pydantic pandas tenacity scikit-learn matplotlib
 ```
 
 Drop that into the first cell of a new notebook and hit the play button in the top toolbar. You should see something like this:
@@ -17,7 +17,6 @@ Drop that into the first cell of a new notebook and hit the play button in the t
 Now let's import them in the cell that appears below the installation output. Hit play again.
 
 ```python
-from rich import print
 from huggingface_hub import InferenceClient
 ```
 
