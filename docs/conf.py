@@ -25,6 +25,7 @@ html_theme_options: dict[Any, Any] = {
 
 extensions = [
     "myst_parser",
+    "sphinx_copybutton",
 ]
 
 myst_enable_extensions = [
