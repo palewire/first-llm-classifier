@@ -126,26 +126,22 @@ def classify_team(name):
 
 ## Retrying failed requests
 
-When making many API calls, temporary network errors or rate limits can cause failures. The [`tenacity`](https://tenacity.readthedocs.io/) library provides a `retry` decorator that will automatically retry a function if it raises an exception.
+When making many API calls, temporary network errors or rate limits can cause failures. The [`stamina`](https://stamina.hynek.me/) library provides a `retry` decorator that will automatically retry a function if it raises an exception.
 
 Import it in your top cell.
 
 ```python
-import tenacity
+import stamina
 ```
 
-Add the `@tenacity.retry` decorator to your classify function.
+Add the `@stamina.retry` decorator to your classify function.
 
 {emphasize-lines="1"}
 
 ```python
-@tenacity.retry(stop=tenacity.stop_after_attempt(3))
+@stamina.retry(on=Exception, attempts=3)
 def classify_team(name):
     ...
 ```
 
 Any failed request will be retried automatically. This makes your classifier much more resilient to temporary network failures or API hiccups.
-
-```{warning}
-If you use `@tenacity.retry` with no arguments, tenacity will retry **forever** by default — with no wait between attempts and no limit on the number of tries. Always set a `stop` condition like `stop_after_attempt` so your script doesn't get stuck in an infinite loop.
-```
