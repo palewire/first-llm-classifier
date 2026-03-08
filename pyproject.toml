@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 61.0",]
+requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -31,12 +31,11 @@ dependencies = [
     "matplotlib>=3.10.8",
     "stamina>=25.2.0",
     "pytest",
-    "stamina>=25.2.0",
 ]
 
 [project.scripts]
 download = "download:main"
 
 [tool.setuptools]
-packages = ["docs",]
+packages = ["docs"]
 py-modules = ["download"]
