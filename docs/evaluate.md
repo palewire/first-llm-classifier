@@ -854,7 +854,7 @@ We also need the same change in `classify_batches_parallel`, accepting the model
 {emphasize-lines="1,9"}
 
 ```python
-def classify_batches_parallel(name_list, model, batch_size=10, max_workers=4):
+def classify_batches_parallel(name_list, model, batch_size=5, max_workers=4):
     """Split the provided list of names into batches and classify with our LLM in parallel."""
     # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))
@@ -887,8 +887,8 @@ model_list = [
     # This is a competing model from Google
     "google/gemma-3-27b-it",
 
-    # Let's try a Chinese one from Alibaba for good measure
-    "Qwen/Qwen3-235B-A22B-Instruct-2507",
+    # Let's try a Chinese one for good measure
+    "deepseek-ai/DeepSeek-V3.2-Exp"
 ]
 ```
 

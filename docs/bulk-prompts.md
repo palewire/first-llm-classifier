@@ -78,7 +78,7 @@ Try that with our team list.
 classify_teams(team_list)
 ```
 
-You'll see that it works with only a single API call. The same technique will work for a batch of any size. Due to LLMs' tendency to lose attention and engage in strange loops as answers get longer, start off with smaller batches of around 10 to 20 items, but you can experiment with what works best for your use case and see if you can push it further.
+You'll see that it works with only a single API call. The same technique will work for a batch of any size. Due to LLMs' tendency to lose attention and engage in strange loops as answers get longer, start off with smaller batches, but you can experiment with what works best for your use case and see if you can push it further.
 
 ```python
 {
@@ -252,7 +252,7 @@ from tqdm.auto import tqdm
 That batching trick can then be fit into a new function that will accept a big list of payees and classify them batch by batch.
 
 ```python
-def classify_batches(name_list, batch_size=10, wait=1):
+def classify_batches(name_list, batch_size=5, wait=1):
     """Split the provided list of names into batches and classify with our LLM one by one."""
     # Create a place to store the results
     all_results = []
@@ -340,7 +340,7 @@ from concurrent.futures import ThreadPoolExecutor
 Now we can write a new version of our batching function that submits requests in parallel instead of waiting in line.
 
 ```python
-def classify_batches_parallel(name_list, batch_size=10, max_workers=4):
+def classify_batches_parallel(name_list, batch_size=5, max_workers=4):
     """Split the provided list of names into batches and classify with our LLM in parallel."""
     # Create a list that will split the name_list into batches
     batch_list = list(batched(list(name_list), batch_size))

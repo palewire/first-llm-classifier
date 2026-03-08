@@ -74,7 +74,7 @@ Earlier in the lesson, we showed how you can feed the LLM examples of inputs and
 Converting the training set you held to the side into a few-shot prompt is a simple matter of formatting it to fit your LLM's expected input. Here's how you might do it in our case.
 
 ```python
-def get_fewshots(training_input, training_output, batch_size=10):
+def get_fewshots(training_input, training_output, batch_size=5):
     """Convert the training data into a few-shot prompt"""
     # Batch up the training input into groups of `batch_size`
     input_batches = list(batched(training_input.payee, batch_size))
