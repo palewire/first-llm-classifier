@@ -35,6 +35,7 @@ visual-studio-code
 prompting-with-python
 structured-responses
 tips
+payees
 bulk-prompts
 evaluate
 improve
