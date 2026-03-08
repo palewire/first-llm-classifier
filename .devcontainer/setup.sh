@@ -3,7 +3,6 @@ set -e
 
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
-. "$HOME/.local/bin/env"
 
 # Install project dependencies
 uv sync
