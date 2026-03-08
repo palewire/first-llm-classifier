@@ -31,6 +31,7 @@ dependencies = [
     "matplotlib>=3.10.8",
     "tenacity>=9.1.4",
     "pytest",
+    "stamina>=25.2.0",
 ]
 
 [project.scripts]
@@ -39,4 +40,3 @@ download = "download:main"
 [tool.setuptools]
 packages = ["docs",]
 py-modules = ["download"]
-
