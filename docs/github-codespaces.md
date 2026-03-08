@@ -6,10 +6,12 @@ orphan: true
 
 If you want to get started quickly without installing anything on your computer, you can use [GitHub Codespaces](https://github.com/features/codespaces) to work through this class entirely in your browser.
 
-GitHub Codespaces provides a complete, pre-configured coding environment in the cloud. It runs Visual Studio Code with Python, Jupyter notebooks and all the libraries you need — no installation required.
+Codespaces provides a complete, pre-configured coding environment in the cloud. It runs Visual Studio Code with Python, Jupyter notebooks and all the libraries you need.
 
 ```{note}
-GitHub offers a [free tier](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-codespaces/about-billing-for-github-codespaces#monthly-included-storage-and-core-hours-for-personal-accounts) that includes 60 hours of usage per month. That should be more than enough for this class. You will need a free [GitHub account](https://github.com/signup) to use it. If you reach the free tier limit, you won't be charged — you simply won't be able to create new codespaces until the next billing cycle.
+GitHub offers a [free tier](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-codespaces/about-billing-for-github-codespaces#monthly-included-storage-and-core-hours-for-personal-accounts) that includes a limited number hours of usage per month. If you're a university student, you may be able to get greater access through the [GitHub Student Developer Pack](https://education.github.com/pack).
+
+Either way, the free tier should be more than enough for this class. All you need is a free [GitHub account](https://github.com/signup) to use it.
 ```
 
 ## Open a codespace
