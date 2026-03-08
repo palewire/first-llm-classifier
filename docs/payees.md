@@ -1,4 +1,4 @@
-# Campaign finance data
+# Campaign spending
 
 Okay. Naming sports teams is a cute trick, but what about something a bit harder? And whatever happened to that George Santos idea?
 
