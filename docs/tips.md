@@ -131,7 +131,7 @@ When making many API calls, temporary network errors or rate limits can cause fa
 Import it in your top cell.
 
 ```python
-from tenacity import retry
+from tenacity import retry, stop_after_attempt, wait_exponential
 ```
 
 Add the `@retry` decorator to your classify function.
@@ -139,9 +139,13 @@ Add the `@retry` decorator to your classify function.
 {emphasize-lines="1"}
 
 ```python
-@retry
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
 def classify_team(name):
     ...
 ```
 
 Any failed request will be retried automatically. This makes your classifier much more resilient to temporary network failures or API hiccups.
+
+```{warning}
+If you use `@retry` with no arguments, tenacity will retry **forever** by default — with no wait between attempts and no limit on the number of tries. Always set a `stop` condition (like `stop_after_attempt`) so your script doesn't get stuck in an infinite loop. A `wait` strategy like `wait_exponential` is also a good idea when dealing with API rate limits, since it spaces out your retries instead of hammering the server repeatedly.
+```
