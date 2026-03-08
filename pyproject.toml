@@ -40,5 +40,3 @@ download = "download:main"
 packages = ["docs",]
 py-modules = ["download"]
 
-[tool.ruff]
-exclude = ["_notebooks"]

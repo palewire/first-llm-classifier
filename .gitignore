@@ -1,5 +1,4 @@
 .DS_Store
-_notebooks/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
