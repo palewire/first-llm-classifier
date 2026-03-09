@@ -43,39 +43,33 @@ Let's adapt what we've learned so far to fit this data.
 
 Instead of asking for a sports league, we will ask the LLM to classify each payee as a restaurant, bar, hotel or other establishment. The kind of places where George Santos, and other politicians like him, might enjoy spending campaign funds.
 
-Rather than submitting names one at a time, we can send the LLM a list of payees and ask it to classify them all at once. This saves time and API calls.
-
-Start by creating a new Pydantic model for the payee classifications.
+Start by creating a new Pydantic model for the payee classification.
 
 ```python
-class PayeeList(BaseModel):
-    answers: list[Literal["Restaurant", "Bar", "Hotel", "Other"]]
+class Payee(BaseModel):
+    answer: Literal["Restaurant", "Bar", "Hotel", "Other"]
 ```
 
 Then we will:
 
-- Write a function called `classify_payees` that accepts a list of payee names.
+- Write a function called `classify_payee` that accepts a single payee name.
 - Write a prompt that explains the new task and categories.
 - Include few-shot training examples to guide the LLM.
 - Use the new model for the response format and validation.
-- Add a check to make sure the LLM returned the right number of answers.
-- Return a DataFrame to make it easier to work with downstream.
 
 Here's where that ends up.
 
 ```python
 @stamina.retry(on=Exception, attempts=3)
-def classify_payees(name_list):
+def classify_payee(name):
     prompt = """
 You are an AI model trained to categorize businesses based on their names.
 
-You will be given a list of business names, each separated by a new line.
+Your task is to analyze a business name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
 
-Your task is to analyze each name and classify it into one of the following categories: Restaurant, Bar, Hotel, or Other.
+If a business does not clearly fall into Restaurant, Bar, or Hotel categories, classify it as "Other".
 
-If a business does not clearly fall into Restaurant, Bar, or Hotel categories, you should classify it as "Other".
-
-Even if the type of business is not immediately clear from the name, it is essential that you provide your best guess based on the information available to you. If you can't make a good guess, classify it as Other.
+Even if the type of business is not immediately clear from the name, provide your best guess based on the information available. If you can't make a good guess, classify it as Other.
 """
 
     response = client.chat.completions.create(
@@ -86,67 +80,46 @@ Even if the type of business is not immediately clear from the name, it is essen
             },
             {
                 "role": "user",
-                "content": "Intercontinental Hotel\nPizza Hut\nCheers\nWelsh's Family Restaurant\nKTLA\nDirect Mailing",
+                "content": "Intercontinental Hotel",
             },
             {
                 "role": "assistant",
-                "content": '{"answers": ["Hotel", "Restaurant", "Bar", "Restaurant", "Other", "Other"]}',
+                "content": '{"answer": "Hotel"}',
             },
             {
                 "role": "user",
-                "content": "Subway Sandwiches\nRuth Chris Steakhouse\nPolitical Consulting Co\nThe Lamb's Club",
+                "content": "Pizza Hut",
             },
             {
                 "role": "assistant",
-                "content": '{"answers": ["Restaurant", "Restaurant", "Other", "Bar"]}',
+                "content": '{"answer": "Restaurant"}',
             },
             {
                 "role": "user",
-                "content": "\n".join(name_list),
+                "content": name,
             },
         ],
         model="meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
         response_format={
             "type": "json_schema",
             "json_schema": {
-                "name": "PayeeList",
-                "schema": PayeeList.model_json_schema()
+                "name": "Payee",
+                "schema": Payee.model_json_schema()
             }
         },
         temperature=0,
     )
 
-    result = PayeeList.model_validate_json(response.choices[0].message.content)
-    assert len(result.answers) == len(name_list), \
-        f"Expected {len(name_list)} answers but got {len(result.answers)}"
-    return pd.DataFrame({"payee": name_list, "category": result.answers})
+    result = Payee.model_validate_json(response.choices[0].message.content)
+    return result.answer
 ```
 
-Pull out a random sample of payees as a list.
+Try it with a single payee.
 
 ```python
-sample_list = df.sample(10).payee
-```
-
-See how it does.
-
-```python
-classify_payees(sample_list)
+classify_payee("HYATT REGENCY SAN FRANCISCO")
 ```
 
 ```{code-block} text
-|    | payee                                           | category   |
-|---:|:------------------------------------------------|:-----------|
-|  0 | ARCLIGHT CINEMAS                                | Other      |
-|  1 | 99 CENTS ONLY                                   | Other      |
-|  2 | COMMONWEALTH COMMUNICATIONS                     | Other      |
-|  3 | CHILBO MYUNOK                                   | Other      |
-|  4 | ADAM SCHIFF FOR SENATE                          | Other      |
-|  5 | CENTER FOR CREATIVE FUNDING                     | Other      |
-|  6 | JOE SHAW FOR HUNTINGTON BEACH CITY COUNCIL 2014 | Other      |
-|  7 | MULVANEY'S BUILDING & LOAN                      | Other      |
-|  8 | ATV VIDEO CENTER                                | Other      |
-|  9 | HYATT REGENCY SAN FRANCISCO                     | Hotel      |
+'Hotel'
 ```
-
-You'll see that our classifier works with only a single API call. The same technique will work for a batch of any size. Due to LLMs' tendency to lose attention and engage in strange loops as answers get longer, start off with smaller batches, but you can experiment with what works best for your use case and see if you can push it further.
