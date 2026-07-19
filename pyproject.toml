@@ -13,7 +13,7 @@ dependencies = [
     "sphinx-autobuild",
     "sphinx-copybutton",
     "myst-parser",
-    "sphinx-palewire-theme",
+    "sphinx-palewire-theme==0.1.3",
     # Tutorial dependencies
     "bln",
     "jupyterlab",
