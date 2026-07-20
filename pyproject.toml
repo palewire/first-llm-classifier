@@ -4,17 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "first-llm-classifier"
-description = "Learn how journalists use large-language models to organize and analyze massive datasets"
 version = "1.0.0"
+description = "Learn how journalists use large-language models to organize and analyze massive datasets"
+readme = "README.md"
 requires-python = "==3.13.*"
+license = "MIT"
 dependencies = [
-    # Docs stuff
-    "sphinx",
-    "sphinx-autobuild",
-    "sphinx-copybutton",
-    "myst-parser",
-    "sphinx-palewire-theme",
-    # Tutorial dependencies
     "bln",
     "jupyterlab",
     "pandas",
@@ -24,7 +19,19 @@ dependencies = [
     "scikit-learn",
     "stamina",
     "tqdm",
-    # Dev stuff
+    "sphinx",
+    "sphinx-autobuild",
+    "sphinx-copybutton",
+    "myst-parser",
+    "sphinx-palewire-theme",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+]
+
+[dependency-groups]
+dev = [
     "pre-commit",
     "ipykernel",
     "ipywidgets",
@@ -32,9 +39,8 @@ dependencies = [
     "pytest",
 ]
 
-[project.scripts]
-download = "download:main"
-
 [tool.setuptools]
-packages = ["docs"]
-py-modules = ["download"]
+packages = []
+py-modules = [
+    "download",
+]
